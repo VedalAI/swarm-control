@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Spawn Ermfish",
+    "image": "Erm.png",
+    "bits": 100
+  },
+  {
+    "id": 2,
+    "name": "Spawn Anneel",
+    "image": "fish.png",
+    "bits": 200
+  },
+  {
+    "id": 3,
+    "name": "Kill Vedal",
+    "image": "turttle.png",
+    "bits": 300
+  }
+]

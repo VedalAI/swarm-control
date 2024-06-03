@@ -5,7 +5,8 @@
 }
 
 body {
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+        "Lucida Sans", Arial, sans-serif;
     background-color: #111;
     /* max-width: 318px;
     max-height: 396px; */
@@ -16,21 +17,27 @@ h1 {
     text-align: center;
 }
 
-.row {
-    width: 100%;
-    max-width: 1000px;
-    display: flex;
-    justify-content: space-evenly;
-    margin: 0 auto;
+#buttons {
+    width: calc(100% - 20px);
+    /* 20px is the margin left + right */
+    margin: 0 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-gap: 10px;
 }
 
-.row .elem {
+#modal-image {
+    width: 20%;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.elem {
     background-color: purple;
     color: #eee;
     border-radius: 5px;
     width: 100%;
     text-align: center;
-    margin: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -42,8 +49,8 @@ h1 {
     user-select: none;
 }
 
-.row .elem:hover {
-    background-color:rgb(171, 22, 171);
+.elem:hover {
+    background-color: rgb(171, 22, 171);
 }
 
 .elem img {
@@ -147,7 +154,7 @@ button:hover {
     background-color: purple;
 }
 
-@media screen and (min-width: 600px){
+@media screen and (min-width: 600px) {
     .row .elem {
         font-size: 1.5rem;
         min-height: 200px;
