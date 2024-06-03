@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subnautica Swarm Control</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main>
+        <h1>Subnautica: Swarm Control&trade;</h1>
+
+        <div class="modal" id="onboarding">
+            <div class="content">
+                <h2>Welcome to Subnautica: Swarm Control&trade;</h2>
+                
+                <p>Please authenticate with Twitch.</p>
+                <div class="buttons">
+                    <button onclick="authenticate()" class="twitch">Authenticate</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="confirm" style="display: none">
+            <div class="content">
+                <h2>Spawn Ermfish</h2>
+                <div class="price">
+                    <img src="img/bits.png">
+                    <p>100</p>
+                </div>
+                <p>Are you sure?</p>
+                <div class="buttons">
+                    <button onclick="yes()" class="confirm">Yes</button>
+                    <button onclick="no()" class="cancel">No</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="elem" onclick="ermfish()">
+                <img src="img/fish.png">
+                <p>Spawn Ermfish</p>
+            </div>
+            <div class="elem">
+                <img src="img/Erm.png">
+                <p>Spawn Anneel</p>
+            </div>
+            <div class="elem">
+                <img src="img/turttle.png" style="transform: rotate(180deg)">
+                <p>Kill Vedal</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="elem">
+                <p>Test1</p>
+            </div>
+            <div class="elem">
+                <p>Test2</p>
+            </div>
+            <div class="elem">
+                <p>Test3</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="elem">
+                <p>Test1</p>
+            </div>
+            <div class="elem">
+                <p>Test2</p>
+            </div>
+            <div class="elem">
+                <p>Test3</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
