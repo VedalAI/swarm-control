@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+
+    <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+</head>
+<body>
+<main>
+    <h1>Subnautica: Swarm Control&trade; <%= htmlWebpackPlugin.options.title %></h1>
+
+    <div class="modal" id="onboarding">
+        <div class="content">
+            <h2>Welcome to Subnautica: Swarm Control&trade;</h2>
+
+            <p>Please authenticate with Twitch.</p>
+            <div class="buttons">
+                <button id="twitch-login" class="twitch">Authenticate</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-confirm" style="display: none">
+        <div class="content">
+            <img id="modal-image" src="">
+            <h2 id="modal-title"></h2>
+            <div class="price">
+                <img src="../img/bits.png">
+                <p id="modal-bits">100</p>
+            </div>
+            <p id="modal-description"></p>
+            <p>Are you sure?</p>
+            <div class="buttons">
+                <button id="modal-yes" class="confirm">Yes</button>
+                <button id="modal-no" class="cancel">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="buttons"></div>
+</main>
+</body>
+</html>
