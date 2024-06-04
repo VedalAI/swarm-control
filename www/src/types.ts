@@ -9,4 +9,10 @@ export type Redeem = {
     image: string;
     price: number;
     sku: string;
+};
+
+export type Cart = {
+    id: string;
+    sku: string;
+    args: {[key: string]: string};
 }

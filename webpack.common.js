@@ -3,8 +3,8 @@ const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-const htmlFile = "./src/index.html";
-const tsFile = "./src/index.ts";
+const htmlFile = "./www/html/index.html";
+const tsFile = "./www/src/index.ts";
 
 module.exports = {
     entry: tsFile,
