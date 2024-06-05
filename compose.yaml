@@ -1,0 +1,14 @@
+services:
+  ebs:
+    build: ebs
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+
+  frontend:
+    build: frontend
+    restart: unless-stopped
+    depends_on:
+      - ebs
+    ports:
+      - 8080:8080
