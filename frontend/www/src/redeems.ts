@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function getRedeems() {
-    const response = await ebsFetch("redeems");
+    const response = await ebsFetch("/public/redeems");
     const data = await response.json();
     return data as Redeem[];
 }

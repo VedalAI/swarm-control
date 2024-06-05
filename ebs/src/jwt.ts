@@ -16,12 +16,12 @@ export function verifyJWT(token: string): boolean {
 export function parseJWT(token: string) {
     if (memo[token]) return memo[token];
 
-    const result = jwt.verify(token, getBuffer());
+    const result = jwt.verify(token, getJwtSecretBuffer());
     memo[token] = result;
     return result;
 }
 
-function getBuffer() {
+function getJwtSecretBuffer() {
     if (cachedBuffer) return cachedBuffer;
     return cachedBuffer = Buffer.from(process.env.JWT_SECRET!, "base64");
 }

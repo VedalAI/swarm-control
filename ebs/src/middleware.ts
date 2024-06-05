@@ -2,8 +2,10 @@ import {Request, Response, NextFunction} from "express";
 import {parseJWT, verifyJWT} from "./jwt";
 import {AuthorizationPayload} from "./types";
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     const auth = req.header("Authorization");
+    console.log(auth);
+
     if (!auth || !auth.startsWith("Bearer ")) {
         res.status(401).send("Missing or malformed session token");
         return;
@@ -16,6 +18,15 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     }
 
     req.twitchAuthorization = parseJWT(token) as AuthorizationPayload;
+
+    next();
+}
+
+export function privateApiAuth(req: Request, res: Response, next: NextFunction) {
+    const auth = req.header("Authorization");
+    if (auth != "Bearer " + process.env.PRIVATE_API_KEY) {
+        res.status(401).send("Invalid private API key... Why are you here? Please leave.");
+    }
 
     next();
 }
