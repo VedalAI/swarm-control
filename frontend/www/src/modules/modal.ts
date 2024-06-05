@@ -1,4 +1,6 @@
-import {Cart} from "./types";
+import {Cart} from "../types";
+import {ebsFetch} from "../ebs";
+import {getConfigVersion, getRedeems} from "./redeems";
 
 const $modal = document.getElementById("modal-confirm")!;
 const $modalTitle = document.getElementById("modal-title")!;
@@ -29,8 +31,30 @@ function closeModal() {
     cart = undefined;
 }
 
-function confirmPurchase() {
+async function confirmPurchase() {
+    if (!await confirmVersion()) {
+        const element = document.createElement('div');
+        element.innerHTML = `CANNOT MAKE TRANSACTION: CONFIG VERSION MISMATCH!`;
+        element.style.color = "gold";
+        document.body.appendChild(element);
+        // TODO: show some kind of error, and then refresh the buttons
+        $modal.style.display = "none";
+        return;
+    }
     // TODO: Update cart args
     Twitch.ext.bits.useBits(cart!.sku)
-    $modal.style.display = "none";
+}
+
+async function confirmVersion() {
+    const response = await ebsFetch("/public/confirm_transaction", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            version: await getConfigVersion()
+        } satisfies {version: number}),
+    });
+
+    return response.ok;
 }

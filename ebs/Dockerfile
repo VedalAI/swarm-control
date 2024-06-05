@@ -1,12 +1,12 @@
 FROM node:20-alpine
 
-WORKDIR /app
+WORKDIR /ebs
 
-COPY package.json /app
+COPY package.json /ebs
 
 RUN npm install
 
-COPY . /app
+COPY . /ebs
 
 EXPOSE 3000
 

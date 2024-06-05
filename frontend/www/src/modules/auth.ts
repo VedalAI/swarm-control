@@ -1,6 +1,9 @@
-import {ebsFetch} from "./ebs";
+import {ebsFetch} from "../ebs";
 import {cart} from "./modal";
+import {getConfigVersion} from "./redeems";
+import {Transaction} from "../common-types";
 
+const $modal = document.getElementById("modal-confirm")!;
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
 
@@ -15,15 +18,18 @@ Twitch.ext.onAuthorized(() => {
 });
 
 Twitch.ext.bits.onTransactionComplete(async transaction => {
-    const result = await ebsFetch("/transaction", {
+    $modal.style.display = "none";
+
+    const result = await ebsFetch("/public/transaction", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            ...cart,
-            "receipt": transaction.transactionReceipt,
-        }),
+        ...cart!,
+            receipt: transaction.transactionReceipt,
+            version: await getConfigVersion(),
+        } satisfies Transaction),
     });
 
     // TODO: make this look nice \/

@@ -1,4 +1,4 @@
 import "../css/style.css";
-import "./auth";
-import "./modal";
-import "./redeems";
+import "./modules/auth";
+import "./modules/modal";
+import "./modules/redeems";

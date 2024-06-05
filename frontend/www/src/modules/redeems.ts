@@ -1,21 +1,41 @@
-import {Redeem} from "./types";
 import {openModal} from "./modal";
-import {ebsFetch} from "./ebs";
+import {ebsFetch} from "../ebs";
+import {Config} from "../common-types";
 
 const $redeemContainer = document.getElementById("buttons")!;
+
+let config: Config;
+
+async function fetchConfig() {
+    const response = await ebsFetch("/public/config");
+    const data = await response.json();
+
+    return data as Config;
+}
+
+export async function getConfigVersion(): Promise<number> {
+    if (!config) {
+        config = await fetchConfig();
+    }
+
+    return config.version;
+}
+
+export async function getRedeems() {
+    if (!config) {
+        config = await fetchConfig();
+    }
+
+    return config.redeems;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     populateButtons().then();
 });
 
-async function getRedeems() {
-    const response = await ebsFetch("/public/redeems");
-    const data = await response.json();
-    return data as Redeem[];
-}
-
 async function populateButtons() {
     const redeems = await getRedeems();
+
     for (const redeem of redeems) {
         const elem = document.createElement("div");
         elem.className = "elem";

@@ -1,19 +1,3 @@
-export type Redeem = {
-    id: string;
-    title: string;
-    description: string;
-    image: string;
-    price: number;
-    sku: string;
-};
-
-export type Transaction = {
-    receipt: string,
-    id: string;
-    sku: string;
-    args: {[key: string]: string};
-}
-
 export type AuthorizationPayload = {
     exp: number;
     opaque_user_id: string;

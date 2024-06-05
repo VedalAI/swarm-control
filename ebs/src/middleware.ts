@@ -4,7 +4,6 @@ import {AuthorizationPayload} from "./types";
 
 export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     const auth = req.header("Authorization");
-    console.log(auth);
 
     if (!auth || !auth.startsWith("Bearer ")) {
         res.status(401).send("Missing or malformed session token");
