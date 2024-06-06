@@ -1,9 +1,9 @@
 #items {
     /* 20px is the margin left + right */
     width: calc(100% - 20px);
-    margin: 0 10px;
+    margin: 10px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
     grid-gap: 10px;
 }
 
@@ -23,17 +23,22 @@
 }
 
 .redeemable-item {
+    position: relative;
+
     padding: 10px;
 
-    background-color: rgba(var(--primary-color), .8);
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    background: #333;
     color: #eee;
 
     border-radius: 10px;
+    border: 1px solid #ffffff1A;
 
     text-align: center;
 
     display: flex;
-    justify-content: center;
     align-items: center;
     flex-direction: column;
 
@@ -46,14 +51,16 @@
 
     -webkit-user-select: none;
     user-select: none;
+
+    overflow: hidden;
 }
 
 .redeemable-item:hover {
-    background-color: rgba(var(--primary-color), 0.5);
+    background: rgba(var(--primary-color), 0.5);
 }
 
 .redeemable-item:active {
-    background-color: rgba(var(--primary-color), 1);
+    background-color: rgba(var(--primary-color), 0.75);
 }
 
 .redeemable-item:focus {
@@ -61,10 +68,55 @@
 }
 
 .redeemable-item img {
-    width: 128px;
-    height: 128px;
+    width: 85px;
+    height: 85px;
 
     object-fit: contain;
 
     border-radius: 10px;
+}
+
+.redeemable-item-descriptor {
+    position: absolute;
+
+    padding: 10px;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
+
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+
+.redeemable-item-title {
+    font-size: 1.15rem;
+    font-weight: bold;
+    text-align: left;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+
+    overflow: hidden;
+}
+
+.redeemable-item-price-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+    gap: 6px;
+}
+
+.redeemable-item-price-wrapper>img {
+    width: 20px;
+    height: 20px;
+
+    object-fit: contain;
 }
