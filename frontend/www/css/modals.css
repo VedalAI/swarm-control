@@ -143,6 +143,11 @@
     color: rgb(var(--danger-color));
 }
 
+.modal-success-x {
+    font-size: 5rem;
+    color: rgb(var(--success-color));
+}
+
 @media screen and (max-width: 600px) {
     .modal-wrapper {
         align-items: flex-end;
