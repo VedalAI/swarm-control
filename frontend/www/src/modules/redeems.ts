@@ -34,9 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export async function renderRedeemButtons(rerender = false) {
-    // TEMP
-    Twitch.ext.bits.setUseLoopback(true);
-
     $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
 
     const redeems = await getRedeems(rerender);
