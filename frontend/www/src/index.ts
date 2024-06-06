@@ -1,6 +1,6 @@
-import "../css/style.css";
 import "../css/base.css";
 import "../css/config.css";
+import "../css/onboarding.css";
 import "../css/buttons.css";
 import "../css/spinner.css";
 import "../css/redeems.css";
