@@ -3,7 +3,7 @@
     width: calc(100% - 20px);
     margin: 10px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     grid-gap: 10px;
 }
 
@@ -68,8 +68,8 @@
 }
 
 .redeemable-item img {
-    width: 85px;
-    height: 85px;
+    width: 75%;
+    height: 75%;
 
     object-fit: contain;
 

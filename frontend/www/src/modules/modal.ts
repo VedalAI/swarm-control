@@ -51,7 +51,7 @@ export function openModal(redeem: Redeem) {
     hideProcessingModal();
     hideErrorModal();
 
-    if (redeem.toggle || redeem.textbox || redeem.dropdown) $modalOptions.style.display = "block";
+    if (redeem.toggle || redeem.textbox || redeem.dropdown) $modalOptions.style.display = "flex";
     else $modalOptions.style.display = "none";
 
     if (redeem.toggle) {

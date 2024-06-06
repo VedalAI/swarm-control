@@ -64,35 +64,24 @@
     width: 100%;
 }
 
+#modal-options {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .modal-section {
     font-size: 1rem;
     font-weight: bold;
     color: #ffffff80;
-}
-
-.modal-descriptors>details {
-    width: 100%;
-}
-
-.modal-descriptors>details>summary {
-    position: relative;
-
-    transform: scaleX(-1);
 
     width: 100%;
 
     padding-bottom: 4px;
 
     border-bottom: 1px solid #ffffff1A;
-}
-
-.modal-descriptors>details>summary>* {
-    position: absolute;
-    display: inline-block;
-
-    right: 0;
-
-    transform: scaleX(-1);
 }
 
 .modal-buttons {
