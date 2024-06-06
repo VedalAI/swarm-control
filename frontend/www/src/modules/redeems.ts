@@ -2,7 +2,7 @@ import { Config } from "common/types";
 import { ebsFetch } from "../ebs";
 import { openModal } from "./modal";
 
-const $redeemContainer = document.getElementById("buttons")!;
+const $redeemContainer = document.getElementById("items")!;
 
 let config: Config;
 
@@ -21,8 +21,8 @@ export async function getConfigVersion(): Promise<number> {
     return config.version;
 }
 
-export async function getRedeems() {
-    if (!config) {
+export async function getRedeems(refreshConfig = false) {
+    if (!config || refreshConfig) {
         config = await fetchConfig();
     }
 
@@ -30,15 +30,19 @@ export async function getRedeems() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    populateButtons().then();
+    renderRedeemButtons().then();
 });
 
-async function populateButtons() {
-    const redeems = await getRedeems();
+export async function renderRedeemButtons(rerender = false) {
+    $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
+
+    const redeems = await getRedeems(rerender);
+
+    $redeemContainer.innerHTML = "";
 
     for (const redeem of redeems) {
         const elem = document.createElement("div");
-        elem.className = "elem";
+        elem.className = "redeemable-item";
         elem.onclick = () => openModal(redeem);
 
         const img = document.createElement("img");

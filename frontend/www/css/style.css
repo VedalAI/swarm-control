@@ -27,12 +27,6 @@ h1 {
     height: 100vh;
 }
 
-#modal-image {
-    width: 20%;
-    object-fit: contain;
-    border-radius: 10px;
-}
-
 .elem {
     background-color: purple;
     color: #eee;
@@ -51,7 +45,7 @@ h1 {
 }
 
 .elem:hover {
-    background-color:rgb(171, 22, 171);
+    background-color: rgb(171, 22, 171);
 }
 
 .elem img {
@@ -95,7 +89,7 @@ select {
     color: #eee;
 }
 
-.modal {
+/* .modal {
     z-index: 1000;
     position: fixed;
     top: 0;
@@ -109,7 +103,7 @@ select {
     justify-content: center;
     transition: all;
     transition-duration: 0.2s;
-}
+} */
 
 .modal .content {
     background-color: #111;
@@ -128,7 +122,7 @@ select {
     text-align: center;
 }
 
-button {
+/* button {
     background-color: #333;
     border-style: none;
     border-radius: 5px;
@@ -146,9 +140,9 @@ button {
 
 button:hover {
     border-style: solid;
-}
+} */
 
-.price {
+/* .price {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -171,9 +165,9 @@ button:hover {
 
 .twitch {
     background-color: purple;
-}
+} */
 
-@media screen and (min-width: 600px){
+@media screen and (min-width: 600px) {
     .row .elem {
         font-size: 1.5rem;
         min-height: 200px;
