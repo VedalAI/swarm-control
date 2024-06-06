@@ -13,19 +13,15 @@
 
 <body>
     <main>
-        <div class="modal" id="onboarding">
-            <div class="content">
-                <h2>Welcome to Subnautica: Swarm Control&trade;</h2>
+        <div class="onboarding" id="onboarding">
+            <h2>Welcome to Subnautica: Swarm Control&trade;</h2>
 
-                <p>Please authenticate with Twitch.</p>
-                <div class="buttons">
-                    <button id="twitch-login" class="button btn-primary">Authenticate</button>
-                </div>
-            </div>
+            <p>Please authenticate with Twitch in order to continue.</p>
+            <button id="twitch-login" class="button btn-primary">Authenticate</button>
         </div>
 
         <!-- Purchase modal -->
-        <div class="modal-wrapper" id="modal-confirm" style="display: none">
+        <div class="modal-wrapper" id="modal-confirm" style="opacity: 0; pointer-events: none;">
             <div class="modal">
                 <img id="modal-image" class="modal-image" src="">
                 <div class="modal-descriptors">
@@ -34,15 +30,13 @@
                     <p id="modal-description"></p>
 
                     <!-- Checkbox, input and dropdown options -->
-                    <details id="modal-options">
-                        <summary>
-                            <h5 class="modal-section">
-                                Options
-                            </h5>
-                        </summary>
+                    <div id="modal-options">
+                        <h5 class="modal-section">
+                            Options
+                        </h5>
 
                         <div id="modal-options-container"></div>
-                    </details>
+                    </div>
 
                     <!-- Buy and cancel buttons -->
                     <div class="modal-buttons">
@@ -55,13 +49,13 @@
                 </div>
 
                 <!-- Modal processing overlay -->
-                <div class="modal-overlay" id="modal-processing" style="display: none">
+                <div class="modal-overlay" id="modal-processing" style="opacity: 0; pointer-events: none;">
                     <div class="spinner"></div>
                     <p>Processing your request...</p>
                 </div>
 
                 <!-- Modal error overlay -->
-                <div class="modal-overlay" id="modal-error" style="display: none">
+                <div class="modal-overlay" id="modal-error" style="opacity: 0; pointer-events: none;">
                     <p class="modal-error-x">&#x2715;</p>
                     <div class="modal-descriptors">
                         <h2>Purchase failed, please try again.</h2>
@@ -70,6 +64,20 @@
                         <!-- Close button -->
                         <div class="modal-buttons">
                             <button id="modal-error-close" class="button btn-danger">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal success overlay -->
+                <div class="modal-overlay" id="modal-success" style="opacity: 0; pointer-events: none;">
+                    <p class="modal-success-x">&#x2714;</p>
+                    <div class="modal-descriptors">
+                        <h2 id="modal-success-title"></h2>
+                        <p id="modal-success-description"></p>
+
+                        <!-- Close button -->
+                        <div class="modal-buttons">
+                            <button id="modal-success-close" class="button btn-danger">Close</button>
                         </div>
                     </div>
                 </div>
@@ -96,8 +104,8 @@
         </div>
 
         <div id="modal-number">
-            <label for="modal-text-input" id="modal-text-label">Enter text</label>
-            <input id="modal-text-input" type="text" placeholder="Enter text here">
+            <label for="modal-number-input" id="modal-number-label">Enter number</label>
+            <input id="modal-number-input" type="text" placeholder="Enter number here">
         </div>
 
         <div id="modal-toggle">

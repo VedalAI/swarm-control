@@ -2,7 +2,8 @@ import {Cart, Parameter, Redeem} from "common/types";
 import { ebsFetch } from "../ebs";
 import {getConfig} from "../config";
 
-const $modal = document.getElementById("modal-confirm")!;
+const $modalWrapper = document.getElementById("modal-confirm")!;
+const $modal = document.getElementById("modal-confirm")!.getElementsByClassName("modal")[0]!;
 const $modalTitle = document.getElementById("modal-title")!;
 const $modalDescription = document.getElementById("modal-description")!;
 const $modalImage = document.getElementById("modal-image")! as HTMLImageElement;
@@ -46,7 +47,13 @@ const $modalError = document.getElementById("modal-error")!;
 const $modalErrorDescription = document.getElementById("modal-error-description")!;
 const $modalErrorClose = document.getElementById("modal-error-close")!;
 
+const $modalSuccess = document.getElementById("modal-success")!;
+const $modalSuccessTitle = document.getElementById("modal-success-title")!;
+const $modalSuccessDescription = document.getElementById("modal-success-description")!;
+const $modalSuccessClose = document.getElementById("modal-success-close")!;
+
 export let cart: Cart | undefined;
+let processingTimeout: number | undefined;
 
 document.addEventListener("DOMContentLoaded", () => {
     $modalYes.onclick = confirmPurchase;
@@ -56,11 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
 export function openModal(redeem: Redeem) {
     cart = { sku: redeem.sku, id: redeem.id, args: {} };
 
-    $modal.style.display = "flex";
+    $modalWrapper.style.opacity = "1";
+    $modalWrapper.style.pointerEvents = "unset";
     $modalTitle.textContent = redeem.title;
     $modalDescription.textContent = redeem.description;
     $modalPrice.textContent = redeem.price.toString();
     $modalImage.src = redeem.image;
+
+    setTimeout(() => $modal.classList.add("active-modal"), 10);
 
     hideProcessingModal();
     hideErrorModal();
@@ -74,26 +84,57 @@ export function openModal(redeem: Redeem) {
 }
 
 export function showProcessingModal() {
-    $modalProcessing.style.display = "flex";
+    $modalProcessing.style.opacity = "1";
+    $modalProcessing.style.pointerEvents = "unset";
+    if (processingTimeout) clearTimeout(processingTimeout);
+
+    processingTimeout = +setTimeout(() => {
+        setTimeout(() => hideProcessingModal(), 250);
+        showErrorModal("Transaction timed out. Please try again.");
+    }, 30 * 1000);
 }
 
 export function showErrorModal(description: string) {
-    $modalError.style.display = "flex";
+    $modalError.style.opacity = "1";
+    $modalError.style.pointerEvents = "unset";
     $modalErrorDescription.textContent = description;
     $modalErrorClose.onclick = () => hideErrorModal(true);
 }
 
+export function showSuccessModal(title: string, description: string, onClose?: () => void) {
+    $modalSuccess.style.opacity = "1";
+    $modalSuccess.style.pointerEvents = "unset";
+    $modalSuccessTitle.textContent = title;
+    $modalSuccessDescription.textContent = description;
+    $modalSuccessClose.onclick = () => { hideSuccessModal(true); onClose?.(); };
+}
+
 function closeModal() {
-    $modal.style.display = "none";
     cart = undefined;
+
+    $modal.classList.remove("active-modal");
+
+    setTimeout(() => {
+        $modalWrapper.style.opacity = "0";
+        $modalWrapper.style.pointerEvents = "none";
+    }, 250);
 }
 
 export function hideProcessingModal() {
-    $modalProcessing.style.display = "none";
+    $modalProcessing.style.opacity = "0";
+    $modalProcessing.style.pointerEvents = "none";
+    if (processingTimeout) clearTimeout(processingTimeout);
 }
 
 function hideErrorModal(closeMainModal = false) {
-    $modalError.style.display = "none";
+    $modalError.style.opacity = "0";
+    $modalError.style.pointerEvents = "none";
+    if (closeMainModal) closeModal();
+}
+
+function hideSuccessModal(closeMainModal = false) {
+    $modalSuccess.style.opacity = "0";
+    $modalSuccess.style.pointerEvents = "none";
     if (closeMainModal) closeModal();
 }
 

@@ -18,24 +18,36 @@ export async function renderRedeemButtons() {
     for (const redeem of redeems) {
         if (redeem.hidden) continue;
 
-        // TODO (frontend): if redeem is disabled, grey it out and prevent click 🙂
-
-        const elem = document.createElement("div");
-        elem.className = "redeemable-item";
-        elem.onclick = () => openModal(redeem);
+        const item = document.createElement("div");
+        item.className = "redeemable-item";
+        item.onclick = () => openModal(redeem);
 
         const img = document.createElement("img");
         img.src = redeem.image;
-        elem.appendChild(img);
+        item.appendChild(img);
 
-        const name = document.createElement("p");
-        name.textContent = redeem.title;
-        elem.appendChild(name);
+        const redeemableDescriptor = document.createElement("div");
+        redeemableDescriptor.className = "redeemable-item-descriptor";
+        item.appendChild(redeemableDescriptor);
+
+        const priceWrapper = document.createElement("div");
+        priceWrapper.className = "redeemable-item-price-wrapper";
+        redeemableDescriptor.appendChild(priceWrapper);
+
+        const bitsImage = document.createElement("img");
+        bitsImage.src = "../img/bits.png";
+        priceWrapper.appendChild(bitsImage);
 
         const price = document.createElement("p");
+        price.className = "redeemable-item-price";
         price.textContent = redeem.price.toString();
-        elem.appendChild(price);
+        priceWrapper.appendChild(price);
 
-        $redeemContainer.appendChild(elem);
+        const name = document.createElement("p");
+        name.className = "redeemable-item-title";
+        name.textContent = redeem.title;
+        redeemableDescriptor.appendChild(name);
+
+        $redeemContainer.appendChild(item);
     }
 }
