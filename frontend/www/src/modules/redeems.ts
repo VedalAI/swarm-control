@@ -1,6 +1,7 @@
 import { openModal } from "./modal";
 import { getConfig } from "../config";
 
+const $mainContainer = document.getElementsByTagName("main")!;
 const $redeemContainer = document.getElementById("items")!;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,6 +15,13 @@ export async function renderRedeemButtons() {
     const redeems = config.redeems;
 
     $redeemContainer.innerHTML = "";
+
+    if (config.message)
+        $mainContainer[0].insertAdjacentHTML("afterbegin", `<div class="alert">${config.message}</div>`);
+    else {
+        const alerts = document.getElementsByClassName("alert");
+        while (alerts.length > 0) alerts[0].remove();
+    }
 
     if (redeems?.length === 0) $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
 
