@@ -1,4 +1,4 @@
-import {Cart, Redeem} from "common/types";
+import {Cart, Parameter, Redeem} from "common/types";
 import { ebsFetch } from "../ebs";
 import {getConfig} from "../config";
 
@@ -7,18 +7,38 @@ const $modalTitle = document.getElementById("modal-title")!;
 const $modalDescription = document.getElementById("modal-description")!;
 const $modalImage = document.getElementById("modal-image")! as HTMLImageElement;
 const $modalOptions = document.getElementById("modal-options")!;
-const $modalToggle = document.getElementById("modal-toggle")!;
-const $modalToggleLabel = document.getElementById("modal-toggle-label")!;
-const $modalToggleInput = document.getElementById("modal-toggle-input")! as HTMLInputElement;
-const $modalText = document.getElementById("modal-text")!;
-const $modalTextLabel = document.getElementById("modal-text-label")!;
-const $modalTextInput = document.getElementById("modal-text-input")! as HTMLInputElement;
-const $modalDropdown = document.getElementById("modal-dropdown")!;
-const $modalDropdownLabel = document.getElementById("modal-dropdown-label")!;
-const $modalDropdownInput = document.getElementById("modal-dropdown-input")! as HTMLSelectElement;
+const $modalOptionsContainer = document.getElementById("modal-options-container")!;
 const $modalPrice = document.getElementById("modal-bits")!;
 const $modalYes = document.getElementById("modal-yes")!;
 const $modalNo = document.getElementById("modal-no")!;
+
+const $paramToggle = document.getElementById("modal-toggle")!;
+const $paramText = document.getElementById("modal-text")!;
+const $paramNumber = document.getElementById("modal-number")!;
+const $paramDropdown = document.getElementById("modal-dropdown")!;
+
+const $paramTemplates = {
+    text: {
+        div: $paramText,
+        label: $paramText.querySelector("label"),
+        input: $paramText.querySelector("input")
+    },
+    number: {
+        div: $paramNumber,
+        label: $paramNumber.querySelector("label"),
+        input: $paramNumber.querySelector("input")
+    },
+    dropdown: {
+        div: $paramDropdown,
+        label: $paramDropdown.querySelector("label"),
+        input: $paramDropdown.querySelector("select")
+    },
+    toggle: {
+        div: $paramToggle,
+        label: $paramToggle.querySelector("label"),
+        input: $paramToggle.querySelector("input")
+    },
+};
 
 const $modalProcessing = document.getElementById("modal-processing")!;
 
@@ -45,41 +65,12 @@ export function openModal(redeem: Redeem) {
     hideProcessingModal();
     hideErrorModal();
 
-    if (redeem.toggle || redeem.textbox || redeem.dropdown) {
-        $modalOptions.style.display = "block";
-    } else {
-        $modalOptions.style.display = "none";
+    // clear
+    for (let node of Array.from($modalOptionsContainer.childNodes))
+    {
+        $modalOptionsContainer.removeChild(node);
     }
-
-    if (redeem.toggle) {
-        $modalToggle.style.display = "block";
-        $modalToggleLabel.textContent = redeem.toggle;
-    } else {
-        $modalToggle.style.display = "none";
-        $modalToggleLabel.textContent = "";
-    }
-    if (redeem.textbox) {
-        $modalText.style.display = "block";
-        $modalTextLabel.textContent = redeem.textbox;
-    } else {
-        $modalText.style.display = "none";
-        $modalTextLabel.textContent = "";
-    }
-    if (redeem.dropdown) {
-        $modalDropdown.style.display = "block";
-        $modalDropdownLabel.textContent = redeem.dropdown[0];
-        $modalDropdownInput.innerHTML = "";
-        for (const option of redeem.dropdown.slice(1)) {
-            const element = document.createElement("option");
-            element.value = option;
-            element.textContent = option;
-            $modalDropdownInput.appendChild(element);
-        }
-    } else {
-        $modalDropdown.style.display = "none";
-        $modalDropdownLabel.textContent = "";
-        $modalDropdownInput.innerHTML = "";
-    }
+    addOptionsFields($modalOptionsContainer, redeem);
 }
 
 export function showProcessingModal() {
@@ -115,10 +106,6 @@ async function confirmPurchase() {
         return;
     }
 
-    cart!.args.text = $modalTextInput.value;
-    cart!.args.dropdown = $modalDropdownInput.value;
-    cart!.args.toggle = $modalToggleInput.checked;
-
     Twitch.ext.bits.useBits(cart!.sku)
 }
 
@@ -136,4 +123,131 @@ async function confirmVersion() {
     });
 
     return response.ok;
+}
+
+function addOptionsFields(modal: HTMLElement, redeem: Redeem)
+{
+    for (const param of redeem.args) {
+        switch (param.type) {
+            case "string":
+                addText(modal, param);
+                break;
+            case "integer":
+            case "float":
+                addNumeric(modal, param);
+                break;
+            case "boolean":
+                addCheckbox(modal, param);
+            default:
+                addDropdown(modal, param);
+        }
+    }
+}
+function addText(modal: HTMLElement, param: Parameter) {
+    const field = $paramTemplates.text.div.cloneNode(true) as HTMLSelectElement;
+    const input = field.querySelector("input")!;
+    const label = field.querySelector("label")!;
+    if (param.description) {
+        field.title = param.description;
+        input.placeholder = param.description;
+    }
+    field.id += "-"+param.name;
+    input.id += "-"+param.name;
+    input.onchange = () => cart!.args[param.name] = input.value;
+    if (typeof param.defaultValue == "string") {
+        input.value = param.defaultValue;
+    }
+    if (param.required) {
+        input.required = true;
+        cart!.args[param.name] = input.value;
+    }
+    label.htmlFor = input.id;
+    label.textContent = param.title ?? param.name;
+    modal.appendChild(field);
+}
+
+function addNumeric(modal: HTMLElement, param: Parameter) {
+    const field = $paramTemplates.number.div.cloneNode(true) as HTMLSelectElement;
+    const input = field.querySelector("input")!;
+    const label = field.querySelector("label")!;
+    input.type = "number";
+    if (param.type == "integer") {
+        input.step = "1";
+    } else if (param.type == "float") {
+        input.step = "0.01";
+    }
+    if (param.description) {
+        field.title = param.description;
+    }
+    field.id += "-"+param.name;
+    input.id += "-"+param.name;
+    input.onchange = () => cart!.args[param.name] = input.value;
+    if (typeof param.defaultValue == "number") {
+        input.value = param.defaultValue.toString();
+    }
+    if (param.required) {
+        input.required = true;
+        cart!.args[param.name] = input.value;
+    }
+    label.htmlFor = input.id;
+    label.textContent = param.title ?? param.name;
+    modal.appendChild(field);
+}
+
+function addCheckbox(modal: HTMLElement, param: Parameter) {
+    const field = $paramTemplates.toggle.div.cloneNode(true) as HTMLSelectElement;
+    const input = field.querySelector("input")!;
+    const label = field.querySelector("label")!;
+    if (param.description) {
+        field.title = param.description;
+    }
+    field.id += "-"+param.name;
+    input.id += "-"+param.name;
+    input.onchange = () => cart!.args[param.name] = input.checked;
+    if (typeof param.defaultValue == "boolean") {
+        input.checked = param.defaultValue;
+    }
+    if (param.required) {
+        input.required = true;
+        cart!.args[param.name] = input.value;
+    }
+    label.htmlFor = input.id;
+    label.textContent = param.title ?? param.name;
+    modal.appendChild(field);
+}
+
+async function addDropdown(modal: HTMLElement, param: Parameter) {
+    let options: string[] = [];
+    try {
+        options = (await getConfig()).enums.find(e => e.name == param.type)!.values;
+    } catch {
+        return; // someone's messing with the config, screw em
+    }
+    const field = $paramTemplates.dropdown.div.cloneNode(true) as HTMLSelectElement;
+    const select = field.querySelector("select")!;
+    const label = field.querySelector("label")!;
+    field.id += "-"+param.name;
+    if (param.description) {
+        field.title = param.description;
+    }
+    select.id += "-"+param.name;
+    label.htmlFor = select.id;
+    label.textContent = param.title ?? param.name;
+    for (const opt of options) {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        select.appendChild(option);
+    }
+    select.onchange = () => cart!.args[param.name] = select.value;
+    if (typeof param.defaultValue == "string") {
+        select.value = param.defaultValue;
+    } else {
+        select.value = select.options[0].value;
+    }
+    if (param.required) {
+        select.required = true;
+        cart!.args[param.name] = select.value;
+    }
+    modal.appendChild(field);
 }

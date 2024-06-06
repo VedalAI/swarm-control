@@ -1,3 +1,20 @@
+type EnumTypeName = string;
+type ParamType = "string" | "integer" | "float" | "boolean" | EnumTypeName;
+
+export type Enum = {
+  name: EnumTypeName;
+  values: string[];
+}
+
+export type Parameter = {
+  name: string;
+  title?: string;
+  description?: string;
+  type: ParamType;
+  required?: boolean;
+  defaultValue?: any;
+}
+
 export type Redeem = {
     id: string;
     title: string;
@@ -5,16 +22,13 @@ export type Redeem = {
     image: string;
     price: number;
     sku: string;
-    toggle?: string;
-    textbox?: string;
-    dropdown?: string[];
-    command: string; // "addsignal {vector3[x]} {vector3[y]} {vector3[z]} {text}"
-    disabled?: boolean;
+    args: Parameter[];
     hidden?: boolean;
 };
 
 export type Config = {
     version: number;
+    enums: Enum[];
     redeems: Redeem[];
     message?: string;
 }
@@ -22,12 +36,7 @@ export type Config = {
 export type Cart = {
     id: string;
     sku: string;
-    args: {
-        text?: string;
-        toggle?: boolean;
-        dropdown?: string;
-        // vector3: [number, number, number];
-    }
+    args: {[name: string]: any};
 }
 
 export type Transaction = {
