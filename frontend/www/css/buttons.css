@@ -1,0 +1,65 @@
+.button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    white-space: nowrap;
+    text-align: center;
+    text-wrap: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    background-color: transparent;
+    color: #fff;
+
+    border: none;
+    border-radius: 5px;
+
+    padding: 14px 24px;
+
+    cursor: pointer;
+    font-size: 1rem;
+
+    transition: all;
+    transition-duration: 0.25s;
+}
+
+.button:hover {
+    opacity: 0.8;
+}
+
+.button:active {
+    opacity: 1;
+}
+
+.button:focus {
+    outline: none;
+}
+
+.btn-primary {
+    background-color: rgb(var(--primary-color));
+    color: #fff;
+}
+
+.btn-primary:focus {
+    box-shadow: 0 0 0 4px rgba(var(--primary-color), 0.5);
+}
+
+.btn-success {
+    background-color: rgb(var(--success-color));
+    color: #fff;
+}
+
+.btn-success:focus {
+    box-shadow: 0 0 0 4px rgba(var(--success-color), 0.5);
+}
+
+.btn-danger {
+    background-color: rgb(var(--danger-color));
+    color: #fff;
+}
+
+.btn-danger:focus {
+    box-shadow: 0 0 0 4px rgba(var(--danger-color), 0.5);
+}

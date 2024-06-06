@@ -1,69 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= htmlWebpackPlugin.options.title %></title>
+    <title>
+        <%= htmlWebpackPlugin.options.title %>
+    </title>
 
     <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
 </head>
+
 <body>
-<main>
-    <div class="modal" id="onboarding">
-        <div class="content">
-            <h2>Welcome to Subnautica: Swarm Control&trade;</h2>
+    <main>
+        <div class="modal" id="onboarding">
+            <div class="content">
+                <h2>Welcome to Subnautica: Swarm Control&trade;</h2>
 
-            <p>Please authenticate with Twitch.</p>
-            <div class="buttons">
-                <button id="twitch-login" class="twitch">Authenticate</button>
+                <p>Please authenticate with Twitch.</p>
+                <div class="buttons">
+                    <button id="twitch-login" class="button btn-primary">Authenticate</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal" id="modal-confirm" style="display: none">
-        <div class="content">
-            <img id="modal-image" src="">
-            <h2 id="modal-title"></h2>
-            <div class="price">
-                <img src="../img/bits.png">
-                <p id="modal-bits">100</p>
-            </div>
-            <p id="modal-description"></p>
-            <div id="modal-toggle">
-                <label for="modal-toggle-input" id="modal-toggle-label">Enabled?</label>
-                <input id="modal-toggle-input" type="checkbox">
-            </div>
-            <div id="modal-text">
-                <label for="modal-text-input" id="modal-text-label">Enter text</label>
-                <input id="modal-text-input" type="text" placeholder="Enter text here">
-            </div>
-            <div id="modal-dropdown">
-                <label for="modal-dropdown-input" id="modal-dropdown-label">Choose one</label>
-                <select id="modal-dropdown-input">
-                    <option value="1">Option 1</option>
-                    <option value="2">Option 2</option>
-                    <option value="3">Option 3</option>
-                </select>
-            </div>
-            <p>Are you sure?</p>
-            <div class="buttons">
-                <button id="modal-yes" class="confirm">Yes</button>
-                <button id="modal-no" class="cancel">No</button>
+        <!-- Purchase modal -->
+        <div class="modal-wrapper" id="modal-confirm" style="display: none">
+            <div class="modal">
+                <img id="modal-image" class="modal-image" src="">
+                <div class="modal-descriptors">
+                    <!-- Title and description -->
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-description"></p>
+
+                    <!-- Checkbox, input and dropdown options -->
+                    <details id="modal-options">
+                        <summary>
+                            <h5 class="modal-section">
+                                Options
+                            </h5>
+                        </summary>
+
+                        <div id="modal-toggle">
+                            <label for="modal-toggle-input" id="modal-toggle-label">Enabled?</label>
+                            <input id="modal-toggle-input" type="checkbox">
+                        </div>
+
+                        <div id="modal-text">
+                            <label for="modal-text-input" id="modal-text-label">Enter text</label>
+                            <input id="modal-text-input" type="text" placeholder="Enter text here">
+                        </div>
+
+                        <div id="modal-dropdown">
+                            <label for="modal-dropdown-input" id="modal-dropdown-label">Choose one</label>
+                            <select id="modal-dropdown-input">
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                            </select>
+                        </div>
+
+                    </details>
+
+                    <!-- Buy and cancel buttons -->
+                    <div class="modal-buttons">
+                        <button id="modal-yes" class="button btn-success">
+                            Buy for <img src="../img/bits.png" class="bits-image">
+                            <p id="modal-bits">unknown</p>
+                        </button>
+                        <button id="modal-no" class="button btn-danger">Cancel</button>
+                    </div>
+                </div>
+
+                <!-- Modal processing overlay -->
+                <div class="modal-overlay" id="modal-processing" style="display: none">
+                    <div class="spinner"></div>
+                    <p>Processing your request...</p>
+                </div>
+
+                <!-- Modal error overlay -->
+                <div class="modal-overlay" id="modal-error" style="display: none">
+                    <p class="modal-error-x">&#x2715;</p>
+                    <div class="modal-descriptors">
+                        <h2>Purchase failed, please try again.</h2>
+                        <p id="modal-error-description"></p>
+
+                        <!-- Close button -->
+                        <div class="modal-buttons">
+                            <button id="modal-error-close" class="button btn-danger">Close</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal" id="modal-error" style="display: none">
-        <div class="content">
-            <h2 id="modal-error-title">Error</h2>
-            <p id="modal-error-description"></p>
-            <div class="buttons">
-                <button id="modal-ok">Ok</button>
+        <div class="modal" id="modal-error" style="display: none">
+            <div class="content">
+                <h2 id="modal-error-title">Error</h2>
+                <p id="modal-error-description"></p>
+                <div class="buttons">
+                    <button id="modal-ok">Ok</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="buttons"></div>
-</main>
+        <div id="items">
+            <div class="redeems-content-spinner">
+                <div class="spinner"></div>
+                <p>Loading content...</p>
+            </div>
+        </div>
+    </main>
 </body>
+
 </html>

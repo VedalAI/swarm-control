@@ -1,8 +1,8 @@
-import {BitsTransactionPayload} from "../types";
-import {parseJWT, verifyJWT} from "../jwt";
-import {app} from "../index";
-import {getConfig, getPreviousConfig} from "./config";
-import {Transaction} from "../common-types";
+import { BitsTransactionPayload } from "../types";
+import { parseJWT, verifyJWT } from "../jwt";
+import { app } from "../index";
+import { getConfig, getPreviousConfig } from "./config";
+import { Transaction } from "../common-types";
 
 const transactions: string[] = [];
 
