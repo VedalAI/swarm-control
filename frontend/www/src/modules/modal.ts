@@ -166,8 +166,7 @@ async function confirmVersion() {
     return response.ok;
 }
 
-function addOptionsFields(modal: HTMLElement, redeem: Redeem)
-{
+function addOptionsFields(modal: HTMLElement, redeem: Redeem) {
     for (const param of redeem.args) {
         switch (param.type) {
             case "string":
@@ -187,73 +186,42 @@ function addOptionsFields(modal: HTMLElement, redeem: Redeem)
 function addText(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.text.div.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
-    const label = field.querySelector("label")!;
-    if (param.description) {
-        field.title = param.description;
-        input.placeholder = param.description;
-    }
-    field.id += "-"+param.name;
-    input.id += "-"+param.name;
+    setupField(field, "input", param);
     input.onchange = () => cart!.args[param.name] = input.value;
     if (typeof param.defaultValue == "string") {
         input.value = param.defaultValue;
     }
-    if (param.required) {
-        input.required = true;
-        cart!.args[param.name] = input.value;
-    }
-    label.htmlFor = input.id;
-    label.textContent = param.title ?? param.name;
+    postSetupField(input, param);
     modal.appendChild(field);
 }
 
 function addNumeric(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.number.div.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
-    const label = field.querySelector("label")!;
     input.type = "number";
     if (param.type == "integer") {
         input.step = "1";
     } else if (param.type == "float") {
         input.step = "0.01";
     }
-    if (param.description) {
-        field.title = param.description;
-    }
-    field.id += "-"+param.name;
-    input.id += "-"+param.name;
+    setupField(field, "input", param);
     input.onchange = () => cart!.args[param.name] = input.value;
     if (typeof param.defaultValue == "number") {
         input.value = param.defaultValue.toString();
     }
-    if (param.required) {
-        input.required = true;
-        cart!.args[param.name] = input.value;
-    }
-    label.htmlFor = input.id;
-    label.textContent = param.title ?? param.name;
+    postSetupField(input, param);
     modal.appendChild(field);
 }
 
 function addCheckbox(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.toggle.div.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
-    const label = field.querySelector("label")!;
-    if (param.description) {
-        field.title = param.description;
-    }
-    field.id += "-"+param.name;
-    input.id += "-"+param.name;
+    setupField(field, "input", param);
     input.onchange = () => cart!.args[param.name] = input.checked;
     if (typeof param.defaultValue == "boolean") {
         input.checked = param.defaultValue;
     }
-    if (param.required) {
-        input.required = true;
-        cart!.args[param.name] = input.value;
-    }
-    label.htmlFor = input.id;
-    label.textContent = param.title ?? param.name;
+    postSetupField(input, param);
     modal.appendChild(field);
 }
 
@@ -266,14 +234,7 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
     }
     const field = $paramTemplates.dropdown.div.cloneNode(true) as HTMLSelectElement;
     const select = field.querySelector("select")!;
-    const label = field.querySelector("label")!;
-    field.id += "-"+param.name;
-    if (param.description) {
-        field.title = param.description;
-    }
-    select.id += "-"+param.name;
-    label.htmlFor = select.id;
-    label.textContent = param.title ?? param.name;
+    
     for (const opt of options) {
         const option = document.createElement("option");
         option.value = opt;
@@ -286,9 +247,25 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
     } else {
         select.value = select.options[0].value;
     }
-    if (param.required) {
-        select.required = true;
-        cart!.args[param.name] = select.value;
-    }
     modal.appendChild(field);
+}
+
+function setupField(field: HTMLElement, inputType: "select" | "input", param: Parameter) {
+    const input = field.querySelector(inputType)!;
+    const label = field.querySelector("label")!;
+    field.id += "-"+param.name;
+    if (param.description) {
+        field.title = param.description;
+    }
+    input.id += "-"+param.name;
+    label.id += "-"+param.name;
+    label.htmlFor = input.id;
+    label.textContent = param.title ?? param.name;
+}
+
+function postSetupField(input: HTMLSelectElement | HTMLInputElement, param: Parameter) {
+    if (param.required) {
+        input.required = true;
+        cart!.args[param.name] = input.value;
+    }
 }
