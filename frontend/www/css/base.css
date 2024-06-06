@@ -1,0 +1,22 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+}
+
+body {
+    background-color: #111;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+}
+
+@media screen and (min-width: 600px) {
+    .row .elem {
+        font-size: 1.5rem;
+        min-height: 200px;
+    }
+}

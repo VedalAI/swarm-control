@@ -1,8 +1,8 @@
-import {openModal} from "./modal";
-import {ebsFetch} from "../ebs";
-import {Config} from "../common-types";
+import { openModal } from "./modal";
+import { ebsFetch } from "../ebs";
+import { Config } from "../common-types";
 
-const $redeemContainer = document.getElementById("buttons")!;
+const $redeemContainer = document.getElementById("items")!;
 
 let config: Config;
 
@@ -34,11 +34,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function populateButtons() {
+    // TEMP
+    Twitch.ext.bits.setUseLoopback(true);
+
     const redeems = await getRedeems();
 
     for (const redeem of redeems) {
         const elem = document.createElement("div");
-        elem.className = "elem";
+        elem.className = "redeemable-item";
         elem.onclick = () => openModal(redeem);
 
         const img = document.createElement("img");
