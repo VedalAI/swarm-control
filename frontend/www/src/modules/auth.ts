@@ -1,7 +1,7 @@
+import { Transaction } from "common/types";
 import { ebsFetch } from "../ebs";
-import { cart, closeProcessingModal, openErrorModal } from "./modal";
+import { cart } from "./modal";
 import { getConfigVersion } from "./redeems";
-import { Transaction } from "../common-types";
 
 const $modal = document.getElementById("modal-confirm")!;
 const $modalProcessing = document.getElementById("modal-processing")!;

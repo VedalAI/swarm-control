@@ -1,6 +1,6 @@
-import { openModal } from "./modal";
+import { Config } from "common/types";
 import { ebsFetch } from "../ebs";
-import { Config } from "../common-types";
+import { openModal } from "./modal";
 
 const $redeemContainer = document.getElementById("items")!;
 
