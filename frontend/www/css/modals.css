@@ -30,7 +30,7 @@
     justify-content: center;
     gap: 20px;
 
-    border-radius: 2dvh;
+    border-radius: 20px;
     font-size: 1rem;
 
     transition: all;
@@ -39,6 +39,9 @@
     color: #eee;
 
     overflow: hidden;
+
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .modal-image {
@@ -122,6 +125,9 @@
     align-items: center;
     gap: 20px;
 
+    transition: all;
+    transition-duration: 0.25s;
+
     padding: 20px;
 
     background: #111;
@@ -137,9 +143,29 @@
     color: rgb(var(--success-color));
 }
 
+@media screen and (min-width: 600px) {
+    .modal {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    .modal.active-modal {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 @media screen and (max-width: 600px) {
     .modal-wrapper {
         align-items: flex-end;
+    }
+
+    .modal {
+        transform: translateY(100%);
+    }
+
+    .modal.active-modal {
+        transform: translateY(0);
     }
 
     .modal,

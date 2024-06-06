@@ -27,7 +27,7 @@ Twitch.ext.bits.onTransactionComplete(async transaction => {
         } satisfies Transaction),
     });
 
-    hideProcessingModal();
+    setTimeout(() => hideProcessingModal(), 250);
 
     if (result.ok) showSuccessModal("Purchase completed", "Your transaction was successful!");
     else showErrorModal(`${result.status} ${result.statusText} - ${await result.text()}`);
