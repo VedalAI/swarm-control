@@ -10,11 +10,17 @@ const $modalPrice = document.getElementById("modal-bits")!;
 const $modalYes = document.getElementById("modal-yes")!;
 const $modalNo = document.getElementById("modal-no")!;
 
+const $modalError = document.getElementById("modal-error")!;
+const $modalErrorTitle = document.getElementById("modal-error-title")!;
+const $modalErrorDescription = document.getElementById("modal-error-description")!;
+const $modalOk = document.getElementById("modal-ok")!;
+
 export let cart: Cart | undefined;
 
 document.addEventListener("DOMContentLoaded", () => {
     $modalYes.onclick = confirmPurchase;
     $modalNo.onclick = closeModal;
+    $modalOk.onclick = closeErrorModal;
 });
 
 export function openModal(id: string, title: string, description: string, image: string, price: number, sku: string) {
@@ -26,8 +32,19 @@ export function openModal(id: string, title: string, description: string, image:
     cart = {sku, id, args: {}};
 }
 
+export function openErrorModal(title: string, description: string) {
+    $modalError.style.display = "flex";
+    $modalErrorTitle.textContent = title;
+    $modalErrorDescription.textContent = description;
+}
+
 function closeModal() {
     $modal.style.display = "none";
+    cart = undefined;
+}
+
+function closeErrorModal() {
+    $modalError.style.display = "none";
     cart = undefined;
 }
 
