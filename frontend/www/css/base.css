@@ -7,16 +7,19 @@
 
 body {
     background-color: #111;
+    color: #fff;
+}
+
+main {
+    height: 100dvh;
+    /* Some older browsers don't support the
+       dvh property and we need a fallback value. */
+    height: 100vh;
+
+    overflow-y: auto;
 }
 
 h1 {
     color: white;
     text-align: center;
-}
-
-@media screen and (min-width: 600px) {
-    .row .elem {
-        font-size: 1.5rem;
-        min-height: 200px;
-    }
 }

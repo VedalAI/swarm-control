@@ -1,6 +1,6 @@
 import { Cart } from "../types";
 import { ebsFetch } from "../ebs";
-import { getConfigVersion, getRedeems } from "./redeems";
+import { getConfigVersion, getRedeems, renderRedeemButtons } from "./redeems";
 import { Redeem } from "../common-types";
 
 const $modal = document.getElementById("modal-confirm")!;
@@ -92,10 +92,10 @@ export function openProcessingModal() {
     $modalProcessing.style.display = "flex";
 }
 
-export function openErrorModal(description: string) {
+export function openErrorModal(description: string, onClose?: () => void) {
     $modalError.style.display = "flex";
     $modalErrorDescription.textContent = description;
-    $modalErrorClose.onclick = () => closeErrorModal(true);
+    $modalErrorClose.onclick = () => { closeErrorModal(true); onClose?.(); };
 }
 
 function closeModal() {
@@ -114,12 +114,13 @@ function closeErrorModal(closeMainModal = false) {
 
 async function confirmPurchase() {
     if (!await confirmVersion()) {
-        const element = document.createElement('div');
+        /* const element = document.createElement('div');
         element.innerHTML = `CANNOT MAKE TRANSACTION: CONFIG VERSION MISMATCH!`;
         element.style.color = "gold";
         document.body.appendChild(element);
         // TODO: show some kind of error, and then refresh the buttons
-        $modal.style.display = "none";
+        $modal.style.display = "none"; */
+        openErrorModal(`Cannot make transaction: Config version mismatch.`, () => renderRedeemButtons(true));
         return;
     }
 

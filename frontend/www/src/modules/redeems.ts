@@ -21,8 +21,8 @@ export async function getConfigVersion(): Promise<number> {
     return config.version;
 }
 
-export async function getRedeems() {
-    if (!config) {
+export async function getRedeems(refreshConfig = false) {
+    if (!config || refreshConfig) {
         config = await fetchConfig();
     }
 
@@ -30,14 +30,18 @@ export async function getRedeems() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    populateButtons().then();
+    renderRedeemButtons().then();
 });
 
-async function populateButtons() {
+export async function renderRedeemButtons(rerender = false) {
     // TEMP
     Twitch.ext.bits.setUseLoopback(true);
 
-    const redeems = await getRedeems();
+    $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
+
+    const redeems = await getRedeems(rerender);
+
+    $redeemContainer.innerHTML = "";
 
     for (const redeem of redeems) {
         const elem = document.createElement("div");

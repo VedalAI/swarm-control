@@ -7,6 +7,21 @@
     grid-gap: 10px;
 }
 
+.redeems-content-spinner {
+    /* 20px is the margin left+right */
+    width: calc(100vw - 20px);
+    height: 100dvh;
+    /* Some older browsers don't support the
+       dvh property and we need a fallback value. */
+    height: 100vh;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
 .redeemable-item {
     padding: 10px;
 
