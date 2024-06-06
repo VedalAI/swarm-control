@@ -235,6 +235,7 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.dropdown.div.cloneNode(true) as HTMLSelectElement;
     const select = field.querySelector("select")!;
     
+    setupField(field, "select", param);
     for (const opt of options) {
         const option = document.createElement("option");
         option.value = opt;
@@ -247,6 +248,7 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
     } else {
         select.value = select.options[0].value;
     }
+    postSetupField(select, param);
     modal.appendChild(field);
 }
 
