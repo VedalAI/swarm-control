@@ -4,7 +4,7 @@ import { getConfig } from "../config";
 
 /* Containers */
 const $modalWrapper = document.getElementById("modal-wrapper")!;
-const $modal = document.getElementById("modal-confirm")!.getElementsByClassName("modal")[0]!;
+const $modal = document.getElementById("modal-wrapper")!.getElementsByClassName("modal")[0]!;
 
 /* Descriptors */
 const $modalTitle = document.getElementById("modal-title")!;
@@ -20,6 +20,7 @@ const $modalCancel = document.getElementById("modal-cancel")!;
 
 /* Options */
 const $modalOptionsContainer = document.getElementById("modal-options-container")!;
+const $modalOptionsWrapper = document.getElementById("modal-options")!;
 const $paramToggle = document.getElementById("modal-toggle")!;
 const $paramText = document.getElementById("modal-text")!;
 const $paramNumber = document.getElementById("modal-number")!;
@@ -73,6 +74,7 @@ export function openModal(redeem: Redeem) {
 
     $modalWrapper.style.opacity = "1";
     $modalWrapper.style.pointerEvents = "unset";
+
     $modalTitle.textContent = redeem.title;
     $modalDescription.textContent = redeem.description;
     $modalPrice.textContent = redeem.price.toString();
@@ -83,10 +85,10 @@ export function openModal(redeem: Redeem) {
     hideProcessingModal();
     hideErrorModal();
 
-    // clear
-    for (let node of Array.from($modalOptionsContainer.childNodes)) {
-        $modalOptionsContainer.removeChild(node);
-    }
+    for (let node of Array.from($modalOptionsContainer.childNodes)) $modalOptionsContainer.removeChild(node);
+
+    if ((redeem.args || []).length === 0) $modalOptionsWrapper.style.display = "none";
+    else $modalOptionsWrapper.style.display = "flex";
 
     addOptionsFields($modalOptionsContainer, redeem);
 }
@@ -94,6 +96,7 @@ export function openModal(redeem: Redeem) {
 export function showProcessingModal() {
     $modalProcessing.style.opacity = "1";
     $modalProcessing.style.pointerEvents = "unset";
+
     if (processingTimeout) clearTimeout(processingTimeout);
 
     processingTimeout = +setTimeout(() => {
@@ -131,18 +134,21 @@ function closeModal() {
 export function hideProcessingModal() {
     $modalProcessing.style.opacity = "0";
     $modalProcessing.style.pointerEvents = "none";
+
     if (processingTimeout) clearTimeout(processingTimeout);
 }
 
 function hideErrorModal(closeMainModal = false) {
     $modalError.style.opacity = "0";
     $modalError.style.pointerEvents = "none";
+
     if (closeMainModal) closeModal();
 }
 
 function hideSuccessModal(closeMainModal = false) {
     $modalSuccess.style.opacity = "0";
     $modalSuccess.style.pointerEvents = "none";
+
     if (closeMainModal) closeModal();
 }
 
@@ -175,42 +181,44 @@ async function confirmVersion() {
 }
 
 function addOptionsFields(modal: HTMLElement, redeem: Redeem) {
-    for (const param of redeem.args) {
-        switch (param.type) {
-            case "string":
-                addText(modal, param);
-                break;
-            case "integer":
-            case "float":
-                addNumeric(modal, param);
-                break;
-            case "boolean":
-                addCheckbox(modal, param);
-            default:
-                addDropdown(modal, param);
-        }
+    for (const param of redeem.args || []) switch (param.type) {
+        case "string":
+            addText(modal, param);
+            break;
+        case "integer":
+        case "float":
+            addNumeric(modal, param);
+            break;
+        case "boolean":
+            addCheckbox(modal, param);
+        default:
+            addDropdown(modal, param);
     }
 }
 function addText(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.text.div.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
     const label = field.querySelector("label")!;
+
     if (param.description) {
         field.title = param.description;
         input.placeholder = param.description;
     }
+
     field.id += "-" + param.name;
     input.id += "-" + param.name;
     input.onchange = () => cart!.args[param.name] = input.value;
-    if (typeof param.defaultValue == "string") {
-        input.value = param.defaultValue;
-    }
+
+    if (typeof param.defaultValue == "string") input.value = param.defaultValue;
+
     if (param.required) {
         input.required = true;
         cart!.args[param.name] = input.value;
     }
+
     label.htmlFor = input.id;
     label.textContent = param.title ?? param.name;
+
     modal.appendChild(field);
 }
 
@@ -218,27 +226,29 @@ function addNumeric(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.number.div.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
     const label = field.querySelector("label")!;
+
     input.type = "number";
-    if (param.type == "integer") {
-        input.step = "1";
-    } else if (param.type == "float") {
-        input.step = "0.01";
-    }
-    if (param.description) {
-        field.title = param.description;
-    }
+
+    if (param.type == "integer") input.step = "1";
+    else if (param.type == "float") input.step = "0.01";
+
+    if (param.description) field.title = param.description;
+
     field.id += "-" + param.name;
     input.id += "-" + param.name;
     input.onchange = () => cart!.args[param.name] = input.value;
-    if (typeof param.defaultValue == "number") {
+
+    if (typeof param.defaultValue == "number")
         input.value = param.defaultValue.toString();
-    }
+
     if (param.required) {
         input.required = true;
         cart!.args[param.name] = input.value;
     }
+
     label.htmlFor = input.id;
     label.textContent = param.title ?? param.name;
+
     modal.appendChild(field);
 }
 
@@ -246,56 +256,63 @@ function addCheckbox(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.toggle.div.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
     const label = field.querySelector("label")!;
-    if (param.description) {
-        field.title = param.description;
-    }
+
+    if (param.description) field.title = param.description;
+
     field.id += "-" + param.name;
     input.id += "-" + param.name;
     input.onchange = () => cart!.args[param.name] = input.checked;
-    if (typeof param.defaultValue == "boolean") {
-        input.checked = param.defaultValue;
-    }
+
+    if (typeof param.defaultValue == "boolean") input.checked = param.defaultValue;
+
     if (param.required) {
         input.required = true;
         cart!.args[param.name] = input.value;
     }
+
     label.htmlFor = input.id;
     label.textContent = param.title ?? param.name;
+
     modal.appendChild(field);
 }
 
 async function addDropdown(modal: HTMLElement, param: Parameter) {
     let options: string[] = [];
+
     try {
         options = (await getConfig()).enums.find(e => e.name == param.type)!.values;
     } catch {
         return; // someone's messing with the config, screw em
     }
+
     const field = $paramTemplates.dropdown.div.cloneNode(true) as HTMLSelectElement;
     const select = field.querySelector("select")!;
     const label = field.querySelector("label")!;
+
     field.id += "-" + param.name;
-    if (param.description) {
-        field.title = param.description;
-    }
+
+    if (param.description) field.title = param.description;
+
     select.id += "-" + param.name;
     label.htmlFor = select.id;
     label.textContent = param.title ?? param.name;
+
     for (const opt of options) {
         const option = document.createElement("option");
         option.value = opt;
         option.textContent = opt;
         select.appendChild(option);
     }
+
     select.onchange = () => cart!.args[param.name] = select.value;
-    if (typeof param.defaultValue == "string") {
-        select.value = param.defaultValue;
-    } else {
-        select.value = select.options[0].value;
-    }
+
+    if (typeof param.defaultValue == "string") select.value = param.defaultValue;
+    else select.value = select.options[0].value;
+
     if (param.required) {
         select.required = true;
         cart!.args[param.name] = select.value;
     }
+
     modal.appendChild(field);
 }
