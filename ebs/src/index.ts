@@ -7,7 +7,7 @@ import {privateApiAuth, publicApiAuth} from "./middleware";
 dotenv();
 
 export const app = express();
-app.use(cors({origin: "ext-twitch.tv"}));
+app.use(cors({origin: "*"}));
 app.use(bodyParser.json());
 app.use("/public/*", publicApiAuth);
 app.use("/private/*", privateApiAuth);
