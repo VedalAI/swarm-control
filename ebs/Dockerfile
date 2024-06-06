@@ -12,4 +12,4 @@ RUN npm run bundle
 
 EXPOSE 3000
 
-CMD ["node", "--enable-source-maps", "index.js"]
+CMD ["node", "--enable-source-maps", "dist/index.js"]
