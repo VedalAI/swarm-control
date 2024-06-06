@@ -1,5 +1,5 @@
-import {app} from "../index";
-import {Config} from "../common-types";
+import { Config } from "common/types";
+import { app } from "../index";
 
 let config: Config | undefined;
 let previousConfig: Config | undefined;

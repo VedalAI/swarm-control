@@ -1,7 +1,7 @@
-import {Cart} from "../types";
-import {ebsFetch} from "../ebs";
-import {getConfigVersion, getRedeems} from "./redeems";
-import { Redeem } from "../common-types";
+import { Redeem } from "common/types";
+import { ebsFetch } from "../ebs";
+import { Cart } from "../types";
+import { getConfigVersion } from "./redeems";
 
 const $modal = document.getElementById("modal-confirm")!;
 const $modalTitle = document.getElementById("modal-title")!;

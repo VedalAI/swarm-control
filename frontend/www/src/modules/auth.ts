@@ -1,7 +1,7 @@
-import {ebsFetch} from "../ebs";
-import {cart} from "./modal";
-import {getConfigVersion} from "./redeems";
-import {Transaction} from "../common-types";
+import { Transaction } from "common/types";
+import { ebsFetch } from "../ebs";
+import { cart } from "./modal";
+import { getConfigVersion } from "./redeems";
 
 const $modal = document.getElementById("modal-confirm")!;
 const $loginPopup = document.getElementById("onboarding")!;

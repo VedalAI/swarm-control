@@ -1,6 +1,6 @@
-import {openModal} from "./modal";
-import {ebsFetch} from "../ebs";
-import {Config} from "../common-types";
+import { Config } from "common/types";
+import { ebsFetch } from "../ebs";
+import { openModal } from "./modal";
 
 const $redeemContainer = document.getElementById("buttons")!;
 
