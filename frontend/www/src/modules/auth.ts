@@ -33,4 +33,8 @@ Twitch.ext.bits.onTransactionComplete(async transaction => {
 
     if (result.ok) showSuccessModal("Purchase completed", "Your transaction was successful!");
     else showErrorModal(`${result.status} ${result.statusText} - ${await result.text()}`);
-})
+});
+
+Twitch.ext.bits.onTransactionCancelled(async () => {
+    showErrorModal("Transaction cancelled.");
+});
