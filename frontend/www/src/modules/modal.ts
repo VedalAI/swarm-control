@@ -37,7 +37,7 @@ export let cart: Cart | undefined;
 document.addEventListener("DOMContentLoaded", () => {
     $modalYes.onclick = confirmPurchase;
     $modalNo.onclick = closeModal;
-    // $modalOk.onclick = closeErrorModal;
+    // $modalOk.onclick = hideErrorModal;
 });
 
 export function openModal(redeem: Redeem) {
@@ -47,8 +47,8 @@ export function openModal(redeem: Redeem) {
     $modalPrice.textContent = redeem.price.toString();
     $modalImage.src = redeem.image;
 
-    closeProcessingModal();
-    closeErrorModal();
+    hideProcessingModal();
+    hideErrorModal();
 
     if (redeem.toggle || redeem.textbox || redeem.dropdown) {
         $modalOptions.style.display = "block";
@@ -88,14 +88,14 @@ export function openModal(redeem: Redeem) {
     cart = { sku: redeem.sku, id: redeem.id, args: {} };
 }
 
-export function openProcessingModal() {
+export function showProcessingModal() {
     $modalProcessing.style.display = "flex";
 }
 
-export function openErrorModal(description: string, onClose?: () => void) {
+export function showErrorModal(description: string, onClose?: () => void) {
     $modalError.style.display = "flex";
     $modalErrorDescription.textContent = description;
-    $modalErrorClose.onclick = () => { closeErrorModal(true); onClose?.(); };
+    $modalErrorClose.onclick = () => { hideErrorModal(true); onClose?.(); };
 }
 
 function closeModal() {
@@ -103,16 +103,18 @@ function closeModal() {
     cart = undefined;
 }
 
-export function closeProcessingModal() {
+export function hideProcessingModal() {
     $modalProcessing.style.display = "none";
 }
 
-function closeErrorModal(closeMainModal = false) {
+function hideErrorModal(closeMainModal = false) {
     $modalError.style.display = "none";
     if (closeMainModal) closeModal();
 }
 
 async function confirmPurchase() {
+    showProcessingModal();
+
     if (!await confirmVersion()) {
         /* const element = document.createElement('div');
         element.innerHTML = `CANNOT MAKE TRANSACTION: CONFIG VERSION MISMATCH!`;
@@ -120,11 +122,10 @@ async function confirmPurchase() {
         document.body.appendChild(element);
         // TODO: show some kind of error, and then refresh the buttons
         $modal.style.display = "none"; */
-        openErrorModal(`Cannot make transaction: Config version mismatch.`, () => renderRedeemButtons(true));
+        hideProcessingModal();
+        showErrorModal(`Cannot make transaction: Config version mismatch.`, () => renderRedeemButtons(true));
         return;
     }
-
-    openProcessingModal();
 
     // TODO: Update cart args
     Twitch.ext.bits.useBits(cart!.sku)

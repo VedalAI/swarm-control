@@ -1,6 +1,6 @@
 import { Transaction } from "common/types";
 import { ebsFetch } from "../ebs";
-import { cart } from "./modal";
+import { cart, hideProcessingModal, showErrorModal } from "./modal";
 import { getConfigVersion } from "./redeems";
 
 const $modal = document.getElementById("modal-confirm")!;
@@ -31,20 +31,16 @@ Twitch.ext.bits.onTransactionComplete(async transaction => {
         } satisfies Transaction),
     });
 
-    closeProcessingModal();
+    hideProcessingModal();
 
     // TODO: make this look nice \/
     if (result.ok) {
-        const element = document.createElement('div');
-        element.innerHTML = `OK! ${await result.text()}`;
-        element.style.color = "green";
-        document.body.appendChild(element);
-        $modal.style.display = "none";
+        //TODO: showConfirmationModal();
     } else {
         /* const element = document.createElement('div');
         element.innerHTML = `FAIL ${result.status} ${result.statusText}! ${await result.text()}`;
         element.style.color = "red";
         document.body.appendChild(element); */
-        openErrorModal(`${result.status} ${result.statusText} - ${await result.text()}`);
+        showErrorModal(`${result.status} ${result.statusText} - ${await result.text()}`);
     }
 })
