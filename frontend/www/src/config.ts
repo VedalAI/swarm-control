@@ -6,13 +6,22 @@ let config: Config;
 async function fetchConfig() {
     const response = await ebsFetch("/public/config");
 
-    if (response.status == 403) {
-        return {
-            version: -1,
-            redeems: [],
-            enums: [],
-            message: "You cannot use this extension while banned or timed out"
-        } satisfies Config;
+    if (!response.ok) {
+        if (response.status == 403) {
+            return {
+                version: -1,
+                redeems: [],
+                enums: [],
+                message: "You cannot use this extension while banned or timed out"
+            } satisfies Config;
+        } else {
+            return {
+                version: -1,
+                redeems: [],
+                enums: [],
+                message: `An error occurred while fetching the config\n${response.status} ${response.statusText} - ${await response.text()}`
+            } satisfies Config;
+        }
     }
 
     const data = await response.json();

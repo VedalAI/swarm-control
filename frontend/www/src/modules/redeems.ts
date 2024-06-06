@@ -1,19 +1,22 @@
 import { openModal } from "./modal";
 import {getConfig} from "../config";
 
-const $redeemContainer = document.getElementById("items")!;
+const $redeemsContainer = document.getElementById("items")!;
+const $redeemsMessage = document.getElementById("redeems-message")!;
 
 document.addEventListener("DOMContentLoaded", () => {
     renderRedeemButtons().then();
 });
 
 export async function renderRedeemButtons() {
-    $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
+    $redeemsContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
+    $redeemsMessage.innerHTML = "";
 
     const config = await getConfig();
     const redeems = config.redeems;
 
-    $redeemContainer.innerHTML = "";
+    $redeemsContainer.innerHTML = "";
+    $redeemsMessage.innerText = config.message ?? "";
 
     for (const redeem of redeems) {
         if (redeem.hidden) continue;
@@ -48,6 +51,6 @@ export async function renderRedeemButtons() {
         name.textContent = redeem.title;
         redeemableDescriptor.appendChild(name);
 
-        $redeemContainer.appendChild(item);
+        $redeemsContainer.appendChild(item);
     }
 }
