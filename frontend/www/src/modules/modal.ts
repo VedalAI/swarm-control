@@ -1,7 +1,6 @@
-import { Redeem } from "common/types";
+import { Cart, Redeem } from "common/types";
 import { ebsFetch } from "../ebs";
-import { Cart } from "../types";
-import { getConfigVersion, getRedeems, renderRedeemButtons } from "./redeems";
+import { getConfigVersion, renderRedeemButtons } from "./redeems";
 
 const $modal = document.getElementById("modal-confirm")!;
 const $modalTitle = document.getElementById("modal-title")!;
@@ -10,13 +9,13 @@ const $modalImage = document.getElementById("modal-image")! as HTMLImageElement;
 const $modalOptions = document.getElementById("modal-options")!;
 const $modalToggle = document.getElementById("modal-toggle")!;
 const $modalToggleLabel = document.getElementById("modal-toggle-label")!;
-const $modalToggleInput = document.getElementById("modal-toggle-input")!;
+const $modalToggleInput = document.getElementById("modal-toggle-input")! as HTMLInputElement;
 const $modalText = document.getElementById("modal-text")!;
 const $modalTextLabel = document.getElementById("modal-text-label")!;
-const $modalTextInput = document.getElementById("modal-text-input")!;
+const $modalTextInput = document.getElementById("modal-text-input")! as HTMLInputElement;
 const $modalDropdown = document.getElementById("modal-dropdown")!;
 const $modalDropdownLabel = document.getElementById("modal-dropdown-label")!;
-const $modalDropdownInput = document.getElementById("modal-dropdown-input")!;
+const $modalDropdownInput = document.getElementById("modal-dropdown-input")! as HTMLSelectElement;
 const $modalPrice = document.getElementById("modal-bits")!;
 const $modalYes = document.getElementById("modal-yes")!;
 const $modalNo = document.getElementById("modal-no")!;
@@ -41,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export function openModal(redeem: Redeem) {
+    cart = { sku: redeem.sku, id: redeem.id, args: {} };
+
     $modal.style.display = "flex";
     $modalTitle.textContent = redeem.title;
     $modalDescription.textContent = redeem.description;
@@ -85,7 +86,6 @@ export function openModal(redeem: Redeem) {
         $modalDropdownLabel.textContent = "";
         $modalDropdownInput.innerHTML = "";
     }
-    cart = { sku: redeem.sku, id: redeem.id, args: {} };
 }
 
 export function showProcessingModal() {
@@ -140,7 +140,10 @@ async function confirmPurchase() {
         return;
     }
 
-    // TODO: Update cart args
+    cart!.args.text = $modalTextInput.value;
+    cart!.args.dropdown = $modalDropdownInput.value;
+    cart!.args.toggle = $modalToggleInput.checked;
+
     Twitch.ext.bits.useBits(cart!.sku)
 }
 

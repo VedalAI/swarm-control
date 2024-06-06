@@ -54,6 +54,8 @@ app.post("/public/transaction", async (req, res) => {
 
     // At this point we know they paid for it and WE HAVE TO HONOR THE PURCHASE
 
+    console.log(transaction);
+
     // TODO: send stuff to mod
 
     res.sendStatus(200);
