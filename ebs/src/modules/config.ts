@@ -1,5 +1,8 @@
 import { Config } from "common/types";
 import { app } from "../index";
+import {sendExtensionPubSubBroadcastMessage} from "@twurple/ebs-helper";
+import {sendPubSubMessage} from "../pubsub";
+import {pack} from "jsonpack";
 
 let config: Config | undefined;
 let previousConfig: Config | undefined;
@@ -36,7 +39,11 @@ app.get("/private/refresh", async (_, res) => {
     previousConfig = config;
     config = newConfig;
     previousConfigUsableUntil = new Date(Date.now() + 1000 * 10);
-    console.log("Refreshed config, new config version is ", config.version)
+    console.log("Refreshed config, new config version is ", config.version);
+    await sendPubSubMessage({
+        type: "config_refreshed",
+        data: pack(newConfig)
+    });
     res.sendStatus(200);
 });
 

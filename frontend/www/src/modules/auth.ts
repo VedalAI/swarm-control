@@ -1,7 +1,7 @@
 import { Transaction } from "common/types";
 import { ebsFetch } from "../ebs";
 import { cart, hideProcessingModal, showErrorModal } from "./modal";
-import { getConfigVersion } from "./redeems";
+import {getConfig} from "../config";
 
 const $modal = document.getElementById("modal-confirm")!;
 const $modalProcessing = document.getElementById("modal-processing")!;
@@ -19,6 +19,8 @@ Twitch.ext.onAuthorized(() => {
 });
 
 Twitch.ext.bits.onTransactionComplete(async transaction => {
+    const config = await getConfig();
+
     const result = await ebsFetch("/public/transaction", {
         method: "POST",
         headers: {
@@ -27,7 +29,7 @@ Twitch.ext.bits.onTransactionComplete(async transaction => {
         body: JSON.stringify({
             ...cart!,
             receipt: transaction.transactionReceipt,
-            version: await getConfigVersion(),
+            version: config.version,
         } satisfies Transaction),
     });
 

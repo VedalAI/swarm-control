@@ -6,10 +6,12 @@
     "start": "npx tsx watch src/index.ts"
   },
   "dependencies": {
+    "@twurple/ebs-helper": "^7.1.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "jsonpack": "^1.1.5",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
@@ -17,6 +19,7 @@
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
+    "@types/jsonpack": "^1.1.6",
     "@types/jsonwebtoken": "^9.0.6",
     "tsx": "^4.11.2",
     "typescript": "^5.4.5"

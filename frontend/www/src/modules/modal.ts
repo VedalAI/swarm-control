@@ -1,6 +1,6 @@
 import {Cart, Redeem} from "common/types";
 import { ebsFetch } from "../ebs";
-import { getConfigVersion, renderRedeemButtons } from "./redeems";
+import {getConfig} from "../config";
 
 const $modal = document.getElementById("modal-confirm")!;
 const $modalTitle = document.getElementById("modal-title")!;
@@ -86,10 +86,10 @@ export function showProcessingModal() {
     $modalProcessing.style.display = "flex";
 }
 
-export function showErrorModal(description: string, onClose?: () => void) {
+export function showErrorModal(description: string) {
     $modalError.style.display = "flex";
     $modalErrorDescription.textContent = description;
-    $modalErrorClose.onclick = () => { hideErrorModal(true); onClose?.(); };
+    $modalErrorClose.onclick = () => hideErrorModal(true);
 }
 
 function closeModal() {
@@ -111,7 +111,7 @@ async function confirmPurchase() {
 
     if (!await confirmVersion()) {
         hideProcessingModal();
-        showErrorModal(`Cannot make transaction: Config version mismatch.`, () => renderRedeemButtons(true));
+        showErrorModal(`Cannot make transaction: Config version mismatch.`);
         return;
     }
 
@@ -123,13 +123,15 @@ async function confirmPurchase() {
 }
 
 async function confirmVersion() {
+    const config = await getConfig();
+
     const response = await ebsFetch("/public/confirm_transaction", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            version: await getConfigVersion()
+            version: config.version,
         } satisfies { version: number }),
     });
 

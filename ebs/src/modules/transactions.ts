@@ -56,6 +56,10 @@ app.post("/public/transaction", async (req, res) => {
 
     console.log(transaction);
 
+    // TODO: Verify redeem ID and sku
+    // TODO: Verify redeem disabled/hidden status
+    // TODO: Verify parameters
+
     // TODO: send stuff to mod
 
     res.sendStatus(200);

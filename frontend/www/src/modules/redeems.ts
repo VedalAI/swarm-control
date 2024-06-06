@@ -1,46 +1,25 @@
-import { Config } from "common/types";
-import { ebsFetch } from "../ebs";
 import { openModal } from "./modal";
+import {getConfig} from "../config";
 
 const $redeemContainer = document.getElementById("items")!;
-
-let config: Config;
-
-async function fetchConfig() {
-    const response = await ebsFetch("/public/config");
-    const data = await response.json();
-
-    return data as Config;
-}
-
-export async function getConfigVersion(): Promise<number> {
-    if (!config) {
-        config = await fetchConfig();
-    }
-
-    return config.version;
-}
-
-export async function getRedeems(refreshConfig = false) {
-    if (!config || refreshConfig) {
-        config = await fetchConfig();
-    }
-
-    return config.redeems;
-}
 
 document.addEventListener("DOMContentLoaded", () => {
     renderRedeemButtons().then();
 });
 
-export async function renderRedeemButtons(rerender = false) {
+export async function renderRedeemButtons() {
     $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
 
-    const redeems = await getRedeems(rerender);
+    const config = await getConfig();
+    const redeems = config.redeems;
 
     $redeemContainer.innerHTML = "";
 
     for (const redeem of redeems) {
+        if (redeem.hidden) continue;
+
+        // TODO (frontend): if redeem is disabled, grey it out and prevent click 🙂
+
         const elem = document.createElement("div");
         elem.className = "redeemable-item";
         elem.onclick = () => openModal(redeem);
