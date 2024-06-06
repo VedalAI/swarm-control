@@ -2,6 +2,7 @@ const path = require("path");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const htmlFile = "./www/html/index.html";
 const tsFile = "./www/src/index.ts";
@@ -21,11 +22,11 @@ module.exports = {
             template: htmlFile,
             filename: "video_component.html",
         }),
-/*        new HtmlWebpackPlugin({
+        new HtmlWebpackPlugin({
             title: "Panel View",
             template: htmlFile,
             filename: "panel.html",
-        }),*/
+        }),
         new HtmlWebpackPlugin({
             title: "Mobile View",
             template: htmlFile,
@@ -41,6 +42,9 @@ module.exports = {
             template: htmlFile,
             filename: "live_config.html",
         }),*/
+        new CopyWebpackPlugin({'patterns': [
+            { from: './www/img', to: 'img' }
+        ]}),
     ],
     module: {
         rules: [
@@ -50,7 +54,7 @@ module.exports = {
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
-                use: ["file-loader"],
+                type: 'asset/resource'
             },
             {
                 test: /\.tsx?$/,
