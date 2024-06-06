@@ -143,6 +143,22 @@
     color: rgb(var(--success-color));
 }
 
+.modal-processing {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.modal-spinner-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
 @media screen and (min-width: 600px) {
     .modal {
         transform: scale(0.9);

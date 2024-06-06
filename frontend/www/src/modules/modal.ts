@@ -51,6 +51,8 @@ const $paramTemplates = {
 
 /* Modal overlays */
 const $modalProcessing = document.getElementById("modal-processing")!;
+const $modalProcessingDescription = document.getElementById("modal-processing-description")!;
+const $modalProcessingClose = document.getElementById("modal-processing-close")!;
 
 const $modalError = document.getElementById("modal-error")!;
 const $modalErrorDescription = document.getElementById("modal-error-description")!;
@@ -97,11 +99,17 @@ export function showProcessingModal() {
     $modalProcessing.style.opacity = "1";
     $modalProcessing.style.pointerEvents = "unset";
 
+    $modalProcessingDescription.style.display = "none";
+    $modalProcessingClose.style.display = "none";
+
     if (processingTimeout) clearTimeout(processingTimeout);
 
     processingTimeout = +setTimeout(() => {
-        setTimeout(() => hideProcessingModal(), 250);
-        showErrorModal("Transaction timed out. Please try again.");
+        $modalProcessingDescription.style.display = "unset";
+        $modalProcessingDescription.textContent = "This is taking longer than expected.";
+
+        $modalProcessingClose.style.display = "unset";
+        $modalProcessingClose.onclick = () => { hideProcessingModal(); closeModal(); };
     }, 30 * 1000);
 }
 

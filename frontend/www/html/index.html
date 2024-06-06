@@ -49,9 +49,19 @@
                 </div>
 
                 <!-- Modal processing overlay -->
-                <div class="modal-overlay" id="modal-processing" style="opacity: 0; pointer-events: none;">
-                    <div class="spinner"></div>
-                    <p>Processing your request...</p>
+                <div class="modal-overlay modal-processing" id="modal-processing"
+                    style="opacity: 0; pointer-events: none;">
+                    <div class="modal-spinner-container">
+                        <div class="spinner"></div>
+                        <p>Processing your request...</p>
+                    </div>
+
+                    <p id="modal-processing-description"></p>
+
+                    <!-- Close button -->
+                    <div class="modal-buttons">
+                        <button id="modal-processing-close" class="button btn-danger">Close</button>
+                    </div>
                 </div>
 
                 <!-- Modal error overlay -->
