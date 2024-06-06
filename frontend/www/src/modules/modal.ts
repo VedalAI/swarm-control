@@ -1,11 +1,16 @@
 import {Cart} from "../types";
 import {ebsFetch} from "../ebs";
 import {getConfigVersion, getRedeems} from "./redeems";
+import { Redeem } from "../common-types";
 
 const $modal = document.getElementById("modal-confirm")!;
 const $modalTitle = document.getElementById("modal-title")!;
 const $modalDescription = document.getElementById("modal-description")!;
 const $modalImage = document.getElementById("modal-image")! as HTMLImageElement;
+const $modalToggle = document.getElementById("modal-toggle")!;
+const $modalToggleLabel = document.getElementById("modal-toggle-label")!;
+const $modalText = document.getElementById("modal-text")!;
+const $modalTextLabel = document.getElementById("modal-text-label")!;
 const $modalPrice = document.getElementById("modal-bits")!;
 const $modalYes = document.getElementById("modal-yes")!;
 const $modalNo = document.getElementById("modal-no")!;
@@ -23,13 +28,27 @@ document.addEventListener("DOMContentLoaded", () => {
     $modalOk.onclick = closeErrorModal;
 });
 
-export function openModal(id: string, title: string, description: string, image: string, price: number, sku: string) {
+export function openModal(redeem: Redeem) {
     $modal.style.display = "flex";
-    $modalTitle.textContent = title;
-    $modalDescription.textContent = description;
-    $modalPrice.textContent = price.toString();
-    $modalImage.src = image;
-    cart = {sku, id, args: {}};
+    $modalTitle.textContent = redeem.title;
+    $modalDescription.textContent = redeem.description;
+    $modalPrice.textContent = redeem.price.toString();
+    $modalImage.src = redeem.image;
+    if(redeem.toggle) {
+        $modalToggle.style.display = "block";
+        $modalToggleLabel.textContent = redeem.toggle;
+    } else {
+        $modalToggle.style.display = "none";
+        $modalToggleLabel.textContent = "";
+    }
+    if(redeem.textbox) {
+        $modalText.style.display = "block";
+        $modalTextLabel.textContent = redeem.textbox;
+    } else {
+        $modalText.style.display = "none";
+        $modalTextLabel.textContent = "";
+    }
+    cart = {sku: redeem.sku, id: redeem.id, args: {}};
 }
 
 export function openErrorModal(title: string, description: string) {

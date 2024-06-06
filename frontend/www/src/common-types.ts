@@ -5,6 +5,8 @@ export type Redeem = {
     image: string;
     price: number;
     sku: string;
+    toggle: string | undefined;
+    textbox: string | undefined;
 };
 
 export type Config = {

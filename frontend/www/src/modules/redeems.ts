@@ -39,7 +39,7 @@ async function populateButtons() {
     for (const redeem of redeems) {
         const elem = document.createElement("div");
         elem.className = "elem";
-        elem.onclick = () => openModal(redeem.id, redeem.title, redeem.description, redeem.image, redeem.price, redeem.sku);
+        elem.onclick = () => openModal(redeem);
 
         const img = document.createElement("img");
         img.src = redeem.image;
