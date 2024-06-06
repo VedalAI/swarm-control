@@ -1,4 +1,4 @@
-const backendUrl = "https://subnautica.vedal.ai/";// "https://subnautica.neurosama.com/";
+const backendUrl = "https://subnautica.vedal.ai";
 
 export async function ebsFetch(url: string, options: RequestInit = {}): Promise<Response> {
     while (!Twitch.ext.viewer.sessionToken) {

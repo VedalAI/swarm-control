@@ -11,7 +11,7 @@ app.use(cors({origin: "*"}));
 app.use(bodyParser.json());
 app.use("/public/*", publicApiAuth);
 app.use("/private/*", privateApiAuth);
-app.listen(3000, () => console.log("Listening on port 3000"));
+app.listen(parseInt(process.env.PORT!), () => console.log("Listening on port " + process.env.PORT));
 
 app.get("/", (_, res) => {
     res.send("YOU ARE TRESPASSING ON PRIVATE PROPERTY YOU HAVE 5 SECONDS TO GET OUT OR I WILL CALL THE POLICE");

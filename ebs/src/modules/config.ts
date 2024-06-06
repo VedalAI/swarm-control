@@ -53,6 +53,8 @@ app.get("/private/refresh", async (_, res) => {
 });
 
 app.get("/public/config", async (req, res) => {
+    const tokenInfo = await apiClient.getTokenInfo();
+    console.log(tokenInfo);
     const amBanned = await apiClient.moderation.checkUserBan(process.env.RUNNING_CHANNEL!, req.twitchAuthorization!.user_id!);
     if (amBanned) {
         res.status(403).send("You cannot use this extension while banned or timed out");
