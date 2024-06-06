@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "npx tsx watch src/index.ts"
+    "start": "npx tsx watch src/index.ts",
+    "bundle": "esbuild --bundle --minify --platform=node --sourcemap=inline --outfile=dist/index.js src/index.ts"
   },
   "dependencies": {
     "@twurple/api": "^7.1.0",
@@ -23,6 +24,7 @@
     "@types/express": "^4.17.21",
     "@types/jsonpack": "^1.1.6",
     "@types/jsonwebtoken": "^9.0.6",
+    "esbuild": "^0.21.4",
     "tsx": "^4.11.2",
     "typescript": "^5.4.5"
   }
