@@ -10,6 +10,7 @@ async function fetchConfig() {
         return {
             version: -1,
             redeems: [],
+            enums: [],
             message: "You cannot use this extension while banned or timed out"
         } satisfies Config;
     }
