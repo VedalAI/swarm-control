@@ -157,6 +157,8 @@
 
 @media screen and (max-width: 600px) {
     .modal-wrapper {
+        position: fixed;
+
         align-items: flex-end;
     }
 

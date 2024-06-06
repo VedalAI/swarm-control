@@ -1,5 +1,5 @@
-import {ebsFetch} from "./ebs";
-import {Config} from "common/types";
+import { ebsFetch } from "./ebs";
+import { Config } from "common/types";
 
 let config: Config;
 
@@ -10,7 +10,8 @@ async function fetchConfig() {
         return {
             version: -1,
             redeems: [],
-            message: "You cannot use this extension while banned or timed out"
+            enums: [],
+            message: "You cannot use this extension while banned or timed out."
         } satisfies Config;
     }
 

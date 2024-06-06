@@ -1,18 +1,25 @@
-import {Cart, Parameter, Redeem} from "common/types";
+import { Cart, Parameter, Redeem } from "common/types";
 import { ebsFetch } from "../ebs";
-import {getConfig} from "../config";
+import { getConfig } from "../config";
 
-const $modalWrapper = document.getElementById("modal-confirm")!;
+/* Containers */
+const $modalWrapper = document.getElementById("modal-wrapper")!;
 const $modal = document.getElementById("modal-confirm")!.getElementsByClassName("modal")[0]!;
+
+/* Descriptors */
 const $modalTitle = document.getElementById("modal-title")!;
 const $modalDescription = document.getElementById("modal-description")!;
 const $modalImage = document.getElementById("modal-image")! as HTMLImageElement;
-const $modalOptions = document.getElementById("modal-options")!;
-const $modalOptionsContainer = document.getElementById("modal-options-container")!;
-const $modalPrice = document.getElementById("modal-bits")!;
-const $modalYes = document.getElementById("modal-yes")!;
-const $modalNo = document.getElementById("modal-no")!;
 
+/* Price */
+const $modalPrice = document.getElementById("modal-bits")!;
+
+/* Buttons */
+const $modalConfirm = document.getElementById("modal-confirm")!;
+const $modalCancel = document.getElementById("modal-cancel")!;
+
+/* Options */
+const $modalOptionsContainer = document.getElementById("modal-options-container")!;
 const $paramToggle = document.getElementById("modal-toggle")!;
 const $paramText = document.getElementById("modal-text")!;
 const $paramNumber = document.getElementById("modal-number")!;
@@ -41,6 +48,7 @@ const $paramTemplates = {
     },
 };
 
+/* Modal overlays */
 const $modalProcessing = document.getElementById("modal-processing")!;
 
 const $modalError = document.getElementById("modal-error")!;
@@ -56,8 +64,8 @@ export let cart: Cart | undefined;
 let processingTimeout: number | undefined;
 
 document.addEventListener("DOMContentLoaded", () => {
-    $modalYes.onclick = confirmPurchase;
-    $modalNo.onclick = closeModal;
+    $modalConfirm.onclick = confirmPurchase;
+    $modalCancel.onclick = closeModal;
 });
 
 export function openModal(redeem: Redeem) {
@@ -76,10 +84,10 @@ export function openModal(redeem: Redeem) {
     hideErrorModal();
 
     // clear
-    for (let node of Array.from($modalOptionsContainer.childNodes))
-    {
+    for (let node of Array.from($modalOptionsContainer.childNodes)) {
         $modalOptionsContainer.removeChild(node);
     }
+
     addOptionsFields($modalOptionsContainer, redeem);
 }
 
@@ -166,8 +174,7 @@ async function confirmVersion() {
     return response.ok;
 }
 
-function addOptionsFields(modal: HTMLElement, redeem: Redeem)
-{
+function addOptionsFields(modal: HTMLElement, redeem: Redeem) {
     for (const param of redeem.args) {
         switch (param.type) {
             case "string":
@@ -192,8 +199,8 @@ function addText(modal: HTMLElement, param: Parameter) {
         field.title = param.description;
         input.placeholder = param.description;
     }
-    field.id += "-"+param.name;
-    input.id += "-"+param.name;
+    field.id += "-" + param.name;
+    input.id += "-" + param.name;
     input.onchange = () => cart!.args[param.name] = input.value;
     if (typeof param.defaultValue == "string") {
         input.value = param.defaultValue;
@@ -220,8 +227,8 @@ function addNumeric(modal: HTMLElement, param: Parameter) {
     if (param.description) {
         field.title = param.description;
     }
-    field.id += "-"+param.name;
-    input.id += "-"+param.name;
+    field.id += "-" + param.name;
+    input.id += "-" + param.name;
     input.onchange = () => cart!.args[param.name] = input.value;
     if (typeof param.defaultValue == "number") {
         input.value = param.defaultValue.toString();
@@ -242,8 +249,8 @@ function addCheckbox(modal: HTMLElement, param: Parameter) {
     if (param.description) {
         field.title = param.description;
     }
-    field.id += "-"+param.name;
-    input.id += "-"+param.name;
+    field.id += "-" + param.name;
+    input.id += "-" + param.name;
     input.onchange = () => cart!.args[param.name] = input.checked;
     if (typeof param.defaultValue == "boolean") {
         input.checked = param.defaultValue;
@@ -267,11 +274,11 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.dropdown.div.cloneNode(true) as HTMLSelectElement;
     const select = field.querySelector("select")!;
     const label = field.querySelector("label")!;
-    field.id += "-"+param.name;
+    field.id += "-" + param.name;
     if (param.description) {
         field.title = param.description;
     }
-    select.id += "-"+param.name;
+    select.id += "-" + param.name;
     label.htmlFor = select.id;
     label.textContent = param.title ?? param.name;
     for (const opt of options) {

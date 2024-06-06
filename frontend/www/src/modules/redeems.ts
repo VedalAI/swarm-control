@@ -1,5 +1,5 @@
 import { openModal } from "./modal";
-import {getConfig} from "../config";
+import { getConfig } from "../config";
 
 const $redeemContainer = document.getElementById("items")!;
 
@@ -15,12 +15,14 @@ export async function renderRedeemButtons() {
 
     $redeemContainer.innerHTML = "";
 
+    if (redeems.length === 0) $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
+
     for (const redeem of redeems) {
         if (redeem.hidden) continue;
 
         const item = document.createElement("div");
-        item.className = "redeemable-item";
-        item.onclick = () => openModal(redeem);
+        item.className = "redeemable-item".concat(redeem.disabled ? " redeemable-item-disabled" : "");
+        item.onclick = () => !redeem.disabled && openModal(redeem);
 
         const img = document.createElement("img");
         img.src = redeem.image;

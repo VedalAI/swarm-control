@@ -1,9 +1,9 @@
 import { Config } from "common/types";
 import { app } from "../index";
-import {sendPubSubMessage} from "../pubsub";
-import {pack} from "jsonpack";
-import {ApiClient} from "@twurple/api";
-import {StaticAuthProvider} from "@twurple/auth";
+import { sendPubSubMessage } from "../pubsub";
+import { pack } from "jsonpack";
+import { ApiClient } from "@twurple/api";
+import { StaticAuthProvider } from "@twurple/auth";
 
 const apiClient = new ApiClient({
     authProvider: new StaticAuthProvider(process.env.APP_CLIENT_ID!, process.env.ACCESS_TOKEN!),
@@ -13,7 +13,8 @@ let config: Config | undefined;
 let previousConfig: Config | undefined;
 let previousConfigUsableUntil: Date | undefined;
 
-const gistUrl = "https://gist.githubusercontent.com/Alexejhero/804fe0900d015b89a934a9b759ba2330/raw"
+// const gistUrl = "https://gist.githubusercontent.com/Alexejhero/804fe0900d015b89a934a9b759ba2330/raw"
+const gistUrl = "https://gist.githubusercontent.com/Zyrenth/1ae853881e967e94d3295b90851b6a3e/raw"
 
 async function fetchConfig(): Promise<Config> {
     const url = `${gistUrl}?${Date.now()}`;
