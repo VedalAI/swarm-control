@@ -6,6 +6,8 @@
     "start": "npx tsx watch src/index.ts"
   },
   "dependencies": {
+    "@twurple/api": "^7.1.0",
+    "@twurple/auth": "^7.1.0",
     "@twurple/ebs-helper": "^7.1.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

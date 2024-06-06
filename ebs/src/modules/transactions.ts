@@ -56,6 +56,7 @@ app.post("/public/transaction", async (req, res) => {
 
     console.log(transaction);
 
+    // TODO: Verify user banned status
     // TODO: Verify redeem ID and sku
     // TODO: Verify redeem disabled/hidden status
     // TODO: Verify parameters

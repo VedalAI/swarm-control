@@ -1,8 +1,13 @@
 import { Config } from "common/types";
 import { app } from "../index";
-import {sendExtensionPubSubBroadcastMessage} from "@twurple/ebs-helper";
 import {sendPubSubMessage} from "../pubsub";
 import {pack} from "jsonpack";
+import {ApiClient} from "@twurple/api";
+import {StaticAuthProvider} from "@twurple/auth";
+
+const apiClient = new ApiClient({
+    authProvider: new StaticAuthProvider(process.env.APP_CLIENT_ID!, process.env.ACCESS_TOKEN!),
+});
 
 let config: Config | undefined;
 let previousConfig: Config | undefined;
@@ -47,7 +52,13 @@ app.get("/private/refresh", async (_, res) => {
     res.sendStatus(200);
 });
 
-app.get("/public/config", async (_, res) => {
+app.get("/public/config", async (req, res) => {
+    const amBanned = await apiClient.moderation.checkUserBan(process.env.RUNNING_CHANNEL!, req.twitchAuthorization!.user_id!);
+    if (amBanned) {
+        res.status(403).send("You cannot use this extension while banned or timed out");
+        return;
+    }
+
     const config = await getConfig();
     res.send(JSON.stringify(config));
 });

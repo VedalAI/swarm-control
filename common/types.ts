@@ -7,8 +7,7 @@ export type Redeem = {
     sku: string;
     toggle?: string;
     textbox?: string;
-    dropdown1?: string[];
-    dropdown2?: string[];
+    dropdown?: string[];
     command: string; // "addsignal {vector3[x]} {vector3[y]} {vector3[z]} {text}"
     disabled?: boolean;
     hidden?: boolean;
@@ -17,6 +16,7 @@ export type Redeem = {
 export type Config = {
     version: number;
     redeems: Redeem[];
+    message?: string;
 }
 
 export type Cart = {
@@ -25,8 +25,7 @@ export type Cart = {
     args: {
         text?: string;
         toggle?: boolean;
-        dropdown1?: string;
-        dropdown2?: string;
+        dropdown?: string;
         // vector3: [number, number, number];
     }
 }
