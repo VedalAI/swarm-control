@@ -70,6 +70,15 @@ input {
     border-style: none;
 }
 
+select {
+    margin: 10px;
+    border-radius: 5px;
+    padding: 5px;
+    color: white;
+    background-color: #222;
+    border-style: none;
+}
+
 #onboarding {
     z-index: 1000;
     position: fixed;

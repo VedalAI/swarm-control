@@ -7,6 +7,7 @@ export type Redeem = {
     sku: string;
     toggle: string | undefined;
     textbox: string | undefined;
+    dropdown: [string] | undefined;
 };
 
 export type Config = {

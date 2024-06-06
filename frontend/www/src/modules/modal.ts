@@ -9,8 +9,13 @@ const $modalDescription = document.getElementById("modal-description")!;
 const $modalImage = document.getElementById("modal-image")! as HTMLImageElement;
 const $modalToggle = document.getElementById("modal-toggle")!;
 const $modalToggleLabel = document.getElementById("modal-toggle-label")!;
+const $modalToggleInput = document.getElementById("modal-toggle-input")!;
 const $modalText = document.getElementById("modal-text")!;
 const $modalTextLabel = document.getElementById("modal-text-label")!;
+const $modalTextInput = document.getElementById("modal-text-input")!;
+const $modalDropdown = document.getElementById("modal-dropdown")!;
+const $modalDropdownLabel = document.getElementById("modal-dropdown-label")!;
+const $modalDropdownInput = document.getElementById("modal-dropdown-input")!;
 const $modalPrice = document.getElementById("modal-bits")!;
 const $modalYes = document.getElementById("modal-yes")!;
 const $modalNo = document.getElementById("modal-no")!;
@@ -47,6 +52,21 @@ export function openModal(redeem: Redeem) {
     } else {
         $modalText.style.display = "none";
         $modalTextLabel.textContent = "";
+    }
+    if(redeem.dropdown) {
+        $modalDropdown.style.display = "block";
+        $modalDropdownLabel.textContent = redeem.dropdown[0];
+        $modalDropdownInput.innerHTML = "";
+        for(const option of redeem.dropdown.slice(1)) {
+            const element = document.createElement("option");
+            element.value = option;
+            element.textContent = option;
+            $modalDropdownInput.appendChild(element);
+        }
+    } else {
+        $modalDropdown.style.display = "none";
+        $modalDropdownLabel.textContent = "";
+        $modalDropdownInput.innerHTML = "";
     }
     cart = {sku: redeem.sku, id: redeem.id, args: {}};
 }
