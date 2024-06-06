@@ -210,3 +210,4 @@ fabric.properties
 
 ### User-ignored files
 .idea
+package-lock.json
