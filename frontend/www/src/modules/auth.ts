@@ -33,14 +33,9 @@ Twitch.ext.bits.onTransactionComplete(async transaction => {
 
     hideProcessingModal();
 
-    // TODO: make this look nice \/
     if (result.ok) {
         //TODO: showConfirmationModal();
     } else {
-        /* const element = document.createElement('div');
-        element.innerHTML = `FAIL ${result.status} ${result.statusText}! ${await result.text()}`;
-        element.style.color = "red";
-        document.body.appendChild(element); */
         showErrorModal(`${result.status} ${result.statusText} - ${await result.text()}`);
     }
 })

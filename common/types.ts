@@ -5,9 +5,9 @@ export type Redeem = {
   image: string;
   price: number;
   sku: string;
-  toggle: string | undefined;
-  textbox: string | undefined;
-  dropdown: [string] | undefined;
+  toggle?: string;
+  textbox?: string;
+  dropdown: string[];
 };
 
 export type Config = {
@@ -15,10 +15,17 @@ export type Config = {
   redeems: Redeem[];
 }
 
+export type Cart = {
+  id: string;
+  sku: string;
+  args: {
+    text?: string;
+    toggle?: boolean;
+    dropdown?: string;
+  }
+}
+
 export type Transaction = {
   receipt: string,
   version: number,
-  id: string;
-  sku: string;
-  args: {[key: string]: string};
-}
+} & Cart;
