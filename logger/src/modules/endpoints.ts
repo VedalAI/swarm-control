@@ -21,6 +21,8 @@ app.post("/log", async (req, res) => {
         }
 
         builder.send(logMessage.important);
+
+        res.sendStatus(200);
     } catch (e: any) {
         console.error("Failed to log");
         console.error(e);

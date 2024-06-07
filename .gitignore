@@ -212,3 +212,4 @@ fabric.properties
 .idea
 package-lock.json
 _volumes
+.docker.env
