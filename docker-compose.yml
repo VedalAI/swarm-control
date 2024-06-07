@@ -35,3 +35,5 @@ services:
       MYSQL_DATABASE: ebs
       MYSQL_USER: ebs
       MYSQL_PASSWORD: ebs
+    volumes:
+      - ./_volumes/db:/var/lib/mysql
