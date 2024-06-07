@@ -30,6 +30,7 @@ export type Config = {
     version: number;
     enums: Enum[];
     redeems: Redeem[];
+    banned: string[];
     message?: string;
 }
 

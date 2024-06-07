@@ -7,8 +7,6 @@
     "bundle": "esbuild --bundle --minify --platform=node --sourcemap=inline --outfile=dist/index.js src/index.ts"
   },
   "dependencies": {
-    "@twurple/api": "^7.1.0",
-    "@twurple/auth": "^7.1.0",
     "@twurple/ebs-helper": "^7.1.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
@@ -20,7 +18,6 @@
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
     "@types/cors": "^2.8.17",
-    "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
     "@types/jsonpack": "^1.1.6",
     "@types/jsonwebtoken": "^9.0.6",
