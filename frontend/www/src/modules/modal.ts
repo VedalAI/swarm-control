@@ -55,6 +55,7 @@ const $modalProcessingDescription = document.getElementById("modal-processing-de
 const $modalProcessingClose = document.getElementById("modal-processing-close")!;
 
 const $modalError = document.getElementById("modal-error")!;
+const $modalErrorTitle = document.getElementById("modal-error-title")!;
 const $modalErrorDescription = document.getElementById("modal-error-description")!;
 const $modalErrorClose = document.getElementById("modal-error-close")!;
 
@@ -71,7 +72,14 @@ document.addEventListener("DOMContentLoaded", () => {
     $modalCancel.onclick = closeModal;
 });
 
-export function openModal(redeem: Redeem) {
+export function openModal(redeem: Redeem | null) {
+    if (redeem == null) {
+        $modalWrapper.style.opacity = "1";
+        $modalWrapper.style.pointerEvents = "unset";
+        setTimeout(() => $modal.classList.add("active-modal"), 10);
+        return;
+    }
+
     cart = { sku: redeem.sku, id: redeem.id, args: {} };
 
     $modalWrapper.style.opacity = "1";
@@ -113,9 +121,10 @@ export function showProcessingModal() {
     }, 30 * 1000);
 }
 
-export function showErrorModal(description: string) {
+export function showErrorModal(title: string, description: string) {
     $modalError.style.opacity = "1";
     $modalError.style.pointerEvents = "unset";
+    $modalErrorTitle.textContent = title;
     $modalErrorDescription.textContent = description;
     $modalErrorClose.onclick = () => hideErrorModal(true);
 }
@@ -165,7 +174,7 @@ async function confirmPurchase() {
 
     if (!await confirmVersion()) {
         hideProcessingModal();
-        showErrorModal(`Cannot make transaction: Config version mismatch.`);
+        showErrorModal("Verification failed, please try again.", "Your redeems list is out-of-date. Please try again. If this problem persists, please refresh the page.");
         return;
     }
 

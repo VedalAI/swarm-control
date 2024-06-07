@@ -21,8 +21,6 @@ app.post("/public/confirm_transaction", async (req, res) => {
 });
 
 app.post("/public/transaction", async (req, res) => {
-    console.log("got here");
-
     const transaction = req.body as Transaction;
 
     if (!transaction.receipt) {

@@ -1,8 +1,7 @@
 import { Transaction } from "common/types";
 import { ebsFetch } from "../ebs";
-import { cart, hideProcessingModal, showErrorModal, showSuccessModal } from "./modal";
+import {cart, hideProcessingModal, openModal, showErrorModal, showSuccessModal} from "./modal";
 import { getConfig } from "../config";
-import { pack } from "jsonpack";
 
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
@@ -15,6 +14,13 @@ Twitch.ext.onAuthorized(() => {
 
 Twitch.ext.bits.onTransactionComplete(async transaction => {
     const config = await getConfig();
+
+    if (!cart || !cart.id || !cart.sku) {
+        openModal(null);
+        hideProcessingModal();
+        showErrorModal("An error occurred.", "If you made a purchase from another tab/browser/mobile, you can safely ignore this message. Otherwise, please contant a moderator (preferably Alex) about this!");
+        return;
+    }
 
     const transactionObject: Transaction = {
         ...cart!,
@@ -30,19 +36,12 @@ Twitch.ext.bits.onTransactionComplete(async transaction => {
         body: JSON.stringify(transactionObject),
     });
 
-    if (!result.ok) {
-        hideProcessingModal();
-        showErrorModal("An error occurred while fulfilling your purchase. Please contant a moderator and send them the following error code: "
-            + Buffer.from(pack(transactionObject)).toString("base64"));
-        return;
-    }
-
     setTimeout(() => hideProcessingModal(), 250);
 
     if (result.ok) showSuccessModal("Purchase completed", "Your transaction was successful!");
-    else showErrorModal(`${result.status} ${result.statusText} - ${await result.text()}`);
+    else showErrorModal("An error occurred.", `Please contact a moderator (preferably Alex) about this!\n${result.status} ${result.statusText} - ${await result.text()}`);
 });
 
 Twitch.ext.bits.onTransactionCancelled(async () => {
-    showErrorModal("Transaction cancelled.");
+    showErrorModal("Transaction cancelled.", "");
 });
