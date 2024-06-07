@@ -1,7 +1,7 @@
 import { Config } from "common/types";
 import { app } from "../index";
-import {sendPubSubMessage} from "../pubsub";
-import {pack} from "jsonpack";
+import { sendPubSubMessage } from "../pubsub";
+import { pack } from "jsonpack";
 
 let config: Config | undefined;
 let previousConfig: Config | undefined;

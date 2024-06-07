@@ -23,3 +23,60 @@ h1 {
     color: white;
     text-align: center;
 }
+
+input {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ffffff1A;
+    background-color: #333;
+    color: #eee;
+}
+
+input[type="checkbox"] {
+    position: relative;
+
+    width: 20px;
+    height: 20px;
+
+    cursor: pointer;
+
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    background-color: #333;
+    border: 1px solid #ffffff1A;
+    border-radius: 5px;
+
+    transition: all;
+    transition-duration: 0.25s;
+}
+
+input[type="checkbox"]:checked {
+    background-color: rgba(var(--primary-color), 0.5);
+}
+
+input[type="checkbox"]:hover {
+    background-color: rgba(var(--primary-color), 0.25);
+}
+
+input[type="checkbox"]:checked::before {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    content: "✔";
+    font-size: 1.25rem;
+    color: white;
+}
+
+select {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ffffff1A;
+    background-color: #333;
+    color: #eee;
+}

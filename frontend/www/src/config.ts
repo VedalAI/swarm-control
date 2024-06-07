@@ -1,5 +1,5 @@
-import {ebsFetch} from "./ebs";
-import {Config} from "common/types";
+import { ebsFetch } from "./ebs";
+import { Config } from "common/types";
 
 let config: Config;
 

@@ -76,6 +76,14 @@
     border-radius: 10px;
 }
 
+.redeemable-item-disabled {
+    filter: grayscale(100%);
+
+    opacity: 0.5;
+
+    pointer-events: none;
+}
+
 .redeemable-item-descriptor {
     position: absolute;
 
@@ -98,6 +106,7 @@
     font-size: 1.15rem;
     font-weight: bold;
     text-align: left;
+    text-shadow: 0 0 5px #000;
 
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -119,4 +128,8 @@
     height: 20px;
 
     object-fit: contain;
+}
+
+.redeemable-item-price {
+    text-shadow: 0 0 5px #000;
 }

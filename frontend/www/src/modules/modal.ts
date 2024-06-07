@@ -1,18 +1,26 @@
-import {Cart, Parameter, Redeem} from "common/types";
+import { Cart, Parameter, Redeem } from "common/types";
 import { ebsFetch } from "../ebs";
-import {getConfig} from "../config";
+import { getConfig } from "../config";
 
-const $modalWrapper = document.getElementById("modal-confirm")!;
-const $modal = document.getElementById("modal-confirm")!.getElementsByClassName("modal")[0]!;
+/* Containers */
+const $modalWrapper = document.getElementById("modal-wrapper")!;
+const $modal = document.getElementById("modal-wrapper")!.getElementsByClassName("modal")[0]!;
+
+/* Descriptors */
 const $modalTitle = document.getElementById("modal-title")!;
 const $modalDescription = document.getElementById("modal-description")!;
 const $modalImage = document.getElementById("modal-image")! as HTMLImageElement;
-const $modalOptions = document.getElementById("modal-options")!;
-const $modalOptionsContainer = document.getElementById("modal-options-container")!;
-const $modalPrice = document.getElementById("modal-bits")!;
-const $modalYes = document.getElementById("modal-yes")!;
-const $modalNo = document.getElementById("modal-no")!;
 
+/* Price */
+const $modalPrice = document.getElementById("modal-bits")!;
+
+/* Buttons */
+const $modalConfirm = document.getElementById("modal-confirm")!;
+const $modalCancel = document.getElementById("modal-cancel")!;
+
+/* Options */
+const $modalOptionsContainer = document.getElementById("modal-options-container")!;
+const $modalOptionsWrapper = document.getElementById("modal-options")!;
 const $paramToggle = document.getElementById("modal-toggle")!;
 const $paramText = document.getElementById("modal-text")!;
 const $paramNumber = document.getElementById("modal-number")!;
@@ -41,7 +49,10 @@ const $paramTemplates = {
     },
 };
 
+/* Modal overlays */
 const $modalProcessing = document.getElementById("modal-processing")!;
+const $modalProcessingDescription = document.getElementById("modal-processing-description")!;
+const $modalProcessingClose = document.getElementById("modal-processing-close")!;
 
 const $modalError = document.getElementById("modal-error")!;
 const $modalErrorDescription = document.getElementById("modal-error-description")!;
@@ -56,8 +67,8 @@ export let cart: Cart | undefined;
 let processingTimeout: number | undefined;
 
 document.addEventListener("DOMContentLoaded", () => {
-    $modalYes.onclick = confirmPurchase;
-    $modalNo.onclick = closeModal;
+    $modalConfirm.onclick = confirmPurchase;
+    $modalCancel.onclick = closeModal;
 });
 
 export function openModal(redeem: Redeem) {
@@ -65,6 +76,7 @@ export function openModal(redeem: Redeem) {
 
     $modalWrapper.style.opacity = "1";
     $modalWrapper.style.pointerEvents = "unset";
+
     $modalTitle.textContent = redeem.title;
     $modalDescription.textContent = redeem.description;
     $modalPrice.textContent = redeem.price.toString();
@@ -75,22 +87,29 @@ export function openModal(redeem: Redeem) {
     hideProcessingModal();
     hideErrorModal();
 
-    // clear
-    for (let node of Array.from($modalOptionsContainer.childNodes))
-    {
-        $modalOptionsContainer.removeChild(node);
-    }
+    for (let node of Array.from($modalOptionsContainer.childNodes)) $modalOptionsContainer.removeChild(node);
+
+    if ((redeem.args || []).length === 0) $modalOptionsWrapper.style.display = "none";
+    else $modalOptionsWrapper.style.display = "flex";
+
     addOptionsFields($modalOptionsContainer, redeem);
 }
 
 export function showProcessingModal() {
     $modalProcessing.style.opacity = "1";
     $modalProcessing.style.pointerEvents = "unset";
+
+    $modalProcessingDescription.style.display = "none";
+    $modalProcessingClose.style.display = "none";
+
     if (processingTimeout) clearTimeout(processingTimeout);
 
     processingTimeout = +setTimeout(() => {
-        setTimeout(() => hideProcessingModal(), 250);
-        showErrorModal("Transaction timed out. Please try again.");
+        $modalProcessingDescription.style.display = "unset";
+        $modalProcessingDescription.textContent = "This is taking longer than expected.";
+
+        $modalProcessingClose.style.display = "unset";
+        $modalProcessingClose.onclick = () => { hideProcessingModal(); closeModal(); };
     }, 30 * 1000);
 }
 
@@ -123,18 +142,21 @@ function closeModal() {
 export function hideProcessingModal() {
     $modalProcessing.style.opacity = "0";
     $modalProcessing.style.pointerEvents = "none";
+
     if (processingTimeout) clearTimeout(processingTimeout);
 }
 
 function hideErrorModal(closeMainModal = false) {
     $modalError.style.opacity = "0";
     $modalError.style.pointerEvents = "none";
+
     if (closeMainModal) closeModal();
 }
 
 function hideSuccessModal(closeMainModal = false) {
     $modalSuccess.style.opacity = "0";
     $modalSuccess.style.pointerEvents = "none";
+
     if (closeMainModal) closeModal();
 }
 
@@ -167,20 +189,20 @@ async function confirmVersion() {
 }
 
 function addOptionsFields(modal: HTMLElement, redeem: Redeem) {
-    for (const param of redeem.args) {
-        switch (param.type) {
-            case "string":
-                addText(modal, param);
-                break;
-            case "integer":
-            case "float":
-                addNumeric(modal, param);
-                break;
-            case "boolean":
-                addCheckbox(modal, param);
-            default:
-                addDropdown(modal, param);
-        }
+    for (const param of redeem.args || []) switch (param.type) {
+        case "string":
+            addText(modal, param);
+            break;
+        case "integer":
+        case "float":
+            addNumeric(modal, param);
+            break;
+        case "boolean":
+            addCheckbox(modal, param);
+            break;
+        default:
+            addDropdown(modal, param);
+            break;
     }
 }
 function addText(modal: HTMLElement, param: Parameter) {
@@ -206,9 +228,10 @@ function addNumeric(modal: HTMLElement, param: Parameter) {
     }
     setupField(field, "input", param);
     input.onchange = () => cart!.args[param.name] = input.value;
-    if (typeof param.defaultValue == "number") {
+
+    if (typeof param.defaultValue == "number")
         input.value = param.defaultValue.toString();
-    }
+
     postSetupField(input, param);
     modal.appendChild(field);
 }
@@ -227,14 +250,16 @@ function addCheckbox(modal: HTMLElement, param: Parameter) {
 
 async function addDropdown(modal: HTMLElement, param: Parameter) {
     let options: string[] = [];
+
     try {
         options = (await getConfig()).enums.find(e => e.name == param.type)!.values;
     } catch {
         return; // someone's messing with the config, screw em
     }
+
     const field = $paramTemplates.dropdown.div.cloneNode(true) as HTMLSelectElement;
     const select = field.querySelector("select")!;
-    
+
     setupField(field, "select", param);
     for (const opt of options) {
         const option = document.createElement("option");
@@ -242,6 +267,7 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
         option.textContent = opt;
         select.appendChild(option);
     }
+
     select.onchange = () => cart!.args[param.name] = select.value;
     if (typeof param.defaultValue == "string") {
         select.value = param.defaultValue;

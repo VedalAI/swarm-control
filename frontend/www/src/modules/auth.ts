@@ -1,8 +1,8 @@
 import { Transaction } from "common/types";
 import { ebsFetch } from "../ebs";
 import { cart, hideProcessingModal, showErrorModal, showSuccessModal } from "./modal";
-import {getConfig} from "../config";
-import {pack} from "jsonpack";
+import { getConfig } from "../config";
+import { pack } from "jsonpack";
 
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
@@ -10,9 +10,7 @@ const $loginButton = document.getElementById("twitch-login")!;
 document.addEventListener("DOMContentLoaded", () => $loginButton.onclick = Twitch.ext.actions.requestIdShare);
 
 Twitch.ext.onAuthorized(() => {
-    if (Twitch.ext.viewer.id) {
-        $loginPopup.style.display = "none";
-    }
+    if (Twitch.ext.viewer.id) $loginPopup.style.display = "none";
 });
 
 Twitch.ext.bits.onTransactionComplete(async transaction => {

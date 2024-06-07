@@ -21,7 +21,7 @@
         </div>
 
         <!-- Purchase modal -->
-        <div class="modal-wrapper" id="modal-confirm" style="opacity: 0; pointer-events: none;">
+        <div class="modal-wrapper" id="modal-wrapper" style="opacity: 0; pointer-events: none;">
             <div class="modal">
                 <img id="modal-image" class="modal-image" src="">
                 <div class="modal-descriptors">
@@ -40,18 +40,28 @@
 
                     <!-- Buy and cancel buttons -->
                     <div class="modal-buttons">
-                        <button id="modal-yes" class="button btn-success">
+                        <button id="modal-confirm" class="button btn-success">
                             Buy for <img src="../img/bits.png" class="bits-image">
                             <p id="modal-bits">unknown</p>
                         </button>
-                        <button id="modal-no" class="button btn-danger">Cancel</button>
+                        <button id="modal-cancel" class="button btn-danger">Cancel</button>
                     </div>
                 </div>
 
                 <!-- Modal processing overlay -->
-                <div class="modal-overlay" id="modal-processing" style="opacity: 0; pointer-events: none;">
-                    <div class="spinner"></div>
-                    <p>Processing your request...</p>
+                <div class="modal-overlay modal-processing" id="modal-processing"
+                    style="opacity: 0; pointer-events: none;">
+                    <div class="modal-spinner-container">
+                        <div class="spinner"></div>
+                        <p>Processing your request...</p>
+                    </div>
+
+                    <p id="modal-processing-description"></p>
+
+                    <!-- Close button -->
+                    <div class="modal-buttons">
+                        <button id="modal-processing-close" class="button btn-danger">Close</button>
+                    </div>
                 </div>
 
                 <!-- Modal error overlay -->
@@ -116,6 +126,8 @@
             <input id="modal-toggle-input" type="checkbox">
         </div>
     </div>
+
+    <!-- erm, the end... -->
 </body>
 
 </html>

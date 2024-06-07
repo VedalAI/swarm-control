@@ -1,0 +1,12 @@
+.alert {
+    padding: 20px;
+
+    width: calc(100% - 20px);
+
+    background-color: rgb(var(--danger-color));
+    color: white;
+
+    margin: 10px;
+
+    border-radius: 10px;
+}

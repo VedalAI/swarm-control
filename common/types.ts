@@ -2,17 +2,17 @@ type EnumTypeName = string;
 type ParamType = "string" | "integer" | "float" | "boolean" | EnumTypeName;
 
 export type Enum = {
-  name: EnumTypeName;
-  values: string[];
+    name: EnumTypeName;
+    values: string[];
 }
 
 export type Parameter = {
-  name: string;
-  title?: string;
-  description?: string;
-  type: ParamType;
-  required?: boolean;
-  defaultValue?: any;
+    name: string;
+    title?: string;
+    description?: string;
+    type: ParamType;
+    required?: boolean;
+    defaultValue?: any;
 }
 
 export type Redeem = {
@@ -23,6 +23,7 @@ export type Redeem = {
     price: number;
     sku: string;
     args: Parameter[];
+    disabled?: boolean;
     hidden?: boolean;
 };
 
@@ -37,7 +38,7 @@ export type Config = {
 export type Cart = {
     id: string;
     sku: string;
-    args: {[name: string]: any};
+    args: { [name: string]: any };
 }
 
 export type Transaction = {
