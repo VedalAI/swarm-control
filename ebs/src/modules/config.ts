@@ -7,7 +7,7 @@ let config: Config | undefined;
 let previousConfig: Config | undefined;
 let previousConfigUsableUntil: Date | undefined;
 
-const gistUrl = "https://gist.githubusercontent.com/Alexejhero/804fe0900d015b89a934a9b759ba2330/raw"
+const gistUrl = "https://gist.githubusercontent.com/Zyrenth/1ae853881e967e94d3295b90851b6a3e/raw"
 
 async function fetchConfig(): Promise<Config> {
     const url = `${gistUrl}?${Date.now()}`;
