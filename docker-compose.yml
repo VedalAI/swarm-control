@@ -35,6 +35,7 @@ services:
     ports:
       - 3306:3306
     environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
       MYSQL_DATABASE: ebs
       MYSQL_USER: ebs
     env_file:
