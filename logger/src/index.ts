@@ -6,6 +6,8 @@ import mysql from "mysql2/promise";
 
 dotenv();
 
+const port = 3000;
+
 export const app = express();
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
@@ -32,8 +34,8 @@ async function main() {
         }
     }
 
-    app.listen(parseInt(process.env.PORT!), () => {
-        console.log("Listening on port " + process.env.PORT);
+    app.listen(port, () => {
+        console.log("Listening on port " + port);
 
         require("./modules/endpoints");
     });

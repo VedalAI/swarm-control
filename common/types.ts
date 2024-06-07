@@ -51,3 +51,8 @@ export type PubSubMessage = {
     type: string;
     data: string;
 };
+
+export type LogMessage = {
+    important: boolean;
+    fields: { header: string; content: string }[];
+};
