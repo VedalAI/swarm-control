@@ -58,11 +58,9 @@ export async function registerPrepurchase(cart: IdentifiableCart): Promise<strin
 
 export async function getPrepurchase(token: string): Promise<IdentifiableCart | undefined> {
     try {
-        const [rows] = (await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token])) as [
-            RowDataPacket[],
-            any,
-        ];
-        console.log(rows);
+        const x = (await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token])) as [RowDataPacket[], any];
+        console.log(x);
+        const rows = x[0];
         if (rows.length === 0) return undefined;
         return JSON.parse(rows[0].cart) as IdentifiableCart;
     } catch (e: any) {
