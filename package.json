@@ -13,14 +13,6 @@
         "logger"
     ],
     "devDependencies": {
-        "husky": "^9.0.11",
-        "lint-staged": "^15.2.5",
         "prettier": "^3.3.1"
-    },
-    "scripts": {
-        "prepare": "husky"
-    },
-    "lint-staged": {
-        "**/*.{ts,tsx,js,jsx,json,css,html,yaml,yml}": "prettier -w"
     }
 }

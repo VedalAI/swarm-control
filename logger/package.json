@@ -10,7 +10,8 @@
         "@vermaysha/discord-webhook": "^1.4.0",
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
-        "express": "^4.19.2"
+        "express": "^4.19.2",
+        "mysql2": "^3.10.0"
     },
     "devDependencies": {
         "@types/cors": "^2.8.17",

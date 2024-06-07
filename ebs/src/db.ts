@@ -1,7 +1,7 @@
-import {db} from "./index";
-import {RowDataPacket} from "mysql2";
-import {Cart} from "common/types";
-import {v4 as uuid} from "uuid";
+import { db } from "./index";
+import { RowDataPacket } from "mysql2";
+import { Cart } from "common/types";
+import { v4 as uuid } from "uuid";
 
 export async function setupDb() {
     await db.query(`
@@ -21,8 +21,11 @@ export async function setupDb() {
 
 export async function isReceiptUsed(receipt: string): Promise<boolean> {
     try {
-        const [rows] = await db.query("SELECT COUNT(*) FROM transactions WHERE receipt = ?", [receipt]) as [RowDataPacket[], any];
-        return rows[0]["COUNT(*)"] !== 0;
+        const [rows] = (await db.query("SELECT COUNT(*) FROM transactions WHERE receipt = ?", [receipt])) as [
+            RowDataPacket[],
+            any,
+        ];
+        return rows[0]["COUNT(*)"] != 0;
     } catch (e: any) {
         console.error("Database query failed (isReceiptUsed)");
         console.error(e);
@@ -55,7 +58,10 @@ export async function registerPrepurchase(cart: Cart): Promise<string> {
 
 export async function getPrepurchase(token: string): Promise<Cart | undefined> {
     try {
-        const [rows] = await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token]) as [RowDataPacket[], any];
+        const [rows] = (await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token])) as [
+            RowDataPacket[],
+            any,
+        ];
         if (rows.length === 0) return undefined;
         return JSON.parse(rows[0].cart) as Cart;
     } catch (e: any) {

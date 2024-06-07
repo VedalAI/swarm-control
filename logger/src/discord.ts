@@ -1,6 +1,6 @@
 import { Webhook } from "@vermaysha/discord-webhook";
 
-const hook = new Webhook(process.env.DISCORD_WEBHOOK);
+const hook = new Webhook(process.env.DISCORD_WEBHOOK!);
 hook.setUsername("Swarm Control");
 
 export function log(message: string) {
