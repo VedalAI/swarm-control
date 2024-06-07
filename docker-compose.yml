@@ -10,10 +10,9 @@ services:
     environment:
       MYSQL_HOST: db
       MYSQL_USER: ebs
+      MYSQL_PASSWORD: ebs
       MYSQL_DATABASE: ebs
       LOGGER_HOST: logger
-    env_file:
-      - ./.docker.env
 
   logger:
     build: logger
@@ -25,20 +24,14 @@ services:
     environment:
       MYSQL_HOST: db
       MYSQL_USER: ebs
+      MYSQL_PASSWORD: ebs
       MYSQL_DATABASE: ebs
-    env_file:
-      - ./.docker.env
 
   db:
     image: mysql:5.7
     restart: unless-stopped
-    ports:
-      - 3308:3306
     environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
       MYSQL_DATABASE: ebs
       MYSQL_USER: ebs
-    env_file:
-      - ./.docker.env
-    volumes:
-      - ./_volumes/db:/var/lib/mysql
+      MYSQL_PASSWORD: ebs
