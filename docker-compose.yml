@@ -13,12 +13,13 @@ services:
       DB_PASSWORD: ebs
       DB_NAME: ebs
       LOGGER_HOST: logger
+      LOGGER_PORT: 81
 
   logger:
     build: logger
     restart: unless-stopped
     ports:
-      - 80:3000
+      - 81:3000
     depends_on:
       - db
     environment:

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { parseJWT, verifyJWT } from "./jwt";
 import { AuthorizationPayload } from "../types";
+import { logToDiscord } from "./logger";
 
 export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     const auth = req.header("Authorization");
@@ -18,6 +19,22 @@ export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
 
     req.twitchAuthorization = parseJWT(token) as AuthorizationPayload;
 
+    if (!req.twitchAuthorization.user_id) {
+        logToDiscord({
+            transactionToken: null,
+            userId: null,
+            important: false,
+            fields: [
+                {
+                    header: "Missing user ID in JWT",
+                    content: req.twitchAuthorization,
+                },
+            ],
+        }).then();
+        res.status(500).send("Missing required data in JTW");
+        return;
+    }
+
     next();
 }
 
@@ -25,6 +42,7 @@ export function privateApiAuth(req: Request, res: Response, next: NextFunction) 
     const auth = req.header("Authorization");
     if (auth != "Bearer " + process.env.PRIVATE_API_KEY) {
         res.status(401).send("Invalid private API key... Why are you here? Please leave.");
+        return;
     }
 
     next();

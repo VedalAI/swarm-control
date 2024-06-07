@@ -10,10 +10,20 @@ const gistUrl = "https://gist.githubusercontent.com/Alexejhero/804fe0900d015b89a
 async function fetchConfig(): Promise<Config> {
     const url = `${gistUrl}?${Date.now()}`;
 
-    const response = await fetch(url);
-    const data = await response.json();
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-    return data as Config;
+        return data as Config;
+    } catch (e: any) {
+        console.error("Error when fetching config");
+        console.error(e);
+
+        return {
+            version: -1,
+            message: "Error when fetching config",
+        };
+    }
 }
 
 export async function getConfig(): Promise<Config> {

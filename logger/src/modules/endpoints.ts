@@ -5,11 +5,13 @@ import { canLog } from "../util/db";
 
 app.post("/log", async (req, res) => {
     try {
-        const logMessage = req.body as LogMessage;
+        const logMessage = req.body as LogMessage & { backendToken?: string };
 
-        if (!(await canLog(logMessage.transactionToken))) {
-            res.status(403).send("Invalid transaction token");
-            return;
+        if (process.env.PRIVATE_LOGGER_TOKEN! != logMessage.backendToken) {
+            if (!(await canLog(logMessage.transactionToken))) {
+                res.status(403).send("Invalid transaction token");
+                return;
+            }
         }
 
         const builder = new LogBuilder();
