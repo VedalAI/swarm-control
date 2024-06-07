@@ -1,9 +1,9 @@
-import {Cart, Transaction} from "common/types";
+import { Cart, Transaction } from "common/types";
 import { app } from "../index";
 import { parseJWT, verifyJWT } from "../jwt";
 import { BitsTransactionPayload } from "../types";
-import {getConfig, getPreviousConfig} from "./config";
-import {getPrepurchase, isPrepurchaseValid, isReceiptUsed, registerPrepurchase} from "../db";
+import { getConfig } from "./config";
+import { getPrepurchase, isReceiptUsed, registerPrepurchase } from "../db";
 
 app.post("/public/prepurchase", async (req, res) => {
     const cart = req.body["version"] as Cart;
@@ -49,7 +49,7 @@ app.post("/public/transaction", async (req, res) => {
         return;
     }
 
-    const cart = await getPrepurchase(payload.data.transactionId)
+    const cart = await getPrepurchase(payload.data.transactionId);
 
     if (!cart) {
         res.status(404).send("Invalid transaction token");
@@ -60,7 +60,13 @@ app.post("/public/transaction", async (req, res) => {
 
     const currentConfig = await getConfig();
     if (cart.version != currentConfig.version) {
-        console.log("Someone's using the old config... kinda sus (us:", currentConfig.version, ", them:", cart.version, ")");
+        console.log(
+            "Someone's using the old config... kinda sus (us:",
+            currentConfig.version,
+            ", them:",
+            cart.version,
+            ")"
+        );
         // TODO: add logging
     }
 
