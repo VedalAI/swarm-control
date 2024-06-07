@@ -252,7 +252,7 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
     let options: string[] = [];
 
     try {
-        options = (await getConfig()).enums.find(e => e.name == param.type)!.values;
+        options = (await getConfig()).enums!.find(e => e.name == param.type)!.values;
     } catch {
         return; // someone's messing with the config, screw em
     }

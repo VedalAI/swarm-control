@@ -25,7 +25,7 @@ export async function renderRedeemButtons() {
 
     if (redeems?.length === 0) $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
 
-    for (const redeem of redeems) {
+    for (const redeem of redeems || []) {
         if (redeem.hidden) continue;
 
         const item = document.createElement("div");

@@ -29,9 +29,9 @@ export type Redeem = {
 
 export type Config = {
     version: number;
-    enums: Enum[];
-    redeems: Redeem[];
-    banned: string[];
+    enums?: Enum[];
+    redeems?: Redeem[];
+    banned?: string[];
     message?: string;
 }
 

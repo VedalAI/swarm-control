@@ -18,7 +18,7 @@ async function fetchConfig() {
 
     const config: Config = await response.json();
 
-    if (config.banned.includes(Twitch.ext.viewer.id!)) {
+    if (config.banned && config.banned.includes(Twitch.ext.viewer.id!)) {
         return {
             version: -1,
             redeems: [],
