@@ -11,6 +11,8 @@ app.post("/public/prepurchase", async (req, res) => {
     const config = await getConfig();
     if (cart.version != config.version) {
         res.status(409).send(`Invalid config version (${cart.version}/${config.version})`);
+        console.error(`Invalid config version (${cart.version}/${config.version})`);
+        console.log(cart);
         return;
     }
 
