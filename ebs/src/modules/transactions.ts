@@ -54,7 +54,7 @@ app.post("/public/transaction", async (req, res) => {
 
     // At this point we know they paid for it and WE HAVE TO HONOR THE PURCHASE
 
-    // console.log(transaction);
+    console.log(transaction);
 
     // TODO: Verify user banned status
     // TODO: Verify redeem ID and sku
