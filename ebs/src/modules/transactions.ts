@@ -95,7 +95,7 @@ app.post("/public/transaction", async (req, res) => {
         return;
     }
 
-    const cart = await getPrepurchase(payload.data.transactionId);
+    const cart = await getPrepurchase(transaction.token);
 
     if (!cart) {
         logToDiscord({
