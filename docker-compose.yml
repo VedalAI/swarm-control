@@ -12,7 +12,6 @@ services:
       DB_USER: ebs
       DB_PASSWORD: ebs
       DB_NAME: ebs
-      LOGGER_HOST: logger
       LOGGER_PORT: 81
 
   logger:

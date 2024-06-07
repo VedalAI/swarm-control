@@ -2,7 +2,7 @@ import { LogMessage } from "common/types";
 
 export async function logToDiscord(data: LogMessage) {
     try {
-        const result = await fetch(`http://${process.env.LOGGER_HOST!}:${process.env.LOGGER_PORT!}/log`, {
+        const result = await fetch(`http://localhost:${process.env.LOGGER_PORT!}/log`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
