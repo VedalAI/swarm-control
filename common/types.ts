@@ -53,6 +53,7 @@ export type PubSubMessage = {
 };
 
 export type LogMessage = {
+    transactionToken: string;
     important: boolean;
     fields: { header: string; content: string }[];
 };

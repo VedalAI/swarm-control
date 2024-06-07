@@ -1,4 +1,4 @@
-import { db } from "./index";
+import { db } from "../index";
 import { RowDataPacket } from "mysql2";
 import { Cart } from "common/types";
 import { v4 as uuid } from "uuid";

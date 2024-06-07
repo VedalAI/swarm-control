@@ -1,6 +1,6 @@
-import {Request, Response, NextFunction} from "express";
-import {parseJWT, verifyJWT} from "./jwt";
-import {AuthorizationPayload} from "./types";
+import { NextFunction, Request, Response } from "express";
+import { parseJWT, verifyJWT } from "./jwt";
+import { AuthorizationPayload } from "../types";
 
 export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     const auth = req.header("Authorization");
@@ -12,7 +12,7 @@ export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
 
     const token = auth.substring(7);
     if (!verifyJWT(token)) {
-        res.status(401).send("Invalid session token")
+        res.status(401).send("Invalid session token");
         return;
     }
 

@@ -1,11 +1,11 @@
 import { Config } from "common/types";
 import { app } from "../index";
-import { sendPubSubMessage } from "../pubsub";
+import { sendPubSubMessage } from "../util/pubsub";
 import { pack } from "jsonpack";
 
 let config: Config | undefined;
 
-const gistUrl = "https://gist.githubusercontent.com/Alexejhero/804fe0900d015b89a934a9b759ba2330/raw"
+const gistUrl = "https://gist.githubusercontent.com/Alexejhero/804fe0900d015b89a934a9b759ba2330/raw";
 
 async function fetchConfig(): Promise<Config> {
     const url = `${gistUrl}?${Date.now()}`;
@@ -29,7 +29,7 @@ app.get("/private/refresh", async (_, res) => {
     console.log("Refreshed config, new config version is ", config.version);
     await sendPubSubMessage({
         type: "config_refreshed",
-        data: pack(config)
+        data: pack(config),
     });
     res.sendStatus(200);
 });

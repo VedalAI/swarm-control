@@ -1,9 +1,9 @@
 import { Cart, Transaction } from "common/types";
 import { app } from "../index";
-import { parseJWT, verifyJWT } from "../jwt";
+import { parseJWT, verifyJWT } from "../util/jwt";
 import { BitsTransactionPayload } from "../types";
 import { getConfig } from "./config";
-import { getPrepurchase, isReceiptUsed, registerPrepurchase } from "../db";
+import { getPrepurchase, isReceiptUsed, registerPrepurchase } from "../util/db";
 
 app.post("/public/prepurchase", async (req, res) => {
     const cart = req.body as Cart;

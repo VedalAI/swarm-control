@@ -1,10 +1,17 @@
 import { app } from "../index";
-import { LogBuilder } from "../discord";
+import { LogBuilder } from "../util/discord";
 import { LogMessage } from "common/types";
+import { canLog } from "../util/db";
 
-app.post("/log", (req, res) => {
+app.post("/log", async (req, res) => {
     try {
         const logMessage = req.body as LogMessage;
+
+        if (!(await canLog(logMessage.transactionToken))) {
+            res.status(403).send("Invalid transaction token");
+            return;
+        }
+
         const builder = new LogBuilder();
 
         for (const field of logMessage.fields) {

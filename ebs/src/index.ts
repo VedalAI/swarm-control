@@ -3,8 +3,8 @@ import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
 import mysql from "mysql2/promise";
-import { privateApiAuth, publicApiAuth } from "./middleware";
-import { setupDb } from "./db";
+import { privateApiAuth, publicApiAuth } from "./util/middleware";
+import { setupDb } from "./util/db";
 
 dotenv();
 
