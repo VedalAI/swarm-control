@@ -11,7 +11,8 @@
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
-        "mysql2": "^3.10.0"
+        "mysql2": "^3.10.0",
+        "tslib": "^2.6.3"
     },
     "devDependencies": {
         "@types/cors": "^2.8.17",

@@ -2,10 +2,25 @@ services:
   ebs:
     build: ebs
     restart: unless-stopped
-    depends_on:
-      - db
     ports:
       - 80:3000
+    depends_on:
+      - db
+      - logger
+    environment:
+      DB_HOST: db
+      DB_USER: ebs
+      DB_PASSWORD: ebs
+      DB_NAME: ebs
+      LOGGER_HOST: logger
+
+  logger:
+    build: logger
+    restart: unless-stopped
+    ports:
+      - 81:3000
+    depends_on:
+      - db
     environment:
       DB_HOST: db
       DB_USER: ebs

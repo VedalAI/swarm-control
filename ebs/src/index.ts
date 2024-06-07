@@ -4,10 +4,12 @@ import express from "express";
 import expressWs from "express-ws";
 import bodyParser from "body-parser";
 import mysql from "mysql2/promise";
-import { privateApiAuth, publicApiAuth } from "./middleware";
-import { setupDb } from "./db";
+import { privateApiAuth, publicApiAuth } from "./util/middleware";
+import { setupDb } from "./util/db";
 
 dotenv();
+
+const port = 3000;
 
 export const { app } = expressWs(express());
 app.use(cors({ origin: "*" }))
@@ -44,8 +46,8 @@ async function main() {
         await setupDb();
     }
 
-    app.listen(parseInt(process.env.PORT!), () => {
-        console.log("Listening on port " + process.env.PORT);
+    app.listen(port, () => {
+        console.log("Listening on port " + port);
 
         require("./modules/config");
         require("./modules/transactions");

@@ -14,19 +14,16 @@ export function logImportant(message: string) {
 }
 
 export class LogBuilder {
-    private constructor() {}
+    public constructor() {}
 
     private data = "";
 
-    public send() {
-        log(this.data);
+    public send(important: boolean) {
+        if (!important) log(this.data);
+        else logImportant(this.data);
     }
 
-    public sendImportant() {
-        logImportant(this.data);
-    }
-
-    public add(header: string, content?: any): LogBuilder {
+    public addField(header: string, content?: any): LogBuilder {
         if (content) {
             let contentStr = content.toString();
             if (contentStr == "[object Object]") contentStr = JSON.stringify(content, null, 4);
@@ -35,9 +32,5 @@ export class LogBuilder {
             this.data += `### ${header}\n`;
         }
         return this;
-    }
-
-    public static add(header: string, content?: any): LogBuilder {
-        return new LogBuilder().add(header, content);
     }
 }

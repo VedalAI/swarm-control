@@ -1,6 +1,6 @@
-import { db } from "./index";
+import { db } from "../index";
 import { RowDataPacket } from "mysql2";
-import { Cart } from "common/types";
+import { IdentifiableCart } from "common/types";
 import { v4 as uuid } from "uuid";
 
 export async function setupDb() {
@@ -44,7 +44,7 @@ export async function addFulfilledTransaction(receipt: string, token: string) {
     }
 }
 
-export async function registerPrepurchase(cart: Cart): Promise<string> {
+export async function registerPrepurchase(cart: IdentifiableCart): Promise<string> {
     try {
         const token = uuid();
         await db.query("INSERT INTO prepurchases (token, cart) VALUES (?, ?)", [token, JSON.stringify(cart)]);
@@ -56,14 +56,14 @@ export async function registerPrepurchase(cart: Cart): Promise<string> {
     }
 }
 
-export async function getPrepurchase(token: string): Promise<Cart | undefined> {
+export async function getPrepurchase(token: string): Promise<IdentifiableCart | undefined> {
     try {
         const [rows] = (await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token])) as [
             RowDataPacket[],
             any,
         ];
         if (rows.length === 0) return undefined;
-        return JSON.parse(rows[0].cart) as Cart;
+        return JSON.parse(rows[0].cart) as IdentifiableCart;
     } catch (e: any) {
         console.error("Database query failed (isPrepurchaseValid)");
         console.error(e);
