@@ -6,13 +6,11 @@ import { getConfig } from "./config";
 import { getPrepurchase, isReceiptUsed, registerPrepurchase } from "../db";
 
 app.post("/public/prepurchase", async (req, res) => {
-    const cart = req.body["version"] as Cart;
+    const cart = req.body as Cart;
 
     const config = await getConfig();
     if (cart.version != config.version) {
         res.status(409).send(`Invalid config version (${cart.version}/${config.version})`);
-        console.error(`Invalid config version (${cart.version}/${config.version})`);
-        console.log(cart);
         return;
     }
 
