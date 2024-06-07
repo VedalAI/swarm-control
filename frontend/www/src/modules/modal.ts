@@ -30,22 +30,22 @@ const $paramTemplates = {
     text: {
         div: $paramText,
         label: $paramText.querySelector("label"),
-        input: $paramText.querySelector("input")
+        input: $paramText.querySelector("input"),
     },
     number: {
         div: $paramNumber,
         label: $paramNumber.querySelector("label"),
-        input: $paramNumber.querySelector("input")
+        input: $paramNumber.querySelector("input"),
     },
     dropdown: {
         div: $paramDropdown,
         label: $paramDropdown.querySelector("label"),
-        input: $paramDropdown.querySelector("select")
+        input: $paramDropdown.querySelector("select"),
     },
     toggle: {
         div: $paramToggle,
         label: $paramToggle.querySelector("label"),
-        input: $paramToggle.querySelector("input")
+        input: $paramToggle.querySelector("input"),
     },
 };
 
@@ -121,7 +121,10 @@ export function showProcessingModal() {
         $modalProcessingDescription.textContent = "This is taking longer than expected.";
 
         $modalProcessingClose.style.display = "unset";
-        $modalProcessingClose.onclick = () => { hideProcessingModal(); closeModal(); };
+        $modalProcessingClose.onclick = () => {
+            hideProcessingModal();
+            closeModal();
+        };
     }, 30 * 1000);
 }
 
@@ -129,7 +132,7 @@ export function showErrorModal(title: string, description: string) {
     $modalError.style.opacity = "1";
     $modalError.style.pointerEvents = "unset";
     $modalErrorTitle.textContent = title;
-    $modalErrorDescription.textContent = description;
+    $modalErrorDescription.innerText = description;
     $modalErrorClose.onclick = () => hideErrorModal(true);
 }
 
@@ -137,8 +140,11 @@ export function showSuccessModal(title: string, description: string, onClose?: (
     $modalSuccess.style.opacity = "1";
     $modalSuccess.style.pointerEvents = "unset";
     $modalSuccessTitle.textContent = title;
-    $modalSuccessDescription.textContent = description;
-    $modalSuccessClose.onclick = () => { hideSuccessModal(true); onClose?.(); };
+    $modalSuccessDescription.innerText = description;
+    $modalSuccessClose.onclick = () => {
+        hideSuccessModal(true);
+        onClose?.();
+    };
 }
 
 function closeModal() {
@@ -177,13 +183,11 @@ function hideSuccessModal(closeMainModal = false) {
 async function confirmPurchase() {
     showProcessingModal();
 
-    if (!await prePurchase()) {
-        hideProcessingModal();
-        showErrorModal("Invalid transaction, please try again.", "If this problem persists, please refresh the page or contact a moderator (preferably Alex).");
+    if (!(await prePurchase())) {
         return;
     }
 
-    Twitch.ext.bits.useBits(cart!.sku)
+    Twitch.ext.bits.useBits(cart!.sku);
 }
 
 async function prePurchase() {
@@ -196,6 +200,11 @@ async function prePurchase() {
     });
 
     if (!response.ok) {
+        hideProcessingModal();
+        showErrorModal(
+            "Invalid transaction, please try again.",
+            `${response.status} ${response.statusText} - ${await response.text()}\nIf this problem persists, please refresh the page or contact a moderator (preferably Alex).`
+        );
         return false;
     }
 
@@ -205,27 +214,28 @@ async function prePurchase() {
 }
 
 function addOptionsFields(modal: HTMLElement, redeem: Redeem) {
-    for (const param of redeem.args || []) switch (param.type) {
-        case "string":
-            addText(modal, param);
-            break;
-        case "integer":
-        case "float":
-            addNumeric(modal, param);
-            break;
-        case "boolean":
-            addCheckbox(modal, param);
-            break;
-        default:
-            addDropdown(modal, param).then();
-            break;
-    }
+    for (const param of redeem.args || [])
+        switch (param.type) {
+            case "string":
+                addText(modal, param);
+                break;
+            case "integer":
+            case "float":
+                addNumeric(modal, param);
+                break;
+            case "boolean":
+                addCheckbox(modal, param);
+                break;
+            default:
+                addDropdown(modal, param).then();
+                break;
+        }
 }
 function addText(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.text.div.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
     setupField(field, "input", param);
-    input.onchange = () => cart!.args[param.name] = input.value;
+    input.onchange = () => (cart!.args[param.name] = input.value);
     if (typeof param.defaultValue == "string") {
         input.value = param.defaultValue;
     }
@@ -243,10 +253,9 @@ function addNumeric(modal: HTMLElement, param: Parameter) {
         input.step = "0.01";
     }
     setupField(field, "input", param);
-    input.onchange = () => cart!.args[param.name] = input.value;
+    input.onchange = () => (cart!.args[param.name] = input.value);
 
-    if (typeof param.defaultValue == "number")
-        input.value = param.defaultValue.toString();
+    if (typeof param.defaultValue == "number") input.value = param.defaultValue.toString();
 
     postSetupField(input, param);
     modal.appendChild(field);
@@ -256,7 +265,7 @@ function addCheckbox(modal: HTMLElement, param: Parameter) {
     const field = $paramTemplates.toggle.div.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
     setupField(field, "input", param);
-    input.onchange = () => cart!.args[param.name] = input.checked;
+    input.onchange = () => (cart!.args[param.name] = input.checked);
     if (typeof param.defaultValue == "boolean") {
         input.checked = param.defaultValue;
     }
@@ -268,7 +277,7 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
     let options: string[] = [];
 
     try {
-        options = (await getConfig()).enums!.find(e => e.name == param.type)!.values;
+        options = (await getConfig()).enums!.find((e) => e.name == param.type)!.values;
     } catch {
         return; // someone's messing with the config, screw em
     }
@@ -284,7 +293,7 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
         select.appendChild(option);
     }
 
-    select.onchange = () => cart!.args[param.name] = select.value;
+    select.onchange = () => (cart!.args[param.name] = select.value);
     if (typeof param.defaultValue == "string") {
         select.value = param.defaultValue;
     } else {
@@ -297,12 +306,12 @@ async function addDropdown(modal: HTMLElement, param: Parameter) {
 function setupField(field: HTMLElement, inputType: "select" | "input", param: Parameter) {
     const input = field.querySelector(inputType)!;
     const label = field.querySelector("label")!;
-    field.id += "-"+param.name;
+    field.id += "-" + param.name;
     if (param.description) {
         field.title = param.description;
     }
-    input.id += "-"+param.name;
-    label.id += "-"+param.name;
+    input.id += "-" + param.name;
+    label.id += "-" + param.name;
     label.htmlFor = input.id;
     label.textContent = param.title ?? param.name;
 }
