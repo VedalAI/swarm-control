@@ -61,7 +61,7 @@ export async function getPrepurchase(token: string): Promise<IdentifiableCart | 
         const [rows] = (await db.query("SELECT cart FROM prepurchases", [token])) as [RowDataPacket[], any];
         console.log(rows);
         if (rows.length === 0) return undefined;
-        return JSON.parse(rows[0].cart) as IdentifiableCart;
+        return rows[0].cart as IdentifiableCart;
     } catch (e: any) {
         console.error("Database query failed (isPrepurchaseValid)");
         console.error(e);
