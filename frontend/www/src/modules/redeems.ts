@@ -45,7 +45,7 @@ export async function renderRedeemButtons() {
         redeemableDescriptor.appendChild(priceWrapper);
 
         const bitsImage = document.createElement("img");
-        bitsImage.src = "../img/bits.png";
+        bitsImage.src = "img/bits.png";
         priceWrapper.appendChild(bitsImage);
 
         const price = document.createElement("p");
