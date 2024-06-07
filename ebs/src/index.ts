@@ -1,6 +1,7 @@
 import { config as dotenv } from "dotenv";
 import cors from "cors";
 import express from "express";
+import expressWs from "express-ws";
 import bodyParser from "body-parser";
 import mysql from "mysql2/promise";
 import { privateApiAuth, publicApiAuth } from "./middleware";
@@ -8,8 +9,8 @@ import { setupDb } from "./db";
 
 dotenv();
 
-export const app = express();
-app.use(cors({ origin: "*" }));
+export const { app } = expressWs(express());
+app.use(cors({ origin: "*" }))
 app.use(bodyParser.json());
 app.use("/public/*", publicApiAuth);
 app.use("/private/*", privateApiAuth);
@@ -31,18 +32,25 @@ async function main() {
             });
             break;
         } catch {
+            if (!process.env.DB_HOST) {
+                break;
+            }
             console.log("Failed to connect to database. Retrying in 5 seconds...");
             await new Promise((resolve) => setTimeout(resolve, 5000));
         }
     }
-
-    await setupDb();
+    
+    if (db) {
+        await setupDb();
+    }
 
     app.listen(parseInt(process.env.PORT!), () => {
         console.log("Listening on port " + process.env.PORT);
 
         require("./modules/config");
         require("./modules/transactions");
+        require("./modules/game");
+
     });
 }
 
