@@ -1,7 +1,6 @@
 import { Transaction } from "common/types";
 import { ebsFetch } from "../ebs";
-import {cart, hideProcessingModal, openModal, showErrorModal, showSuccessModal} from "./modal";
-import { getConfig } from "../config";
+import {cart, hideProcessingModal, openModal, showErrorModal, showSuccessModal, transactionToken} from "./modal";
 
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
@@ -13,19 +12,16 @@ Twitch.ext.onAuthorized(() => {
 });
 
 Twitch.ext.bits.onTransactionComplete(async transaction => {
-    const config = await getConfig();
-
-    if (!cart || !cart.id || !cart.sku) {
-        openModal(null);
+    if (!transactionToken) {
+        await openModal(null);
         hideProcessingModal();
         showErrorModal("An error occurred.", "If you made a purchase from another tab/browser/mobile, you can safely ignore this message. Otherwise, please contant a moderator (preferably Alex) about this!");
         return;
     }
 
     const transactionObject: Transaction = {
-        ...cart!,
+        token: transactionToken,
         receipt: transaction.transactionReceipt,
-        version: config.version,
     };
 
     const result = await ebsFetch("/public/transaction", {

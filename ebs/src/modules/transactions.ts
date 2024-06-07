@@ -1,23 +1,32 @@
-import { Transaction } from "common/types";
+import {Cart, Transaction} from "common/types";
 import { app } from "../index";
 import { parseJWT, verifyJWT } from "../jwt";
 import { BitsTransactionPayload } from "../types";
-import { getConfig, getPreviousConfig } from "./config";
+import {getConfig, getPreviousConfig} from "./config";
+import {getPrepurchase, isPrepurchaseValid, isReceiptUsed, registerPrepurchase} from "../db";
 
-const transactions: string[] = [];
+app.post("/public/prepurchase", async (req, res) => {
+    const cart = req.body["version"] as Cart;
 
-app.post("/public/confirm_transaction", async (req, res) => {
-    const version = req.body["version"] as number;
-
-    console.log("Someone is trying to confirm a transaction with version ", version);
-
-    const currentConfig = await getConfig();
-    if (version != currentConfig.version) {
+    const config = await getConfig();
+    if (cart.version != config.version) {
         res.status(409).send("Invalid config version");
         return;
     }
 
-    res.sendStatus(200);
+    if (config.banned && config.banned.includes(req.twitchAuthorization!.user_id!)) {
+        res.status(403).send("You are banned from using this extension");
+        return;
+    }
+
+    // TODO: Verify redeem ID and sku
+    // TODO: Verify redeem disabled/hidden status
+    // TODO: Verify parameters
+    // TODO: text input moderation
+
+    const token = await registerPrepurchase(cart);
+
+    res.status(200).send(token);
 });
 
 app.post("/public/transaction", async (req, res) => {
@@ -35,31 +44,28 @@ app.post("/public/transaction", async (req, res) => {
 
     const payload = parseJWT(transaction.receipt) as BitsTransactionPayload;
 
-    if (transactions.includes(payload.data.transactionId)) {
+    if (await isReceiptUsed(payload.data.transactionId)) {
         res.status(409).send("Transaction already processed");
         return;
     }
 
-    const currentConfig = await getConfig();
-    const previousConfig = getPreviousConfig();
-    if (transaction.version != currentConfig.version) {
-        console.log("Someone's using the old config... kinda sus (us:", currentConfig.version, ", them:", transaction.version, ")");
-        if (!previousConfig || transaction.version != previousConfig.version) {
-            console.warn("Nevermind they are cheating, ban them");
-            // TODO: log information about this user so we can ban them
-            res.status(409).send("Invalid config version");
-            return;
-        }
+    const cart = await getPrepurchase(payload.data.transactionId)
+
+    if (!cart) {
+        res.status(404).send("Invalid transaction token");
+        return;
     }
 
-    // At this point we know they paid for it and WE HAVE TO HONOR THE PURCHASE
+    // TODO: mark transaction fulfilled
+
+    const currentConfig = await getConfig();
+    if (cart.version != currentConfig.version) {
+        console.log("Someone's using the old config... kinda sus (us:", currentConfig.version, ", them:", cart.version, ")");
+        // TODO: add logging
+    }
 
     console.log(transaction);
-
-    // TODO: Verify user banned status
-    // TODO: Verify redeem ID and sku
-    // TODO: Verify redeem disabled/hidden status
-    // TODO: Verify parameters
+    console.log(cart);
 
     // TODO: send stuff to mod
 

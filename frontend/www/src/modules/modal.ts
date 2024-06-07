@@ -65,6 +65,8 @@ const $modalSuccessDescription = document.getElementById("modal-success-descript
 const $modalSuccessClose = document.getElementById("modal-success-close")!;
 
 export let cart: Cart | undefined;
+export let transactionToken: string | undefined;
+
 let processingTimeout: number | undefined;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -72,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $modalCancel.onclick = closeModal;
 });
 
-export function openModal(redeem: Redeem | null) {
+export async function openModal(redeem: Redeem | null) {
     if (redeem == null) {
         $modalWrapper.style.opacity = "1";
         $modalWrapper.style.pointerEvents = "unset";
@@ -80,7 +82,9 @@ export function openModal(redeem: Redeem | null) {
         return;
     }
 
-    cart = { sku: redeem.sku, id: redeem.id, args: {} };
+    const config = await getConfig();
+
+    cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {} };
 
     $modalWrapper.style.opacity = "1";
     $modalWrapper.style.pointerEvents = "unset";
@@ -139,6 +143,7 @@ export function showSuccessModal(title: string, description: string, onClose?: (
 
 function closeModal() {
     cart = undefined;
+    transactionToken = undefined;
 
     $modal.classList.remove("active-modal");
 
@@ -172,29 +177,31 @@ function hideSuccessModal(closeMainModal = false) {
 async function confirmPurchase() {
     showProcessingModal();
 
-    if (!await confirmVersion()) {
+    if (!await prePurchase()) {
         hideProcessingModal();
-        showErrorModal("Verification failed, please try again.", "Your redeems list is out-of-date. Please try again. If this problem persists, please refresh the page.");
+        showErrorModal("Invalid transaction, please try again.", "If this problem persists, please refresh the page or contact a moderator (preferably Alex).");
         return;
     }
 
     Twitch.ext.bits.useBits(cart!.sku)
 }
 
-async function confirmVersion() {
-    const config = await getConfig();
-
-    const response = await ebsFetch("/public/confirm_transaction", {
+async function prePurchase() {
+    const response = await ebsFetch("/public/prepurchase", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            version: config.version,
-        } satisfies { version: number }),
+        body: JSON.stringify(cart),
     });
 
-    return response.ok;
+    if (!response.ok) {
+        return false;
+    }
+
+    transactionToken = await response.text();
+
+    return true;
 }
 
 function addOptionsFields(modal: HTMLElement, redeem: Redeem) {

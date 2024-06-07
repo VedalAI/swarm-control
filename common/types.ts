@@ -4,7 +4,7 @@ type ParamType = "string" | "integer" | "float" | "boolean" | EnumTypeName;
 export type Enum = {
     name: EnumTypeName;
     values: string[];
-}
+};
 
 export type Parameter = {
     name: string;
@@ -13,7 +13,7 @@ export type Parameter = {
     type: ParamType;
     required?: boolean;
     defaultValue?: any;
-}
+};
 
 export type Redeem = {
     id: string;
@@ -33,20 +33,21 @@ export type Config = {
     redeems?: Redeem[];
     banned?: string[];
     message?: string;
-}
+};
 
 export type Cart = {
+    version: number;
     id: string;
     sku: string;
     args: { [name: string]: any };
-}
+};
 
 export type Transaction = {
-    receipt: string,
-    version: number,
-} & Cart;
+    receipt: string;
+    token: string;
+};
 
 export type PubSubMessage = {
-    type: string,
-    data: string,
-}
+    type: string;
+    data: string;
+};
