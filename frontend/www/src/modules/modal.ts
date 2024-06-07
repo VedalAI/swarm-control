@@ -201,7 +201,7 @@ function addOptionsFields(modal: HTMLElement, redeem: Redeem) {
             addCheckbox(modal, param);
             break;
         default:
-            addDropdown(modal, param);
+            addDropdown(modal, param).then();
             break;
     }
 }
