@@ -1,6 +1,6 @@
 import { LogMessage } from "common/types";
 
-const logEndpoint = `https://subnautica.vedal.ai:81/log`;
+const logEndpoint = `https://logger-subnautica.vedal.ai/log`;
 
 export async function logToDiscord(data: LogMessage) {
     try {
