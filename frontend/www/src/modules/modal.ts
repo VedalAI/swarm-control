@@ -176,7 +176,7 @@ function checkForm() {
 
 function setCartArgsFromForm(form: HTMLFormElement) {
     const formData = new FormData(form);
-    formData.forEach((v, k, f) => {
+    formData.forEach((v, k) => {
         cart!.args[k] = v;
     });
 }
@@ -210,7 +210,7 @@ async function prePurchase() {
         hideProcessingModal();
         showErrorModal(
             "Invalid transaction, please try again.",
-            `${response.status} ${response.statusText} - ${await response.text()}\nIf this problem persists, please refresh the page or contact a moderator (preferably Alex).`
+            `${response.status} ${response.statusText} - ${await response.text()}\nIf this problem persists, please refresh the page or contact a moderator (preferably AlexejheroDev).`
         );
         return false;
     }
@@ -244,7 +244,7 @@ function addText(modal: HTMLElement, param: TextParam) {
     setupField(field, input, param);
     input.minLength = param.minLength ?? param.required ? 1 : 0;
     input.maxLength = param.maxLength ?? 255;
-    if (typeof param.defaultValue == "string") {
+    if (param.defaultValue !== undefined) {
         input.value = param.defaultValue;
     }
     modal.appendChild(field);
@@ -263,7 +263,7 @@ function addNumeric(modal: HTMLElement, param: NumericParam) {
     input.max = param.max?.toString() ?? "";
     setupField(field, input, param);
 
-    if (typeof param.defaultValue == "number") input.value = param.defaultValue.toString();
+    if (Number.isFinite(param.defaultValue)) input.value = param.defaultValue!.toString();
 
     modal.appendChild(field);
 }
@@ -272,7 +272,7 @@ function addCheckbox(modal: HTMLElement, param: BooleanParam) {
     const field = $paramTemplates.toggle.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
     setupField(field, input, param);
-    if (typeof param.defaultValue == "boolean") {
+    if (param.defaultValue !== undefined) {
         input.checked = param.defaultValue;
     }
     modal.appendChild(field);
@@ -298,7 +298,7 @@ async function addDropdown(modal: HTMLElement, param: EnumParam) {
         select.appendChild(option);
     }
 
-    if (typeof param.defaultValue == "string") {
+    if (param.defaultValue !== undefined) {
         select.value = param.defaultValue;
     } else {
         select.value = select.options[0].value;

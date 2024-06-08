@@ -29,7 +29,7 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
         hideProcessingModal();
         showErrorModal(
             "An error occurred.",
-            "If you made a purchase from another tab/browser/mobile, you can safely ignore this message. Otherwise, please contant a moderator (preferably Alex) about this!"
+            "If you made a purchase from another tab/browser/mobile, you can safely ignore this message. Otherwise, please contant a moderator (preferably AlexejheroDev) about this!"
         );
         return;
     }
@@ -65,7 +65,7 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
         // Transaction token can no longer be used to log
         showSuccessModal(
             "Purchase completed",
-            "Your transaction was successful! Your redeem will appear on stream soon."
+            `Your transaction was successful! Your redeem will appear on stream soon.\nTransaction ID: ${transactionToken}`
         );
     } else {
         logToDiscord({
@@ -81,7 +81,7 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
         }).then();
         showErrorModal(
             "An error occurred.",
-            `${result.status} ${result.statusText} - ${await result.text()}\nPlease contact a moderator (preferably Alex) about this!`
+            `${result.status} ${result.statusText} - ${await result.text()}\nPlease contact a moderator (preferably AlexejheroDev) about this!\nTransaction ID: ${transactionToken}`
         );
     }
 });
@@ -100,5 +100,5 @@ Twitch.ext.bits.onTransactionCancelled(async () => {
             ],
         }).then();
     }
-    showErrorModal("Transaction cancelled.", "");
+    showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken}`);
 });
