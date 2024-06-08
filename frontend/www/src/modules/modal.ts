@@ -187,6 +187,8 @@ async function confirmPurchase() {
         return;
     }
 
+    // TODO: log
+
     Twitch.ext.bits.useBits(cart!.sku);
 }
 
