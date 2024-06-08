@@ -28,8 +28,11 @@ export async function renderRedeemButtons() {
     for (const redeem of redeems || []) {
         if (redeem.hidden) continue;
 
-        const item = document.createElement("div");
-        item.className = "redeemable-item".concat(redeem.disabled ? " redeemable-item-disabled" : "");
+        const item = document.createElement("button");
+        item.classList.add("redeemable-item");
+        if (redeem.disabled) {
+            item.classList.add("redeemable-item-disabled");
+        }
         item.onclick = () => !redeem.disabled && openModal(redeem);
 
         const img = document.createElement("img");
@@ -42,7 +45,7 @@ export async function renderRedeemButtons() {
 
         const priceWrapper = document.createElement("div");
         priceWrapper.className = "redeemable-item-price-wrapper";
-        redeemableDescriptor.appendChild(priceWrapper);
+        item.appendChild(priceWrapper);
 
         const bitsImage = document.createElement("img");
         bitsImage.src = "img/bits.png";
