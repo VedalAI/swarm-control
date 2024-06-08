@@ -56,7 +56,7 @@ let processingTimeout: number | undefined;
 document.addEventListener("DOMContentLoaded", () => {
     $modalConfirm.onclick = confirmPurchase;
     $modalCancel.onclick = closeModal;
-    $modalOptionsForm.onchange = checkForm;
+    $modalOptionsForm.oninput = checkForm;
     $modalOptionsForm.onsubmit = (e) => {
         e.preventDefault();
         setCartArgsFromForm(e.target as HTMLFormElement);
