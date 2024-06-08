@@ -63,3 +63,8 @@
 .btn-danger:focus {
     box-shadow: 0 0 0 4px rgba(var(--danger-color), 0.5);
 }
+
+.button[disabled], .button[aria-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}

@@ -87,7 +87,7 @@
     border-bottom: 1px solid #ffffff1A;
 }
 
-#modal-options-container {
+#modal-options-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -96,7 +96,7 @@
     width: 100%;
 }
 
-#modal-options-container>* {
+#modal-options-form>* {
     width: 100%;
 
     padding: 10px;
@@ -109,12 +109,22 @@
     border-bottom: 1px solid #ffffff1A;
 }
 
-#modal-options-container>*:nth-child(even) {
+#modal-options-form>*:nth-child(even) {
     background: #222;
 }
 
-#modal-options-container>*:last-child {
+#modal-options-form>*:last-child {
     border-bottom: none;
+}
+form *:invalid {
+    border: 1px solid red !important;
+}
+form label[aria-required]::before {
+    content: "* ";
+    color: red;
+}
+form label:not([aria-required]) {
+    padding-left: 0.66em;
 }
 
 .modal-buttons {
