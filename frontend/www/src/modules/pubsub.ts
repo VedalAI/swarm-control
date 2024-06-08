@@ -1,6 +1,6 @@
 import { Config, PubSubMessage } from "common/types";
 import { unpack } from "jsonpack";
-import { setConfig } from "../config";
+import { setConfig } from "../util/config";
 import { renderRedeemButtons } from "./redeems";
 
 Twitch.ext.listen("global", async (_, __, message) => {

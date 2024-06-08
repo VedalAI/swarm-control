@@ -1,5 +1,5 @@
 import { openModal } from "./modal";
-import { getConfig } from "../config";
+import { getConfig } from "../util/config";
 
 const $mainContainer = document.getElementsByTagName("main")!;
 const $redeemContainer = document.getElementById("items")!;
@@ -23,7 +23,8 @@ export async function renderRedeemButtons() {
         while (alerts.length > 0) alerts[0].remove();
     }
 
-    if (redeems?.length === 0) $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
+    if (redeems?.length === 0)
+        $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
 
     for (const redeem of redeems || []) {
         if (redeem.hidden) continue;

@@ -1,6 +1,7 @@
 import { Transaction } from "common/types";
-import { ebsFetch } from "../ebs";
+import { ebsFetch } from "../util/ebs";
 import { hideProcessingModal, openModal, showErrorModal, showSuccessModal, transactionToken } from "./modal";
+import { logToDiscord } from "../util/logger";
 
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
@@ -12,9 +13,18 @@ Twitch.ext.onAuthorized(() => {
 });
 
 Twitch.ext.bits.onTransactionComplete(async (transaction) => {
-    // TODO: log
-
     if (!transactionToken) {
+        logToDiscord({
+            transactionToken: null,
+            userId: Twitch.ext.viewer.id!,
+            important: true,
+            fields: [
+                {
+                    header: "Missing transaction token",
+                    content: transaction,
+                },
+            ],
+        }).then();
         await openModal(null);
         hideProcessingModal();
         showErrorModal(
@@ -23,6 +33,18 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
         );
         return;
     }
+
+    logToDiscord({
+        transactionToken: transactionToken,
+        userId: Twitch.ext.viewer.id!,
+        important: false,
+        fields: [
+            {
+                header: "Transaction complete",
+                content: transaction,
+            },
+        ],
+    }).then();
 
     const transactionObject: Transaction = {
         token: transactionToken,
@@ -40,12 +62,23 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
     setTimeout(() => hideProcessingModal(), 250);
 
     if (result.ok) {
-        // TODO: log
+        // Transaction token can no longer be used to log
         showSuccessModal(
             "Purchase completed",
             "Your transaction was successful! Your redeem will appear on stream soon."
         );
     } else {
+        logToDiscord({
+            transactionToken: transactionToken,
+            userId: Twitch.ext.viewer.id!,
+            important: true,
+            fields: [
+                {
+                    header: "Transaction failed (frontend)",
+                    content: `${result.status} ${result.statusText} - ${await result.text()}`,
+                },
+            ],
+        }).then();
         showErrorModal(
             "An error occurred.",
             `${result.status} ${result.statusText} - ${await result.text()}\nPlease contact a moderator (preferably Alex) about this!`
@@ -54,6 +87,18 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
 });
 
 Twitch.ext.bits.onTransactionCancelled(async () => {
-    // TODO: log
+    if (transactionToken) {
+        logToDiscord({
+            transactionToken: transactionToken,
+            userId: Twitch.ext.viewer.id!,
+            important: false,
+            fields: [
+                {
+                    header: "Transaction cancelled",
+                    content: "User cancelled the transaction.",
+                },
+            ],
+        }).then();
+    }
     showErrorModal("Transaction cancelled.", "");
 });

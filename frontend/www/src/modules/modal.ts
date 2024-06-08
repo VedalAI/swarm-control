@@ -1,6 +1,6 @@
 import { BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, Redeem, TextParam } from "common/types";
-import { ebsFetch } from "../ebs";
-import { getConfig } from "../config";
+import { ebsFetch } from "../util/ebs";
+import { getConfig } from "../util/config";
 
 /* Containers */
 const $modalWrapper = document.getElementById("modal-wrapper")!;
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $modalOptionsForm.onsubmit = (e) => {
         e.preventDefault();
         setCartArgsFromForm(e.target as HTMLFormElement);
-    }
+    };
 });
 
 export async function openModal(redeem: Redeem | null) {
