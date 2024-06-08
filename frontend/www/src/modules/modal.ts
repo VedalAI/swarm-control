@@ -1,6 +1,7 @@
 import { BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, Redeem, TextParam } from "common/types";
 import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
+import { logToDiscord } from "../util/logger";
 
 /* Containers */
 const $modalWrapper = document.getElementById("modal-wrapper")!;
@@ -192,7 +193,17 @@ async function confirmPurchase() {
         return;
     }
 
-    // TODO: log
+    logToDiscord({
+        transactionToken: transactionToken!,
+        userId: Twitch.ext.viewer.id!,
+        important: false,
+        fields: [
+            {
+                header: "Transaction started",
+                content: cart,
+            },
+        ],
+    }).then();
 
     Twitch.ext.bits.useBits(cart!.sku);
 }
