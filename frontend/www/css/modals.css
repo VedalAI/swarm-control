@@ -207,6 +207,12 @@ form label:not([aria-required]) {
     gap: 20px;
 }
 
+#modal-processing-description,
+#modal-error-description,
+#modal-success-description {
+    text-align: center;
+}
+
 @media screen and (min-width: 600px) {
     .modal {
         transform: scale(0.9);
