@@ -14,7 +14,7 @@
     color: #fff;
 
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
 
     padding: 14px 24px;
 
@@ -38,7 +38,8 @@
 }
 
 .btn-primary {
-    background-color: rgb(var(--primary-color));
+    background-color: rgba(var(--primary-color), 0.75);
+    border: 1px solid #ffffff26;
     color: #fff;
 }
 
@@ -47,7 +48,8 @@
 }
 
 .btn-success {
-    background-color: rgb(var(--success-color));
+    background-color: rgba(var(--success-color), 0.75);
+    border: 1px solid #ffffff26;
     color: #fff;
 }
 
@@ -56,7 +58,8 @@
 }
 
 .btn-danger {
-    background-color: rgb(var(--danger-color));
+    background-color: rgba(var(--danger-color), 0.75);
+    border: 1px solid #ffffff26;
     color: #fff;
 }
 
@@ -64,7 +67,8 @@
     box-shadow: 0 0 0 4px rgba(var(--danger-color), 0.5);
 }
 
-.button[disabled], .button[aria-disabled] {
+.button[disabled],
+.button[aria-disabled] {
     cursor: not-allowed;
     opacity: 0.5;
 }

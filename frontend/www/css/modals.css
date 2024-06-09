@@ -102,7 +102,9 @@
 #modal-options-form>* {
     width: 100%;
 
-    padding: 10px;
+    padding: 7.5px;
+
+    height: 44px;
 
     display: flex;
     flex-direction: row;
