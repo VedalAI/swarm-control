@@ -26,6 +26,7 @@ const $modalInsideWrapper = $modal.getElementsByClassName("modal-inside-wrapper"
 /* Descriptors */
 const $modalTitle = document.getElementById("modal-title")!;
 const $modalDescription = document.getElementById("modal-description")!;
+const $modalDisclaimer = document.getElementById("modal-disclaimer")!;
 const $modalImage = document.getElementById("modal-image")! as HTMLImageElement;
 
 /* Price */
@@ -121,6 +122,7 @@ export async function openModal(redeem: Redeem | null) {
     for (let node of Array.from($modalOptionsForm.childNodes)) $modalOptionsForm.removeChild(node);
 
     $modalOptions.style.display = (redeem.args || []).length === 0 ? "none" : "flex";
+    $modalDisclaimer.style.display = (redeem.args || []).length === 0 ? "none" : "unset";
 
     addOptionsFields($modalOptionsForm, redeem);
     checkForm();
