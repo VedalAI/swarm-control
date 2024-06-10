@@ -97,6 +97,13 @@ Twitch.ext.bits.onTransactionCancelled(async () => {
             ],
         }).then();
     }
+    await ebsFetch("/public/transaction/cancel", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: transactionToken,
+    });
     hideProcessingModal();
     showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken}`);
 });

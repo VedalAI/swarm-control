@@ -96,6 +96,16 @@ export async function getPrepurchase(token: string): Promise<IdentifiableCart | 
     }
 }
 
+export async function deletePrepurchase(token: string) {
+    try {
+        await db.query("DELETE FROM prepurchases WHERE token = ?", [token]);
+    } catch (e: any) {
+        console.error("Database query failed (deletePrepurchase)");
+        console.error(e);
+        throw new Error("Database query failed");
+    }
+}
+
 export async function isUserBanned(userId: string): Promise<boolean> {
     try {
         const [rows] = (await db.query("SELECT COUNT(*) FROM bans WHERE userId = ?", [userId])) as [RowDataPacket[], any];

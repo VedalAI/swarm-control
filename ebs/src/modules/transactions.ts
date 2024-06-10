@@ -4,7 +4,7 @@ import { app } from "../index";
 import { parseJWT, verifyJWT } from "../util/jwt";
 import { BitsTransactionPayload } from "../types";
 import { getConfig } from "./config";
-import { getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase } from "../util/db";
+import { getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase, deletePrepurchase } from "../util/db";
 import { logToDiscord } from "../util/logger";
 import { connection } from "./game";
 
@@ -202,4 +202,17 @@ app.post("/public/transaction", async (req, res) => {
     }
 
     res.sendStatus(200);
+});
+
+app.post("/public/transaction/cancel", async (req, res) => {
+    const token = req.body as string;
+
+    // remove transaction from db
+    try {
+        await deletePrepurchase(token);
+
+        res.sendStatus(200);
+    } catch (error) {
+        res.sendStatus(404);
+    }
 });
