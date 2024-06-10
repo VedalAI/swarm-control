@@ -3,7 +3,7 @@ services:
     build: ebs
     restart: unless-stopped
     ports:
-      - 8080:3000
+      - 8081:3000
     depends_on:
       - db
       - logger
@@ -20,7 +20,7 @@ services:
     build: logger
     restart: unless-stopped
     ports:
-      - 8081:3000
+      - 8082:3000
     depends_on:
       - db
     environment:
