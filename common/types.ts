@@ -1,12 +1,20 @@
-export enum LiteralTypes {
+export const enum LiteralTypes {
     String,
     Integer,
     Float,
     Boolean,
 }
 
-type EnumTypeName = string;
+export const enum AnnounceType {
+    DefaultAnnounce,
+    DefaultSilent,
+    // e.g. "add signal"
+    AlwaysAnnounce,
+    // e.g. "say"/"hint" (because the message itself is the announcement)
+    AlwaysSilent,
+}
 
+type EnumTypeName = string;
 type ParamType = LiteralTypes | EnumTypeName;
 
 export type Parameter = TextParam | NumericParam | BooleanParam | EnumParam;
@@ -41,15 +49,6 @@ export type EnumParam = ParameterBase & {
     type: EnumTypeName;
     defaultValue?: string;
 };
-
-export enum AnnounceType {
-    DefaultAnnounce,
-    DefaultSilent,
-    // e.g. "add signal"
-    AlwaysAnnounce,
-    // e.g. "say"/"hint" (because the message itself is the announcement)
-    AlwaysSilent,
-}
 
 export type Redeem = {
     id: string;

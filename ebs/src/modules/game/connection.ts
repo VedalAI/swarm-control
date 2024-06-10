@@ -66,7 +66,7 @@ export class GameConnection {
                 break;
             case MessageType.Result:
                 if (!this.outstandingRedeems.has(msg.guid)) {
-                    console.error(`[${msg.guid}] Redeeming ${msg.guid} more than once`);
+                    console.error(`[${msg.guid}] Redeeming untracked ${msg.guid} (either unpaid or more than once)`);
                 }
                 for (const handler of this.resultHandlers) {
                     handler(msg);

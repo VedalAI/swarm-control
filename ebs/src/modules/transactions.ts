@@ -1,4 +1,5 @@
-import { AnnounceType, Cart, Transaction } from "common/types";
+import { Cart, Transaction } from "common/types";
+//import { AnnounceType } from "common/types"; // esbuild dies
 import { app } from "../index";
 import { parseJWT, verifyJWT } from "../util/jwt";
 import { BitsTransactionPayload } from "../types";
@@ -174,8 +175,8 @@ app.post("/public/transaction", async (req, res) => {
             ],
         }).then();
     } else {
-        const redeemAnnounce = redeem.announce ?? AnnounceType.DefaultAnnounce;
-        const [doAnnounce, canChange] = [Boolean(redeemAnnounce & 1), Boolean(redeemAnnounce & 2)]; // funny
+        const redeemAnnounce = redeem.announce || 0;
+        const [doAnnounce, canChange] = [!(redeemAnnounce & 1), !(redeemAnnounce & 2)]; // funny
         // don't allow to change when you shouldn't
         if (cart.announce != doAnnounce && !canChange) {
             logToDiscord({

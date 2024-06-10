@@ -75,8 +75,8 @@ export async function openModal(redeem: Redeem | null) {
 
     const config = await getConfig();
 
-    const announceType = redeem.announce ?? AnnounceType.AlwaysAnnounce;
-    const defaultAnnounce = announceType === AnnounceType.DefaultAnnounce || announceType === AnnounceType.AlwaysAnnounce;
+    const announceType = redeem.announce || AnnounceType.DefaultAnnounce;
+    const defaultAnnounce = !(announceType & 2);
 
     cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {}, announce: defaultAnnounce };
 
@@ -239,8 +239,7 @@ async function prePurchase() {
 }
 
 function addOptionsFields(modal: HTMLFormElement, redeem: Redeem) {
-    const announce = redeem.announce ?? AnnounceType.DefaultAnnounce;
-    addAnnounceCheckbox(modal, announce);
+    addAnnounceCheckbox(modal, redeem.announce);
     for (const param of redeem.args || []) {
         switch (param.type) {
             case LiteralTypes.String:
@@ -350,7 +349,8 @@ const announceParam: BooleanParam = {
     description: "Whether to announce the redeem on stream",
 }
 
-function addAnnounceCheckbox(modal: HTMLFormElement, announce: AnnounceType) {
+function addAnnounceCheckbox(modal: HTMLFormElement, announce: AnnounceType | undefined) {
+    announce = announce || AnnounceType.DefaultAnnounce;
     if (announce > AnnounceType.DefaultSilent) {
         return;
     }
@@ -363,7 +363,7 @@ function addAnnounceCheckbox(modal: HTMLFormElement, announce: AnnounceType) {
     input.onchange = (e) => {        
         cart!.announce = input.checked;
     }
-    if (announce == AnnounceType.DefaultAnnounce) {
+    if (announce === AnnounceType.DefaultAnnounce) {
         input.checked = true;
     }
     modal.appendChild(field);
