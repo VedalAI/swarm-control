@@ -9,7 +9,10 @@
 </head>
 
 <body>
-    <main>
+    <% if (htmlWebpackPlugin.options.title == "Config") { %>
+        <h1>This extension is not configurable.</h1>
+    <% } else { %>
+        <main>
         <div class="onboarding" id="onboarding">
             <h2>Welcome to Swarm Control&trade;</h2>
 
@@ -96,7 +99,7 @@
         </div>
     </main>
 
-    <div id="options-templates" style="display:none;">
+        <div id="options-templates" style="display:none;">
         <div id="modal-dropdown">
             <label for="modal-dropdown-input">Choose one</label>
             <select id="modal-dropdown-input"></select>
@@ -117,8 +120,7 @@
             <input id="modal-toggle-input" type="checkbox">
         </div>
     </div>
-
-    <!-- erm, the end... -->
+    <% } %>
 </body>
 
 </html>
