@@ -19,7 +19,7 @@ app.post("/public/prepurchase", async (req, res) => {
     if (cart.version != config.version) {
         logToDiscord({
             transactionToken: null,
-            userId: idCart.userId,
+            userIdInsecure: idCart.userId,
             important: false,
             fields: [
                 {
@@ -48,7 +48,7 @@ app.post("/public/transaction", async (req, res) => {
     if (!transaction.receipt) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: true,
             fields: [
                 {
@@ -64,7 +64,7 @@ app.post("/public/transaction", async (req, res) => {
     if (!verifyJWT(transaction.receipt)) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: true,
             fields: [
                 {
@@ -82,7 +82,7 @@ app.post("/public/transaction", async (req, res) => {
     if (await isReceiptUsed(payload.data.transactionId)) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: true,
             fields: [
                 {
@@ -100,7 +100,7 @@ app.post("/public/transaction", async (req, res) => {
     if (!cart) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: true,
             fields: [
                 {
@@ -118,7 +118,7 @@ app.post("/public/transaction", async (req, res) => {
     if (cart.userId != req.twitchAuthorization!.user_id!) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: false,
             fields: [
                 {
@@ -137,7 +137,7 @@ app.post("/public/transaction", async (req, res) => {
     if (cart.version != currentConfig.version) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: false,
             fields: [
                 {
