@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+
+    <% if (htmlWebpackPlugin.options.title=="Mobile View" ) { %>
+        <style>
+            .redeemable-item .redeemable-item-price-wrapper {
+                transform: translateY(0%);
+            }
+        </style>
+    <% } %>
 </head>
 
 <body>
