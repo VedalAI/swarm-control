@@ -16,6 +16,8 @@ app.post("/log", async (req, res) => {
 
         const builder = new LogBuilder();
 
+        // TODO: add transaction token and user id to the log message
+
         for (const field of logMessage.fields) {
             builder.addField(field.header, field.content);
         }
