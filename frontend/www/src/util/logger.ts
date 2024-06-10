@@ -1,6 +1,6 @@
 import { LogMessage } from "common/types";
 
-const logEndpoint = `http://${process.env.LOGGER_HOST!}:3000/log`;
+const logEndpoint = `https://logger-subnautica.vedal.ai/log`;
 
 export async function logToDiscord(data: LogMessage) {
     try {
@@ -11,8 +11,7 @@ export async function logToDiscord(data: LogMessage) {
             },
             body: JSON.stringify({
                 ...data,
-                backendToken: process.env.PRIVATE_LOGGER_TOKEN!,
-            } satisfies LogMessage & { backendToken?: string }),
+            } satisfies LogMessage),
         });
 
         if (!result.ok) {

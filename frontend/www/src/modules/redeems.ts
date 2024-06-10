@@ -1,5 +1,5 @@
-import { openModal } from "./modal";
-import { getConfig } from "../config";
+import { openModal, showErrorModal } from "./modal";
+import { getConfig } from "../util/config";
 
 const $mainContainer = document.getElementsByTagName("main")!;
 const $redeemContainer = document.getElementById("items")!;
@@ -16,20 +16,21 @@ export async function renderRedeemButtons() {
 
     $redeemContainer.innerHTML = "";
 
-    if (config.message)
-        $mainContainer[0].insertAdjacentHTML("afterbegin", `<div class="alert">${config.message}</div>`);
-    else {
-        const alerts = document.getElementsByClassName("alert");
-        while (alerts.length > 0) alerts[0].remove();
-    }
+    const alerts = document.getElementsByClassName("alert");
+    while (alerts.length > 0) alerts[0].remove();
+
+    if (config.message) $mainContainer[0].insertAdjacentHTML("afterbegin", `<div class="alert">${config.message}</div>`);
 
     if (redeems?.length === 0) $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
 
     for (const redeem of redeems || []) {
         if (redeem.hidden) continue;
 
-        const item = document.createElement("div");
-        item.className = "redeemable-item".concat(redeem.disabled ? " redeemable-item-disabled" : "");
+        const item = document.createElement("button");
+        item.classList.add("redeemable-item");
+        if (redeem.disabled) {
+            item.classList.add("redeemable-item-disabled");
+        }
         item.onclick = () => !redeem.disabled && openModal(redeem);
 
         const img = document.createElement("img");
@@ -42,7 +43,7 @@ export async function renderRedeemButtons() {
 
         const priceWrapper = document.createElement("div");
         priceWrapper.className = "redeemable-item-price-wrapper";
-        redeemableDescriptor.appendChild(priceWrapper);
+        item.appendChild(priceWrapper);
 
         const bitsImage = document.createElement("img");
         bitsImage.src = "img/bits.png";
@@ -60,4 +61,6 @@ export async function renderRedeemButtons() {
 
         $redeemContainer.appendChild(item);
     }
+
+    showErrorModal("New update!", "The items have been updated, because of this you need to reopen this modal.");
 }

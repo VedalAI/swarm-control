@@ -3,18 +3,23 @@ import { app } from "../index";
 import { parseJWT, verifyJWT } from "../util/jwt";
 import { BitsTransactionPayload } from "../types";
 import { getConfig } from "./config";
-import { getPrepurchase, isReceiptUsed, registerPrepurchase } from "../util/db";
+import { getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase } from "../util/db";
 import { logToDiscord } from "../util/logger";
 
 app.post("/public/prepurchase", async (req, res) => {
     const cart = req.body as Cart;
     const idCart = { ...cart, userId: req.twitchAuthorization!.user_id! };
 
+    if (await isUserBanned(req.twitchAuthorization!.user_id!)) {
+        res.status(403).send("You are banned from using this extension.");
+        return;
+    }
+
     const config = await getConfig();
     if (cart.version != config.version) {
         logToDiscord({
             transactionToken: null,
-            userId: idCart.userId,
+            userIdInsecure: idCart.userId,
             important: false,
             fields: [
                 {
@@ -24,11 +29,6 @@ app.post("/public/prepurchase", async (req, res) => {
             ],
         }).then();
         res.status(409).send(`Invalid config version (${cart.version}/${config.version})`);
-        return;
-    }
-
-    if (config.banned && config.banned.includes(req.twitchAuthorization!.user_id!)) {
-        res.status(403).send("You are banned from using this extension");
         return;
     }
 
@@ -48,7 +48,7 @@ app.post("/public/transaction", async (req, res) => {
     if (!transaction.receipt) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: true,
             fields: [
                 {
@@ -64,7 +64,7 @@ app.post("/public/transaction", async (req, res) => {
     if (!verifyJWT(transaction.receipt)) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: true,
             fields: [
                 {
@@ -73,7 +73,7 @@ app.post("/public/transaction", async (req, res) => {
                 },
             ],
         }).then();
-        res.status(403).send("Invalid receipt");
+        res.status(403).send("Invalid receipt.");
         return;
     }
 
@@ -82,7 +82,7 @@ app.post("/public/transaction", async (req, res) => {
     if (await isReceiptUsed(payload.data.transactionId)) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: true,
             fields: [
                 {
@@ -95,12 +95,12 @@ app.post("/public/transaction", async (req, res) => {
         return;
     }
 
-    const cart = await getPrepurchase(payload.data.transactionId);
+    const cart = await getPrepurchase(transaction.token);
 
     if (!cart) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: true,
             fields: [
                 {
@@ -118,7 +118,7 @@ app.post("/public/transaction", async (req, res) => {
     if (cart.userId != req.twitchAuthorization!.user_id!) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: false,
             fields: [
                 {
@@ -137,7 +137,7 @@ app.post("/public/transaction", async (req, res) => {
     if (cart.version != currentConfig.version) {
         logToDiscord({
             transactionToken: transaction.token,
-            userId: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
             important: false,
             fields: [
                 {

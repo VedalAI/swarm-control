@@ -22,7 +22,7 @@ export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     if (!req.twitchAuthorization.user_id) {
         logToDiscord({
             transactionToken: null,
-            userId: null,
+            userIdInsecure: null,
             important: false,
             fields: [
                 {

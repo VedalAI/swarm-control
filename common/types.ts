@@ -1,18 +1,50 @@
+export enum LiteralTypes {
+    String,
+    Integer,
+    Float,
+    Boolean,
+}
+
 type EnumTypeName = string;
-type ParamType = "string" | "integer" | "float" | "boolean" | EnumTypeName;
+
+type ParamType = LiteralTypes | EnumTypeName;
 
 export type Enum = {
     name: EnumTypeName;
     values: string[];
 };
 
-export type Parameter = {
+export type Parameter = TextParam | NumericParam | BooleanParam | EnumParam;
+type ParameterBase = {
     name: string;
     title?: string;
     description?: string;
     type: ParamType;
     required?: boolean;
-    defaultValue?: any;
+};
+
+export type TextParam = ParameterBase & {
+    type: LiteralTypes.String;
+    defaultValue?: string;
+    minLength?: number;
+    maxLength?: number;
+};
+
+export type NumericParam = ParameterBase & {
+    type: LiteralTypes.Integer | LiteralTypes.Float;
+    defaultValue?: number;
+    min?: number;
+    max?: number;
+};
+
+export type BooleanParam = ParameterBase & {
+    type: LiteralTypes.Boolean;
+    defaultValue?: boolean;
+};
+
+export type EnumParam = ParameterBase & {
+    type: EnumTypeName;
+    defaultValue?: string;
 };
 
 export type Redeem = {
@@ -58,7 +90,7 @@ export type PubSubMessage = {
 
 export type LogMessage = {
     transactionToken: string | null;
-    userId: string | null;
+    userIdInsecure: string | null;
     important: boolean;
     fields: { header: string; content: any }[];
 };

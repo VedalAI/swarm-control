@@ -73,7 +73,7 @@ export class GameConnection {
                 this.outstandingRedeems.delete(msg.guid);
                 break;
             case MessageType.IngameStateChanged:
-                console.log(`[${msg.guid}] ${MessageType[MessageType.IngameStateChanged]} stub`);
+                this.logMessage(msg, `${MessageType[MessageType.IngameStateChanged]} stub`);
                 break;
             case MessageType.CommandAvailabilityChanged:
                 await this.updateCommandAvailability(msg);
@@ -86,7 +86,7 @@ export class GameConnection {
     private async updateCommandAvailability(msg: CommandAvailabilityChangedMessage) {
         const config = await getConfig();
         if (!config) {
-
+            console.error("Can't change command availability, no config");
         }
         for (const id of msg.becameAvailable) {
             // redeems need to be a map
@@ -124,5 +124,9 @@ export class GameConnection {
         }
         this.outstandingRedeems.add(msg.guid);
         this.sendMessage(msg);
+    }
+
+    private logMessage(msg: Message, message: string) {
+        console.log(`[${msg.guid}] ${message}`);
     }
 }
