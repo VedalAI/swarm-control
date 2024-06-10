@@ -11,6 +11,7 @@ Twitch.ext.listen("global", async (_t, _c, message) => {
     switch (pubSubMessage.type) {
         case "config_refreshed":
             const config = unpack<Config>(pubSubMessage.data);
+            // console.log(config);
             await setConfig(postProcessConfig(config));
             await renderRedeemButtons();
             break;

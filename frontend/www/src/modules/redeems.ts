@@ -12,7 +12,7 @@ export async function renderRedeemButtons() {
     $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
 
     const config = await getConfig();
-    const redeems = config.redeems;
+    const redeems = Object.entries(config.redeems || {});
 
     $redeemContainer.innerHTML = "";
 
@@ -21,9 +21,9 @@ export async function renderRedeemButtons() {
 
     if (config.message) $mainContainer[0].insertAdjacentHTML("afterbegin", `<div class="alert">${config.message}</div>`);
 
-    if (redeems?.length === 0) $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
+    if (redeems.length === 0) $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
 
-    for (const redeem of redeems || []) {
+    for (const [id, redeem] of redeems) {
         if (redeem.hidden) continue;
 
         const item = document.createElement("button");

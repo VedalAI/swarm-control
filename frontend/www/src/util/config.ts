@@ -7,8 +7,8 @@ export function postProcessConfig(config: Config): Config {
     if (config.banned && config.banned.includes(Twitch.ext.viewer.id!)) {
         return {
             version: -1,
-            redeems: [],
-            enums: [],
+            redeems: {},
+            enums: {},
             banned: [Twitch.ext.viewer.id!],
             message: "You are banned from using this extension",
         } satisfies Config;
@@ -23,8 +23,8 @@ async function fetchConfig() {
     if (!response.ok) {
         return {
             version: -1,
-            redeems: [],
-            enums: [],
+            redeems: {},
+            enums: {},
             banned: [],
             message: `An error occurred while fetching the config\n${response.status} ${response.statusText} - ${await response.text()}`,
         } satisfies Config;

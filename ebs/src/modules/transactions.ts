@@ -1,10 +1,11 @@
-import { Cart, Transaction } from "common/types";
+import { AnnounceType, Cart, Transaction } from "common/types";
 import { app } from "../index";
 import { parseJWT, verifyJWT } from "../util/jwt";
 import { BitsTransactionPayload } from "../types";
 import { getConfig } from "./config";
 import { getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase } from "../util/db";
 import { logToDiscord } from "../util/logger";
+import { connection } from "./game";
 
 app.post("/public/prepurchase", async (req, res) => {
     const cart = req.body as Cart;
@@ -155,7 +156,49 @@ app.post("/public/transaction", async (req, res) => {
     console.log(transaction);
     console.log(cart);
 
-    // TODO: send stuff to mod
+    const redeem = currentConfig.redeems?.[cart.id];
+    if (!redeem) {
+        logToDiscord({
+            transactionToken: transaction.token,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
+            important: false,
+            fields: [
+                {
+                    header: "Redeem not found",
+                    content: {
+                        config: currentConfig.version,
+                        cart: cart,
+                        transaction: transaction,
+                    },
+                },
+            ],
+        }).then();
+    } else {
+        const redeemAnnounce = redeem.announce ?? AnnounceType.DefaultAnnounce;
+        const [doAnnounce, canChange] = [Boolean(redeemAnnounce & 1), Boolean(redeemAnnounce & 2)]; // funny
+        // don't allow to change when you shouldn't
+        if (cart.announce != doAnnounce && !canChange) {
+            logToDiscord({
+                transactionToken: transaction.token,
+                userIdInsecure: req.twitchAuthorization!.user_id!,
+                important: false,
+                fields: [
+                    {
+                        header: "Invalid announce",
+                        content: {
+                            config: currentConfig.version,
+                            cart: cart,
+                            transaction: transaction,
+                            announceType: redeemAnnounce,
+                            userPicked: cart.announce,
+                        },
+                    },
+                ],
+            });
+            cart.announce = doAnnounce!;
+        }
+        connection.redeem(redeem, cart.args, cart.announce, transaction.token);
+    }
 
     res.sendStatus(200);
 });

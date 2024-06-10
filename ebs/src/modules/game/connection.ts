@@ -1,9 +1,9 @@
 import { Message, MessageType } from "./messages";
-import { ResultMessage, HelloMessage, GameMessage, CommandAvailabilityChangedMessage } from "./messages.game";
+import { ResultMessage, HelloMessage, GameMessage } from "./messages.game";
 import * as ServerWS from "ws";
 import { v4 as uuid } from "uuid";
-import { RedeemMessage, ServerMessage } from "./messages.server";
-import { getConfig } from "../config";
+import { CommandInvocationSource, RedeemMessage, ServerMessage } from "./messages.server";
+import { Redeem } from "common/types";
 
 const VERSION = "0.1.0";
 
@@ -13,7 +13,7 @@ export class GameConnection {
     private handshake: boolean = false;
     private socket: ServerWS | null = null;
     private resultHandlers: ResultHandler[] = [];
-    private outstandingRedeems: Set<string> = new Set<string>();
+    private outstandingRedeems: Map<string, RedeemMessage> = new Map<string, RedeemMessage>();
 
     public isConnected() {
         return this.socket?.readyState == ServerWS.OPEN;
@@ -57,7 +57,7 @@ export class GameConnection {
                 this.handshake = true;
                 const reply = {
                     ...this.makeMessage(MessageType.HelloBack),
-                    allowed: (msg as HelloMessage).version == VERSION,
+                    allowed: msg.version == VERSION,
                 }
                 this.sendMessage(reply);
                 break;
@@ -66,43 +66,48 @@ export class GameConnection {
                 break;
             case MessageType.Result:
                 if (!this.outstandingRedeems.has(msg.guid)) {
+                    console.error(`[${msg.guid}] Redeeming ${msg.guid} more than once`);
                 }
                 for (const handler of this.resultHandlers) {
-                    handler(msg as ResultMessage);
+                    handler(msg);
                 }
                 this.outstandingRedeems.delete(msg.guid);
                 break;
             case MessageType.IngameStateChanged:
                 this.logMessage(msg, `${MessageType[MessageType.IngameStateChanged]} stub`);
                 break;
-            case MessageType.CommandAvailabilityChanged:
-                await this.updateCommandAvailability(msg);
-                break;
+            // case MessageType.CommandAvailabilityChanged:
+            //     await this.updateCommandAvailability(msg);
+            //     break;
             default:
                 console.error(`[${msg.guid}] Unknown message type ${msg.messageType}`);
                 break;
         }
     }
-    private async updateCommandAvailability(msg: CommandAvailabilityChangedMessage) {
-        const config = await getConfig();
-        if (!config) {
-            console.error("Can't change command availability, no config");
-        }
-        for (const id of msg.becameAvailable) {
-            // redeems need to be a map
-            //config.redeems[id].disabled = false;
-        }
-        console.log(`[${msg.guid}] ${MessageType[MessageType.CommandAvailabilityChanged]} stub`);
-    }
+    // private async updateCommandAvailability(msg: CommandAvailabilityChangedMessage) {
+    //     const config = await getConfig();
+    //     if (!config) {
+    //         console.error("Can't change command availability, no config");
+    //     }
+    //     for (const id of msg.becameAvailable) {
+    //         const redeem = config.redeems![id];
+    //         redeem.disabled = false;
+    //     }
+    //     for (const id of msg.becameUnavailable) {
+    //         const redeem = config.redeems![id];
+    //         redeem.disabled = true;
+    //     }
+    //     broadcastConfigRefresh(config);
+    // }
 
     public sendMessage(msg: ServerMessage) {
         if (!this.socket) {
             // todo queue unsent messages
-            console.error(`Tried to send message ${JSON.stringify(msg)} without a connected socket`);
+            console.error(`Tried to send message without a connected socket: ${JSON.stringify(msg)}`);
             return;
         }
         if (!this.handshake) {
-            console.error(`Tried to send message ${JSON.stringify(msg)} before handshake was complete`);
+            console.error(`Tried to send message before handshake was complete: ${JSON.stringify(msg)}`);
             return;
         }
         this.socket.send(JSON.stringify(msg), { binary: false, fin: true }, (err) => {
@@ -118,11 +123,30 @@ export class GameConnection {
             timestamp: Date.now()
         }
     }
-    public redeem(msg: RedeemMessage) {
-        if (this.outstandingRedeems.has(msg.guid)) {
-            console.error(`Tried to redeem ${msg.guid} twice`);
+    public redeem(redeem: Redeem, args: {[name: string]: any}, announce: boolean, transactionId: string) {
+        if (!transactionId) {
+            console.error(`Tried to redeem without transaction ID`);
+            return;
         }
-        this.outstandingRedeems.add(msg.guid);
+
+        const msg: RedeemMessage = {
+            ...this.makeMessage(MessageType.Redeem),
+            guid: transactionId,
+            source: CommandInvocationSource.Swarm,
+            command: redeem.id,
+            title: redeem.title,
+            announce,
+            args
+        } as RedeemMessage;
+        if (this.outstandingRedeems.has(msg.guid)) {
+            console.error(`Redeeming ${msg.guid} more than once`);
+        }
+        this.outstandingRedeems.set(msg.guid, msg);
+
+        if (!this.isConnected()) {
+            console.error(`Redeemed without active connection`);
+        }
+
         this.sendMessage(msg);
     }
 

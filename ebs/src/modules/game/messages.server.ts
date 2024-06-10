@@ -22,6 +22,7 @@ export type RedeemMessage = ServerMessage & {
     messageType: MessageType.Redeem,
     source: CommandInvocationSource,
     command: string,
+    title?: string,
     announce: boolean,
     args: any
 }

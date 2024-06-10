@@ -28,7 +28,7 @@ async function main() {
 
         require("./modules/config");
         require("./modules/transactions");
-        require("./modules/game/index");
+        require("./modules/game");
 
     });
 }

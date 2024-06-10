@@ -5,7 +5,7 @@ export enum MessageType {
     Log,
     Result,
     IngameStateChanged,
-    CommandAvailabilityChanged,
+    //CommandAvailabilityChanged,
 
     // server to game
     HelloBack,

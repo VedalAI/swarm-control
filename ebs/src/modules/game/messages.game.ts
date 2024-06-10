@@ -5,8 +5,8 @@ export type GameMessage
     | PingMessage
     | LogMessage
     | ResultMessage
-    | IngameStateChangedMessage
-    | CommandAvailabilityChangedMessage;
+    | IngameStateChangedMessage;
+    // | CommandAvailabilityChangedMessage;
 
 type GameMessageBase = MessageBase; // no extra properties
 export type HelloMessage = GameMessageBase & {
@@ -41,8 +41,8 @@ export type IngameStateChangedMessage = GameMessageBase & {
     inWater: boolean,
 }
 
-export type CommandAvailabilityChangedMessage = GameMessageBase & {
-    messageType: MessageType.CommandAvailabilityChanged,
-    becameAvailable: string[],
-    becameUnavailable: string[],
-}
+// export type CommandAvailabilityChangedMessage = GameMessageBase & {
+//     messageType: MessageType.CommandAvailabilityChanged,
+//     becameAvailable: string[],
+//     becameUnavailable: string[],
+// }

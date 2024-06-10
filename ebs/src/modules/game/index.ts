@@ -1,10 +1,30 @@
 import { app } from "../../index";
+import { logToDiscord } from "../../util/logger";
 import { GameConnection } from "./connection";
 import { MessageType } from "./messages";
 import { ResultMessage } from "./messages.game";
 import { CommandInvocationSource, RedeemMessage } from "./messages.server";
 
 export let connection: GameConnection = new GameConnection();
+
+connection.onResult((res) => {
+    if (!res.success) {
+        logToDiscord({
+            transactionToken: res.guid,
+            userIdInsecure: null,
+            important: false,
+            fields: [
+                {
+                    header: "Redeem did not succeed",
+                    content: res,
+                },
+            ],
+        });
+    } else {
+        console.log(`[${res.guid}] Redeem succeeded: ${JSON.stringify(res)}`);
+    }
+})
+
 app.ws("/private/socket", async (ws, req) => {
     connection.setSocket(ws);
 })

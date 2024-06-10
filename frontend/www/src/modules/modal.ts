@@ -1,4 +1,4 @@
-import { BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, Redeem, TextParam } from "common/types";
+import { AnnounceType, BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, Redeem, TextParam } from "common/types";
 import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
 import { logToDiscord } from "../util/logger";
@@ -75,7 +75,10 @@ export async function openModal(redeem: Redeem | null) {
 
     const config = await getConfig();
 
-    cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {} };
+    const announceType = redeem.announce ?? AnnounceType.AlwaysAnnounce;
+    const defaultAnnounce = announceType === AnnounceType.DefaultAnnounce || announceType === AnnounceType.AlwaysAnnounce;
+
+    cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {}, announce: defaultAnnounce };
 
     $modalWrapper.style.opacity = "1";
     $modalWrapper.style.pointerEvents = "unset";
@@ -235,8 +238,10 @@ async function prePurchase() {
     return true;
 }
 
-function addOptionsFields(modal: HTMLElement, redeem: Redeem) {
-    for (const param of redeem.args || [])
+function addOptionsFields(modal: HTMLFormElement, redeem: Redeem) {
+    const announce = redeem.announce ?? AnnounceType.DefaultAnnounce;
+    addAnnounceCheckbox(modal, announce);
+    for (const param of redeem.args || []) {
         switch (param.type) {
             case LiteralTypes.String:
                 addText(modal, param);
@@ -252,6 +257,7 @@ function addOptionsFields(modal: HTMLElement, redeem: Redeem) {
                 addDropdown(modal, param).then();
                 break;
         }
+    }
 }
 function addText(modal: HTMLElement, param: TextParam) {
     const field = $paramTemplates.text.cloneNode(true) as HTMLSelectElement;
@@ -290,26 +296,25 @@ function addCheckbox(modal: HTMLElement, param: BooleanParam) {
     if (param.defaultValue !== undefined) {
         input.checked = param.defaultValue;
     }
+    // browser says "required" means "must be checked"
+    input.required = false;
     modal.appendChild(field);
 }
 
 async function addDropdown(modal: HTMLElement, param: EnumParam) {
-    let options: string[] = [];
+    let options: string[] | undefined = [];
 
-    try {
-        options = (await getConfig()).enums!.find((e) => e.name == param.type)!.values;
-    } catch {
-        return; // someone's messing with the config, screw em
-    }
+    options = (await getConfig()).enums?.[param.type];
+    if (!options) return; // someone's messing with the config, screw em
 
     const field = $paramTemplates.dropdown.cloneNode(true) as HTMLSelectElement;
     const select = field.querySelector("select")!;
 
     setupField(field, select, param);
-    for (const opt of options) {
+    for (let i = 0; i < options.length; i++) {
         const option = document.createElement("option");
-        option.value = opt;
-        option.textContent = opt;
+        option.value = i.toString();
+        option.textContent = options[i];
         select.appendChild(option);
     }
 
@@ -336,4 +341,30 @@ function setupField(field: HTMLElement, inputElem: HTMLSelectElement | HTMLInput
         inputElem.required = true;
         label.ariaRequired = "";
     }
+}
+
+const announceParam: BooleanParam = {
+    name: "_announce",
+    type: LiteralTypes.Boolean,
+    title: "Announce",
+    description: "Whether to announce the redeem on stream",
+}
+
+function addAnnounceCheckbox(modal: HTMLFormElement, announce: AnnounceType) {
+    if (announce > AnnounceType.DefaultSilent) {
+        return;
+    }
+    const field = $paramTemplates.toggle.cloneNode(true) as HTMLSelectElement;
+    const input = field.querySelector("input")!;
+    setupField(field, input, announceParam);
+    input.onformdata = (e) => {
+        e.formData.delete(announceParam.name);
+    };
+    input.onchange = (e) => {        
+        cart!.announce = input.checked;
+    }
+    if (announce == AnnounceType.DefaultAnnounce) {
+        input.checked = true;
+    }
+    modal.appendChild(field);
 }
