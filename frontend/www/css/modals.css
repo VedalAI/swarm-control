@@ -213,6 +213,10 @@ form label:not([aria-required]) {
     text-align: center;
 }
 
+.modal-vector-input {
+    width: 64px !important;
+}
+
 @media screen and (min-width: 600px) {
     .modal {
         transform: scale(0.9);
