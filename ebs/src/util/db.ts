@@ -16,7 +16,7 @@ export async function initDb() {
                 host: process.env.MYSQL_HOST,
                 user: process.env.MYSQL_USER,
                 password: process.env.MYSQL_PASSWORD,
-                database: process.env.MYSQL_NAME,
+                database: process.env.MYSQL_DATABASE,
             });
         } catch {
             console.log("Failed to connect to database. Retrying in 5 seconds...");
