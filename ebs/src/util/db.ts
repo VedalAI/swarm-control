@@ -39,7 +39,8 @@ export async function setupDb() {
     await db.query(`
         CREATE TABLE IF NOT EXISTS prepurchases (
             token VARCHAR(255) PRIMARY KEY,
-            cart JSON NOT NULL
+            cart JSON NOT NULL,
+            userId VARCHAR(255) NOT NULL
         )
     `);
 
@@ -75,7 +76,7 @@ export async function addFulfilledTransaction(receipt: string, token: string, us
 export async function registerPrepurchase(cart: IdentifiableCart): Promise<string> {
     try {
         const token = uuid();
-        await db.query("INSERT INTO prepurchases (token, cart) VALUES (?, ?)", [token, JSON.stringify(cart)]);
+        await db.query("INSERT INTO prepurchases (token, cart, userId) VALUES (?, ?, ?)", [token, JSON.stringify(cart), cart.userId]);
         return token;
     } catch (e: any) {
         console.error("Database query failed (registerPrepurchase)");
