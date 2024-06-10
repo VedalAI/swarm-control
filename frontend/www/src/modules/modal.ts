@@ -3,17 +3,7 @@ import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
 import { logToDiscord } from "../util/logger";
 
-document.body.addEventListener("click", (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-});
-
 document.body.addEventListener("dblclick", (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-});
-
-document.addEventListener("auxclick", (e) => {
     e.stopPropagation();
     e.preventDefault();
 });
@@ -422,7 +412,7 @@ function addAnnounceCheckbox(modal: HTMLFormElement, announce: AnnounceType | un
     input.onformdata = (e) => {
         e.formData.delete(announceParam.name);
     };
-    input.onchange = (e) => {        
+    input.onchange = (e) => {
         cart!.announce = input.checked;
     }
     if (announce === AnnounceType.DefaultAnnounce) {
