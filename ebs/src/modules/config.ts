@@ -6,7 +6,7 @@ import { getBannedUsers } from "../util/db";
 
 let config: Config | undefined;
 
-const gistUrl = "https://gist.githubusercontent.com/Alexejhero/804fe0900d015b89a934a9b759ba2330/raw";
+const gistUrl = "https://raw.githubusercontent.com/VedalAI/swarm-control/main/config.json";
 
 async function fetchConfig(): Promise<Config> {
     const url = `${gistUrl}?${Date.now()}`;
