@@ -1,8 +1,9 @@
-import { openModal, showErrorModal } from "./modal";
+import { hideProcessingModal, openModal, showErrorModal } from "./modal";
 import { getConfig } from "../util/config";
 
 const $mainContainer = document.getElementsByTagName("main")!;
 const $redeemContainer = document.getElementById("items")!;
+const $modalProcessing = document.getElementById("modal-processing")!;
 
 document.addEventListener("DOMContentLoaded", () => {
     renderRedeemButtons().then();
@@ -62,5 +63,8 @@ export async function renderRedeemButtons() {
         $redeemContainer.appendChild(item);
     }
 
-    showErrorModal("New update!", "The items have been updated, because of this you need to reopen this modal.");
+    if ($modalProcessing.style.opacity !== "1") {
+        hideProcessingModal();
+        showErrorModal("New update!", "The items have been updated, because of this you need to reopen this modal.");
+    }
 }

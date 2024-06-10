@@ -1,4 +1,4 @@
-import { AnnounceType, BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, Redeem, TextParam } from "common/types";
+import { AnnounceType, BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, Redeem, TextParam, VectorParam } from "common/types";
 import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
 import { logToDiscord } from "../util/logger";
@@ -26,12 +26,14 @@ const $paramToggle = document.getElementById("modal-toggle")!;
 const $paramText = document.getElementById("modal-text")!;
 const $paramNumber = document.getElementById("modal-number")!;
 const $paramDropdown = document.getElementById("modal-dropdown")!;
+const $paramVector = document.getElementById("modal-vector")!;
 
 const $paramTemplates = {
     text: $paramText,
     number: $paramNumber,
     dropdown: $paramDropdown,
     toggle: $paramToggle,
+    vector: $paramVector,
 };
 
 /* Modal overlays */
@@ -61,6 +63,13 @@ document.addEventListener("DOMContentLoaded", () => {
     $modalOptionsForm.onsubmit = (e) => {
         e.preventDefault();
         setCartArgsFromForm(e.target as HTMLFormElement);
+    };
+
+    $modalWrapper.onclick = (e) => {
+        if (e.target !== $modalWrapper) return;
+        if ($modalProcessing.style.opacity == "1") return;
+
+        closeModal();
     };
 });
 
@@ -181,7 +190,12 @@ function checkForm() {
 function setCartArgsFromForm(form: HTMLFormElement) {
     const formData = new FormData(form);
     formData.forEach((v, k) => {
-        cart!.args[k] = v;
+        if (k.endsWith("[]")) {
+            k = k.slice(0, -2);
+
+            if (!cart!.args[k]) cart!.args[k] = [];
+            cart!.args[k].push(v);
+        } else cart!.args[k] = v;
     });
 }
 
@@ -252,12 +266,16 @@ function addOptionsFields(modal: HTMLFormElement, redeem: Redeem) {
             case LiteralTypes.Boolean:
                 addCheckbox(modal, param);
                 break;
+            case LiteralTypes.Vector:
+                addVector(modal, param);
+                break;
             default:
                 addDropdown(modal, param).then();
                 break;
         }
     }
 }
+
 function addText(modal: HTMLElement, param: TextParam) {
     const field = $paramTemplates.text.cloneNode(true) as HTMLSelectElement;
     const input = field.querySelector("input")!;
@@ -325,17 +343,42 @@ async function addDropdown(modal: HTMLElement, param: EnumParam) {
     modal.appendChild(field);
 }
 
-function setupField(field: HTMLElement, inputElem: HTMLSelectElement | HTMLInputElement, param: Parameter) {
+function addVector(modal: HTMLElement, param: VectorParam) {
+    const field = $paramTemplates.vector.cloneNode(true) as HTMLSelectElement;
+    const inputs = Array.from(field.querySelectorAll("input")!) as HTMLInputElement[];
+
+    for (let i = 0; i < 3; i++) {
+        const input = inputs[i];
+
+        input.step = "1";
+
+        input.min = param.min?.toString() ?? "";
+        input.max = param.max?.toString() ?? "";
+
+        setupField(field, input, param, true);
+
+        if (Number.isFinite((param.defaultValues ?? [])[i])) input.value = (param.defaultValues ?? [])![i]!.toString();
+    }
+
+    modal.appendChild(field);
+}
+
+function setupField(field: HTMLElement, inputElem: HTMLSelectElement | HTMLInputElement, param: Parameter, isArray?: boolean) {
     const label = field.querySelector("label")!;
+
     field.id += "-" + param.name;
+
     if (param.description) {
         field.title = param.description;
     }
+
     inputElem.id += "-" + param.name;
-    inputElem.name = param.name;
+    inputElem.name = param.name.concat(isArray !== undefined ? "[]" : "");
+
     label.id += "-" + param.name;
     label.htmlFor = inputElem.id;
     label.textContent = param.title ?? param.name;
+
     if (param.required) {
         inputElem.required = true;
         label.ariaRequired = "";

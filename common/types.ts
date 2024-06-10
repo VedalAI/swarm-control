@@ -3,6 +3,7 @@ export const enum LiteralTypes {
     Integer,
     Float,
     Boolean,
+    Vector
 }
 
 export const enum AnnounceType {
@@ -17,7 +18,7 @@ export const enum AnnounceType {
 type EnumTypeName = string;
 type ParamType = LiteralTypes | EnumTypeName;
 
-export type Parameter = TextParam | NumericParam | BooleanParam | EnumParam;
+export type Parameter = TextParam | NumericParam | BooleanParam | EnumParam | VectorParam;
 type ParameterBase = {
     name: string;
     title?: string;
@@ -48,6 +49,13 @@ export type BooleanParam = ParameterBase & {
 export type EnumParam = ParameterBase & {
     type: EnumTypeName;
     defaultValue?: string;
+};
+
+export type VectorParam = ParameterBase & {
+    type: LiteralTypes.Vector;
+    defaultValues?: number[];
+    min?: number[];
+    max?: number[];
 };
 
 export type Redeem = {
