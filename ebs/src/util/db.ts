@@ -1,7 +1,31 @@
-import { db } from "../index";
 import { RowDataPacket } from "mysql2";
+import mysql from "mysql2/promise";
 import { IdentifiableCart } from "common/types";
 import { v4 as uuid } from "uuid";
+
+export let db: mysql.Connection;
+
+export async function initDb() {
+    if (!process.env.DB_HOST) {
+        console.warn("No DB_HOST specified (assuming local testing/development), skipping database setup");
+        return;
+    }
+    while (!db) {
+        try {
+            db = await mysql.createConnection({
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME,
+            });
+        } catch {
+            console.log("Failed to connect to database. Retrying in 5 seconds...");
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+        }
+    }
+
+    await setupDb();
+}
 
 export async function setupDb() {
     await db.query(`

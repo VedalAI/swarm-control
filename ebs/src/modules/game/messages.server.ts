@@ -2,7 +2,7 @@ import { MessageType, Message, TwitchUser } from "./messages";
 
 export type ServerMessage = Message & {
     /** User that triggered the message. e.g. for redeems, the user who bought the redeem. */
-    user?: TwitchUser | null
+    user?: TwitchUser
 }
 export type HelloBackMessage = ServerMessage & {
     messageType: MessageType.HelloBack,

@@ -2,9 +2,9 @@ export enum MessageType {
     // game to server
     Hello,
     Ping,
+    Log,
     Result,
-    GameLoadedStateChanged,
-    GamePausedStateChanged,
+    IngameStateChanged,
     CommandAvailabilityChanged,
 
     // server to game
@@ -27,7 +27,7 @@ export type TwitchUser = {
     /** Channel id */
     id: number,
     /** Twitch username (login name) */
-    userName?: string,
+    userName: string,
     /** User's chosen display name. */
-    displayName?: string
+    displayName: string
 }

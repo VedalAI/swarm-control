@@ -1,10 +1,10 @@
-import { app } from "../index";
-import { Connection } from "./game/connection";
-import { MessageType } from "./game/messages";
-import { ResultMessage } from "./game/messages.game";
-import { CommandInvocationSource, RedeemMessage } from "./game/messages.server";
+import { app } from "../../index";
+import { GameConnection } from "./connection";
+import { MessageType } from "./messages";
+import { ResultMessage } from "./messages.game";
+import { CommandInvocationSource, RedeemMessage } from "./messages.server";
 
-export let connection: Connection = new Connection();
+export let connection: GameConnection = new GameConnection();
 app.ws("/private/socket", async (ws, req) => {
     connection.setSocket(ws);
 })

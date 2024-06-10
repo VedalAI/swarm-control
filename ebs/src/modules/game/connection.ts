@@ -1,28 +1,36 @@
-import { MessageType } from "./messages";
-import { ResultMessage, GameMessage, HelloMessage } from "./messages.game";
+import { Message, MessageType } from "./messages";
+import { ResultMessage, HelloMessage, GameMessage, CommandAvailabilityChangedMessage } from "./messages.game";
 import * as ServerWS from "ws";
 import { v4 as uuid } from "uuid";
 import { RedeemMessage, ServerMessage } from "./messages.server";
+import { getConfig } from "../config";
 
 const VERSION = "0.1.0";
 
 type ResultHandler = (result: ResultMessage) => any;
 
-export class Connection {
+export class GameConnection {
     private handshake: boolean = false;
     private socket: ServerWS | null = null;
-    private redeems: Map<string, ResultHandler> = new Map();
-    
+    private resultHandlers: ResultHandler[] = [];
+    private outstandingRedeems: Set<string> = new Set<string>();
+
     public isConnected() {
         return this.socket?.readyState == ServerWS.OPEN;
     }
-    public setSocket(ws: ServerWS) {
+    public onResult(handler: ResultHandler) {
+        this.resultHandlers.push(handler);
+    }
+    public setSocket(ws: ServerWS | null) {
         if (this.isConnected()) {
             this.socket!.close();
         }
         this.socket = ws;
+        if (!ws) {
+            return;
+        }
         ws.on('connection', () => {
-            console.log(`Connected`);
+            this.handshake = false;
         })
         ws.on('message', async (message) => {
             const msgText = message.toString();
@@ -43,7 +51,7 @@ export class Connection {
             console.log(`Connection error ${error}`);
         })
     }
-    public processMessage(msg: GameMessage) {
+    public async processMessage(msg: GameMessage) {
         switch (msg.messageType) {
             case MessageType.Hello:
                 this.handshake = true;
@@ -57,57 +65,64 @@ export class Connection {
                 this.sendMessage(this.makeMessage(MessageType.Pong));
                 break;
             case MessageType.Result:
-                const handler = this.getRedeemHandler(msg.guid);
-                if (!handler) {
-                    console.error(`[${msg.guid}] Result without handler (already handled?)`);
-                    break;
+                if (!this.outstandingRedeems.has(msg.guid)) {
                 }
-                handler(msg as ResultMessage);
-                this.redeems.delete(msg.guid);
+                for (const handler of this.resultHandlers) {
+                    handler(msg as ResultMessage);
+                }
+                this.outstandingRedeems.delete(msg.guid);
                 break;
-            case MessageType.GameLoadedStateChanged:
-                console.log(`[${msg.guid}] ${MessageType.GameLoadedStateChanged} stub`);
-                break;
-            case MessageType.GamePausedStateChanged:
-                console.log(`[${msg.guid}] ${MessageType.GamePausedStateChanged} stub`);
+            case MessageType.IngameStateChanged:
+                console.log(`[${msg.guid}] ${MessageType[MessageType.IngameStateChanged]} stub`);
                 break;
             case MessageType.CommandAvailabilityChanged:
-                console.log(`[${msg.guid}] ${MessageType.CommandAvailabilityChanged} stub`);
+                await this.updateCommandAvailability(msg);
                 break;
             default:
                 console.error(`[${msg.guid}] Unknown message type ${msg.messageType}`);
                 break;
         }
     }
+    private async updateCommandAvailability(msg: CommandAvailabilityChangedMessage) {
+        const config = await getConfig();
+        if (!config) {
+
+        }
+        for (const id of msg.becameAvailable) {
+            // redeems need to be a map
+            //config.redeems[id].disabled = false;
+        }
+        console.log(`[${msg.guid}] ${MessageType[MessageType.CommandAvailabilityChanged]} stub`);
+    }
+
     public sendMessage(msg: ServerMessage) {
         if (!this.socket) {
             // todo queue unsent messages
             console.error(`Tried to send message ${JSON.stringify(msg)} without a connected socket`);
             return;
         }
-        if (this.handshake) {
-            this.socket.send(JSON.stringify(msg), {fin: true}, (err) => {
-                if (err)
-                    console.error(err);
-            });
-            console.log(`Sent message ${JSON.stringify(msg)}`);
-        } else {
+        if (!this.handshake) {
             console.error(`Tried to send message ${JSON.stringify(msg)} before handshake was complete`);
+            return;
         }
+        this.socket.send(JSON.stringify(msg), { binary: false, fin: true }, (err) => {
+            if (err)
+                console.error(err);
+        });
+        console.log(`Sent message ${JSON.stringify(msg)}`);
     }
-    public makeMessage(type: MessageType, guid?: string) : GameMessage {
+    public makeMessage(type: MessageType, guid?: string): Message {
         return {
             messageType: type,
             guid: guid ?? uuid(),
-            timestamp: new Date().getTime(),
+            timestamp: Date.now()
         }
     }
-    public redeem(msg: RedeemMessage, onresult: ResultHandler) {
-        this.redeems.set(msg.guid, onresult);
+    public redeem(msg: RedeemMessage) {
+        if (this.outstandingRedeems.has(msg.guid)) {
+            console.error(`Tried to redeem ${msg.guid} twice`);
+        }
+        this.outstandingRedeems.add(msg.guid);
         this.sendMessage(msg);
-    }
-
-    private getRedeemHandler(guid: string) : ResultHandler | undefined {
-        return this.redeems.get(guid)
     }
 }
