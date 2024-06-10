@@ -213,6 +213,20 @@ app.post("/public/transaction/cancel", async (req, res) => {
 
         res.sendStatus(200);
     } catch (error) {
+        logToDiscord({
+            transactionToken: token,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
+            important: false,
+            fields: [
+                {
+                    header: "Error deleting transaction",
+                    content: {
+                        error: error,
+                    },
+                },
+            ],
+        });
+
         res.sendStatus(404);
     }
 });
