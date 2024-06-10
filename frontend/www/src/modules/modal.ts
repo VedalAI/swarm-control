@@ -85,7 +85,7 @@ export async function openModal(redeem: Redeem | null) {
     const config = await getConfig();
 
     const announceType = redeem.announce || AnnounceType.DefaultAnnounce;
-    const defaultAnnounce = !(announceType & 2);
+    const defaultAnnounce = !(announceType & 1);
 
     cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {}, announce: defaultAnnounce };
 
