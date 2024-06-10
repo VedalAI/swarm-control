@@ -1,4 +1,4 @@
-export enum LiteralTypes {
+export const enum LiteralTypes {
     String,
     Integer,
     Float,
@@ -6,14 +6,17 @@ export enum LiteralTypes {
     Vector
 }
 
+export const enum AnnounceType {
+    DefaultAnnounce,
+    DefaultSilent,
+    // e.g. "add signal"
+    AlwaysAnnounce,
+    // e.g. "say"/"hint" (because the message itself is the announcement)
+    AlwaysSilent,
+}
+
 type EnumTypeName = string;
-
 type ParamType = LiteralTypes | EnumTypeName;
-
-export type Enum = {
-    name: EnumTypeName;
-    values: string[];
-};
 
 export type Parameter = TextParam | NumericParam | BooleanParam | EnumParam | VectorParam;
 type ParameterBase = {
@@ -59,18 +62,21 @@ export type Redeem = {
     id: string;
     title: string;
     description: string;
+    args: Parameter[];
+    announce?: AnnounceType;
+    moderated?: boolean;
+    
     image: string;
     price: number;
     sku: string;
-    args: Parameter[];
     disabled?: boolean;
     hidden?: boolean;
 };
 
 export type Config = {
     version: number;
-    enums?: Enum[];
-    redeems?: Redeem[];
+    enums?: { [name: string]: string[] };
+    redeems?: { [id: string]: Redeem };
     banned?: string[];
     message?: string;
 };
@@ -80,6 +86,7 @@ export type Cart = {
     id: string;
     sku: string;
     args: { [name: string]: any };
+    announce: boolean;
 };
 
 export type IdentifiableCart = Cart & {
