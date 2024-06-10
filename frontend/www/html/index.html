@@ -9,84 +9,115 @@
 </head>
 
 <body>
-    <% if (htmlWebpackPlugin.options.title == "Config") { %>
+    <% if (htmlWebpackPlugin.options.title=="Config" ) { %>
         <h1>This extension is not configurable.</h1>
-    <% } else { %>
-        <main>
-        <div class="onboarding" id="onboarding">
-            <h2>Welcome to Swarm Control&trade;</h2>
+        <% } else { %>
+            <main>
+                <div class="onboarding" id="onboarding">
+                    <h2>Welcome to Swarm Control&trade;</h2>
 
-            <p>Please authenticate with Twitch in order to continue.</p>
-            <button id="twitch-login" class="button btn-primary">Authenticate</button>
-        </div>
+                    <p>Please authenticate with Twitch in order to continue.</p>
+                    <button id="twitch-login" class="button btn-primary">Authenticate</button>
+                </div>
 
-        <!-- Purchase modal -->
-        <div class="modal-wrapper" id="modal-wrapper" style="opacity: 0; pointer-events: none;">
-            <div class="modal">
-                <img id="modal-image" class="modal-image" src="">
-                <div class="modal-descriptors">
-                    <!-- Title and description -->
-                    <h2 id="modal-title"></h2>
-                    <p id="modal-description"></p>
-                    <div id="modal-price" style="display: flex; font-size:large; text-emphasis: bold;">
-                        <img src="img/bits.png" class="bits-image">
-                        <p id="modal-bits">X</p>
-                    </div>
+                <!-- Purchase modal -->
+                <div class="modal-wrapper" id="modal-wrapper" style="opacity: 0; pointer-events: none;">
+                    <div class="modal">
+                        <img id="modal-image" class="modal-image" src="">
+                        <div class="modal-descriptors">
+                            <!-- Title and description -->
+                            <h2 id="modal-title"></h2>
+                            <p id="modal-description"></p>
+                            <div id="modal-price" style="display: flex; font-size:large; text-emphasis: bold;">
+                                <img src="img/bits.png" class="bits-image">
+                                <p id="modal-bits">X</p>
+                            </div>
 
-                    <!-- Checkbox, input and dropdown options -->
-                    <div id="modal-options">
-                        <form id="modal-options-form" action="#"></form>
-                    </div>
+                            <!-- Checkbox, input and dropdown options -->
+                            <div id="modal-options">
+                                <form id="modal-options-form" action="#"></form>
+                            </div>
 
-                    <!-- Buy and cancel buttons -->
-                    <div class="modal-buttons">
-                        <button id="modal-confirm" class="button btn-success">Redeem</button>
-                        <button id="modal-cancel" class="button btn-danger">Cancel</button>
+                            <!-- Buy and cancel buttons -->
+                            <div class="modal-buttons">
+                                <button id="modal-confirm" class="button btn-success">Redeem</button>
+                                <button id="modal-cancel" class="button btn-danger">Cancel</button>
+                            </div>
+                        </div>
+
+                        <!-- Modal processing overlay -->
+                        <div class="modal-overlay modal-processing" id="modal-processing"
+                            style="opacity: 0; pointer-events: none;">
+                            <div class="modal-spinner-container">
+                                <div class="spinner"></div>
+                                <p>Processing your request...</p>
+                            </div>
+
+                            <p id="modal-processing-description"></p>
+
+                            <!-- Close button -->
+                            <div class="modal-buttons">
+                                <button id="modal-processing-close" class="button btn-danger">Close</button>
+                            </div>
+                        </div>
+
+                        <!-- Modal error overlay -->
+                        <div class="modal-overlay" id="modal-error" style="opacity: 0; pointer-events: none;">
+                            <p class="modal-error-x">&#x2715;</p>
+                            <div class="modal-descriptors">
+                                <h2 id="modal-error-title">An error has occurred.</h2>
+                                <p id="modal-error-description"></p>
+
+                                <!-- Close button -->
+                                <div class="modal-buttons">
+                                    <button id="modal-error-close" class="button btn-danger">Close</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal success overlay -->
+                        <div class="modal-overlay" id="modal-success" style="opacity: 0; pointer-events: none;">
+                            <p class="modal-success-x">&#x2714;</p>
+                            <div class="modal-descriptors">
+                                <h2 id="modal-success-title"></h2>
+                                <p id="modal-success-description"></p>
+
+                                <!-- Close button -->
+                                <div class="modal-buttons">
+                                    <button id="modal-success-close" class="button btn-danger">Close</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Modal processing overlay -->
-                <div class="modal-overlay modal-processing" id="modal-processing"
-                    style="opacity: 0; pointer-events: none;">
-                    <div class="modal-spinner-container">
+                <div id="items">
+                    <div class="redeems-content-spinner">
                         <div class="spinner"></div>
-                        <p>Processing your request...</p>
-                    </div>
-
-                    <p id="modal-processing-description"></p>
-
-                    <!-- Close button -->
-                    <div class="modal-buttons">
-                        <button id="modal-processing-close" class="button btn-danger">Close</button>
+                        <p>Loading content...</p>
                     </div>
                 </div>
+            </main>
 
-                <!-- Modal error overlay -->
-                <div class="modal-overlay" id="modal-error" style="opacity: 0; pointer-events: none;">
-                    <p class="modal-error-x">&#x2715;</p>
-                    <div class="modal-descriptors">
-                        <h2 id="modal-error-title">An error has occurred.</h2>
-                        <p id="modal-error-description"></p>
-
-                        <!-- Close button -->
-                        <div class="modal-buttons">
-                            <button id="modal-error-close" class="button btn-danger">Close</button>
-                        </div>
-                    </div>
+            <div id="options-templates" style="display:none;">
+                <div id="modal-dropdown">
+                    <label for="modal-dropdown-input">Choose one</label>
+                    <select id="modal-dropdown-input"></select>
                 </div>
 
-                <!-- Modal success overlay -->
-                <div class="modal-overlay" id="modal-success" style="opacity: 0; pointer-events: none;">
-                    <p class="modal-success-x">&#x2714;</p>
-                    <div class="modal-descriptors">
-                        <h2 id="modal-success-title"></h2>
-                        <p id="modal-success-description"></p>
+                <div id="modal-text">
+                    <label for="modal-text-input" id="modal-text-label">Enter text</label>
+                    <input id="modal-text-input" type="text" placeholder="Enter text here">
+                </div>
 
-                        <!-- Close button -->
-                        <div class="modal-buttons">
-                            <button id="modal-success-close" class="button btn-danger">Close</button>
-                        </div>
-                    </div>
+                <div id="modal-number">
+                    <label for="modal-number-input" id="modal-number-label">Enter number</label>
+                    <input id="modal-number-input" type="text" placeholder="Enter number here">
+                </div>
+
+                <div id="modal-toggle">
+                    <label for="modal-toggle-input" id="modal-toggle-label">Enabled?</label>
+                    <input id="modal-toggle-input" type="checkbox">
                 </div>
 
                 <div id="modal-vector">
@@ -96,38 +127,7 @@
                     <input id="modal-vector-input-z" class="modal-vector-input" type="number" placeholder="Z">
                 </div>
             </div>
-        </div>
-
-        <div id="items">
-            <div class="redeems-content-spinner">
-                <div class="spinner"></div>
-                <p>Loading content...</p>
-            </div>
-        </div>
-    </main>
-
-        <div id="options-templates" style="display:none;">
-        <div id="modal-dropdown">
-            <label for="modal-dropdown-input">Choose one</label>
-            <select id="modal-dropdown-input"></select>
-        </div>
-
-        <div id="modal-text">
-            <label for="modal-text-input" id="modal-text-label">Enter text</label>
-            <input id="modal-text-input" type="text" placeholder="Enter text here">
-        </div>
-
-        <div id="modal-number">
-            <label for="modal-number-input" id="modal-number-label">Enter number</label>
-            <input id="modal-number-input" type="text" placeholder="Enter number here">
-        </div>
-
-        <div id="modal-toggle">
-            <label for="modal-toggle-input" id="modal-toggle-label">Enabled?</label>
-            <input id="modal-toggle-input" type="checkbox">
-        </div>
-    </div>
-    <% } %>
+            <% } %>
 </body>
 
 </html>
