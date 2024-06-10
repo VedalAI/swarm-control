@@ -97,5 +97,6 @@ Twitch.ext.bits.onTransactionCancelled(async () => {
             ],
         }).then();
     }
+    hideProcessingModal();
     showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken}`);
 });

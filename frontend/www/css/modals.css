@@ -20,15 +20,9 @@
 
 .modal {
     position: relative;
-    padding: 20px;
 
     background-color: #111;
     border: 1px solid #ffffff1A;
-
-    display: flex;
-    flex-direction: row;
-    /* justify-content: center; */
-    gap: 20px;
 
     border-radius: 20px;
     font-size: 1rem;
@@ -42,8 +36,21 @@
 
     -webkit-user-select: none;
     user-select: none;
+}
+
+.modal-inside-wrapper {
+    width: 100%;
+    height: auto;
+
+    padding: 20px;
+
+    display: flex;
+    flex-direction: row;
+    /* justify-content: center; */
+    gap: 20px;
 
     max-height: 80vh;
+
     overflow-y: auto;
 }
 
@@ -245,7 +252,8 @@ form label:not([aria-required]) {
     }
 
     .modal,
-    .modal-overlay {
+    .modal-overlay,
+    .modal-inside-wrapper {
         flex-direction: column;
         align-items: center;
 

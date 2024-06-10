@@ -64,6 +64,13 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         setCartArgsFromForm(e.target as HTMLFormElement);
     };
+
+    $modalWrapper.onclick = (e) => {
+        if (e.target !== $modalWrapper) return;
+        if ($modalProcessing.style.opacity == "1") return;
+
+        closeModal();
+    };
 });
 
 export async function openModal(redeem: Redeem | null) {
