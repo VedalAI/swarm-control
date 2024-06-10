@@ -2,6 +2,7 @@ import { Config } from "common/types";
 import { app } from "../index";
 import { sendPubSubMessage } from "../util/pubsub";
 import { pack } from "jsonpack";
+import { getBannedUsers } from "../util/db";
 
 let config: Config | undefined;
 
@@ -12,9 +13,11 @@ async function fetchConfig(): Promise<Config> {
 
     try {
         const response = await fetch(url);
-        const data = await response.json();
+        const data: Config = await response.json();
 
-        return data as Config;
+        data.banned = await getBannedUsers();
+
+        return data;
     } catch (e: any) {
         console.error("Error when fetching config");
         console.error(e);

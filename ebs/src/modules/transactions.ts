@@ -3,7 +3,7 @@ import { app } from "../index";
 import { parseJWT, verifyJWT } from "../util/jwt";
 import { BitsTransactionPayload } from "../types";
 import { getConfig } from "./config";
-import { getPrepurchase, isReceiptUsed, registerPrepurchase } from "../util/db";
+import { getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase } from "../util/db";
 import { logToDiscord } from "../util/logger";
 
 app.post("/public/prepurchase", async (req, res) => {
@@ -27,7 +27,7 @@ app.post("/public/prepurchase", async (req, res) => {
         return;
     }
 
-    if (config.banned && config.banned.includes(req.twitchAuthorization!.user_id!)) {
+    if (await isUserBanned(req.twitchAuthorization!.user_id!)) {
         res.status(403).send("You are banned from using this extension");
         return;
     }

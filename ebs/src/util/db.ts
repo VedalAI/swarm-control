@@ -17,14 +17,17 @@ export async function setupDb() {
             cart JSON NOT NULL
         )
     `);
+
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS bans (
+            userId VARCHAR(255) PRIMARY KEY
+        )
+    `);
 }
 
 export async function isReceiptUsed(receipt: string): Promise<boolean> {
     try {
-        const [rows] = (await db.query("SELECT COUNT(*) FROM transactions WHERE receipt = ?", [receipt])) as [
-            RowDataPacket[],
-            any,
-        ];
+        const [rows] = (await db.query("SELECT COUNT(*) FROM transactions WHERE receipt = ?", [receipt])) as [RowDataPacket[], any];
         return rows[0]["COUNT(*)"] != 0;
     } catch (e: any) {
         console.error("Database query failed (isReceiptUsed)");
@@ -58,11 +61,33 @@ export async function registerPrepurchase(cart: IdentifiableCart): Promise<strin
 
 export async function getPrepurchase(token: string): Promise<IdentifiableCart | undefined> {
     try {
-        const [rows] = (await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token])) as any;
+        const [rows] = (await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token])) as [RowDataPacket[], any];
         if (rows.length === 0) return undefined;
         return rows[0].cart as IdentifiableCart;
     } catch (e: any) {
         console.error("Database query failed (isPrepurchaseValid)");
+        console.error(e);
+        throw new Error("Database query failed");
+    }
+}
+
+export async function isUserBanned(userId: string): Promise<boolean> {
+    try {
+        const [rows] = (await db.query("SELECT COUNT(*) FROM bans WHERE userId = ?", [userId])) as [RowDataPacket[], any];
+        return rows[0]["COUNT(*)"] != 0;
+    } catch (e: any) {
+        console.error("Database query failed (isBanned)");
+        console.error(e);
+        throw new Error("Database query failed");
+    }
+}
+
+export async function getBannedUsers(): Promise<string[]> {
+    try {
+        const [rows] = (await db.query("SELECT userId FROM bans")) as [RowDataPacket[], any];
+        return rows.map((row) => row.userId);
+    } catch (e: any) {
+        console.error("Database query failed (getBannedUsers)");
         console.error(e);
         throw new Error("Database query failed");
     }

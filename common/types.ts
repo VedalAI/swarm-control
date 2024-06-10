@@ -2,7 +2,7 @@ export enum LiteralTypes {
     String,
     Integer,
     Float,
-    Boolean
+    Boolean,
 }
 
 type EnumTypeName = string;
@@ -28,24 +28,24 @@ export type TextParam = ParameterBase & {
     defaultValue?: string;
     minLength?: number;
     maxLength?: number;
-}
+};
 
 export type NumericParam = ParameterBase & {
     type: LiteralTypes.Integer | LiteralTypes.Float;
     defaultValue?: number;
     min?: number;
     max?: number;
-}
+};
 
 export type BooleanParam = ParameterBase & {
     type: LiteralTypes.Boolean;
     defaultValue?: boolean;
-}
+};
 
 export type EnumParam = ParameterBase & {
     type: EnumTypeName;
     defaultValue?: string;
-}
+};
 
 export type Redeem = {
     id: string;
