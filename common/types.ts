@@ -90,6 +90,7 @@ export type PubSubMessage = {
 
 export type LogMessage = {
     transactionToken: string | null;
+    userIdInsecure: string | null;
     important: boolean;
     fields: { header: string; content: any }[];
 };

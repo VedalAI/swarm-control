@@ -16,7 +16,7 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
     if (!transactionToken) {
         logToDiscord({
             transactionToken: null,
-            userId: Twitch.ext.viewer.id!,
+            userIdInsecure: Twitch.ext.viewer.id!,
             important: true,
             fields: [
                 {
@@ -36,7 +36,7 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
 
     logToDiscord({
         transactionToken: transactionToken,
-        userId: Twitch.ext.viewer.id!,
+        userIdInsecure: Twitch.ext.viewer.id!,
         important: false,
         fields: [
             {
@@ -63,14 +63,11 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
 
     if (result.ok) {
         // Transaction token can no longer be used to log
-        showSuccessModal(
-            "Purchase completed",
-            `Your transaction was successful! Your redeem will appear on stream soon.\nTransaction ID: ${transactionToken}`
-        );
+        showSuccessModal("Purchase completed", `Your transaction was successful! Your redeem will appear on stream soon.\nTransaction ID: ${transactionToken}`);
     } else {
         logToDiscord({
             transactionToken: transactionToken,
-            userId: Twitch.ext.viewer.id!,
+            userIdInsecure: Twitch.ext.viewer.id!,
             important: true,
             fields: [
                 {
@@ -90,7 +87,7 @@ Twitch.ext.bits.onTransactionCancelled(async () => {
     if (transactionToken) {
         logToDiscord({
             transactionToken: transactionToken,
-            userId: Twitch.ext.viewer.id!,
+            userIdInsecure: Twitch.ext.viewer.id!,
             important: false,
             fields: [
                 {

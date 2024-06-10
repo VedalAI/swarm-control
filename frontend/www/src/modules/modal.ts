@@ -195,7 +195,7 @@ async function confirmPurchase() {
 
     logToDiscord({
         transactionToken: transactionToken!,
-        userId: Twitch.ext.viewer.id!,
+        userIdInsecure: Twitch.ext.viewer.id!,
         important: false,
         fields: [
             {
