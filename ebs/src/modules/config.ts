@@ -34,13 +34,17 @@ export async function getConfig(): Promise<Config> {
     return config;
 }
 
-app.get("/private/refresh", async (_, res) => {
-    config = await fetchConfig();
-    console.log("Refreshed config, new config version is ", config.version);
-    await sendPubSubMessage({
+export async function broadcastConfigRefresh(config: Config) {
+    return sendPubSubMessage({
         type: "config_refreshed",
         data: pack(config),
     });
+}
+
+app.get("/private/refresh", async (_, res) => {
+    config = await fetchConfig();
+    console.log("Refreshed config, new config version is ", config.version);
+    await broadcastConfigRefresh(config);
     res.sendStatus(200);
 });
 
@@ -48,3 +52,8 @@ app.get("/public/config", async (req, res) => {
     const config = await getConfig();
     res.send(JSON.stringify(config));
 });
+
+(async () => {
+    const config = await getConfig();
+    await broadcastConfigRefresh(config);
+})().then();
