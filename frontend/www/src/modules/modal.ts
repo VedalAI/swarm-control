@@ -3,6 +3,14 @@ import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
 import { logToDiscord } from "../util/logger";
 
+// get body element
+const body = document.body;
+// stop double click events
+body.addEventListener("dblclick", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+});
+
 /* Containers */
 const $modalWrapper = document.getElementById("modal-wrapper")!;
 const $modal = document.getElementById("modal-wrapper")!.getElementsByClassName("modal")[0]!;
