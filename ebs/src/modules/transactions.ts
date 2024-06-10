@@ -39,7 +39,41 @@ app.post("/public/prepurchase", async (req, res) => {
     // TODO: Verify parameters
     // TODO: text input moderation
 
-    const token = await registerPrepurchase(idCart);
+    let token: string;
+    try {
+        token = await registerPrepurchase(idCart);
+    } catch (e: any) {
+        logToDiscord({
+            transactionToken: null,
+            userIdInsecure: idCart.userId,
+            important: true,
+            fields: [
+                {
+                    header: "Failed to register prepurchase",
+                    content: {
+                        cart: idCart,
+                        error: e,
+                    }
+                },
+            ]
+        }).then();
+        res.status(500).send("Failed to register prepurchase");
+        return;
+    }
+
+    logToDiscord({
+        transactionToken: token,
+        userIdInsecure: idCart.userId,
+        important: false,
+        fields: [
+            {
+                header: "Created prepurchase",
+                content: {
+                    cart: idCart,
+                }
+            }
+        ]
+    }).then();
 
     res.status(200).send(token);
 });
