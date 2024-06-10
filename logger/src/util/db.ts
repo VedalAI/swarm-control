@@ -21,8 +21,13 @@ export async function canLog(token: string | null): Promise<boolean> {
 
 export async function getUserIdFromTransactionToken(token: string): Promise<string | null> {
     try {
-        const [rows] = (await db.query("SELECT userId FROM transactions WHERE token = ?", [token])) as [RowDataPacket[], any];
-        return rows[0].userId;
+        try {
+            const [rows] = (await db.query("SELECT userId FROM prepurchases WHERE token = ?", [token])) as [RowDataPacket[], any];
+            return rows[0].userId;
+        } catch (e: any) {
+            const [rows] = (await db.query("SELECT userId FROM transactions WHERE token = ?", [token])) as [RowDataPacket[], any];
+            return rows[0].userId;
+        }
     } catch (e: any) {
         console.error("Database query failed (getUserIdFromTransactionToken)");
         console.error(e);
