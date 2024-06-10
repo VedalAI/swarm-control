@@ -1,4 +1,4 @@
-import { openModal } from "./modal";
+import { openModal, showErrorModal } from "./modal";
 import { getConfig } from "../util/config";
 
 const $mainContainer = document.getElementsByTagName("main")!;
@@ -16,12 +16,12 @@ export async function renderRedeemButtons() {
 
     $redeemContainer.innerHTML = "";
 
+
+    const alerts = document.getElementsByClassName("alert");
+    while (alerts.length > 0) alerts[0].remove();
+
     if (config.message)
         $mainContainer[0].insertAdjacentHTML("afterbegin", `<div class="alert">${config.message}</div>`);
-    else {
-        const alerts = document.getElementsByClassName("alert");
-        while (alerts.length > 0) alerts[0].remove();
-    }
 
     if (redeems?.length === 0)
         $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><p>No content is available.</p></div>`;
@@ -61,4 +61,6 @@ export async function renderRedeemButtons() {
 
         $redeemContainer.appendChild(item);
     }
+
+    showErrorModal("New update!", "The items have been updated, because of this you need to reopen this modal.");
 }

@@ -25,8 +25,8 @@ h1 {
 }
 
 input {
-    padding: 10px;
-    border-radius: 10px;
+    padding: 5px;
+    border-radius: 7.5px;
     border: 1px solid #ffffff1A;
     background-color: #333;
     color: #eee;
@@ -69,13 +69,13 @@ input[type="checkbox"]:checked::before {
     transform: translate(-50%, -50%);
 
     content: "✔";
-    font-size: 1.25rem;
+    font-size: 1rem;
     color: white;
 }
 
 select {
-    padding: 10px;
-    border-radius: 10px;
+    padding: 5px;
+    border-radius: 7.5px;
     border: 1px solid #ffffff1A;
     background-color: #333;
     color: #eee;
