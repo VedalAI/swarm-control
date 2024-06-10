@@ -1,225 +1,227 @@
 {
-    "version": 3,
-    "enums": [
-      {
-        "name": "test",
-        "values": ["One", "Two"]
-      }
+  "version": 1,
+  "banned": [],
+  "enums": {
+    "isekaiTechType": [
+      "Ermfish",
+      "Anneel",
+      "Tutel",
+      "Ermshark",
+      "Bladderfish",
+      "Cryptosuchus",
+      "Titanium",
+      "Diamond",
+      "Ruby",
+      "Gold",
+      "Copper"
     ],
-    "banned": [],
-    "redeems": [
-      {
-        "id": "spawnermfish",
-        "title": "Spawn Ermfish x1",
-        "description": "Spawn an Ermfish in front of Vedal",
-        "image": "https://vedalai.github.io/swarm-control/fish.png",
-        "price": 1,
-        "sku": "bits1",
-        "args": [
-          {
-            "name": "amount",
-            "title": "Spawn Amount",
-            "description": "Number of ermfish to spawn (not x1)",
-            "type": 1,
-            "required": true,
-            "min": 1,
-            "max": 5,
-            "defaultValue": 1
-          },
-          {
-            "name": "behind",
-            "title": "Spawn Behind Player",
-            "description": "checked = funny",
-            "type": 3,
-            "required": false
-          },
-          {
-            "name": "test",
-            "title": "Testing",
-            "description": "blah",
-            "type": "test",
-            "required": true
-          },
-          {
-            "name": "essay",
-            "title": "Text",
-            "description": "blabbering",
-            "type": 0,
-            "required": true,
-            "minLength": 5,
-            "maxLength": 6
-          },
-          {
-            "name": "float",
-            "title": "Float",
-            "type": 2
-          }
-        ]
-      },
-      {
-        "id": "spawnermfish2",
-        "title": "Spawn Ermfish x2",
-        "description": "Spawn an Ermfish in front of Vedal",
-        "image": "https://vedalai.github.io/swarm-control/fish.png",
-        "price": 100,
-        "sku": "bits100",
-        "args": [
-          {
-            "name": "amount",
-            "type": 2,
-            "defaultValue": 1
-          },
-          {
-            "name": "behind",
-            "type": 3
-          },
-          {
-            "name": "test",
-            "type": "test"
-          }
-        ]
-      },
-      {
-        "id": "spawnermfish",
-        "title": "Spawn Ermfish x1",
-        "description": "Spawn an Ermfish in front of Vedal",
-        "image": "https://vedalai.github.io/swarm-control/fish.png",
-        "price": 200,
-        "sku": "bits200",
-        "args": [
-          {
-            "name": "amount",
-            "title": "Spawn Amount",
-            "description": "Number of ermfish to spawn (not x1)",
-            "type": 1,
-            "required": true,
-            "min": 1,
-            "max": 5,
-            "defaultValue": 1
-          },
-          {
-            "name": "behind",
-            "title": "Spawn Behind Player",
-            "description": "checked = funny",
-            "type": 3,
-            "required": false
-          },
-          {
-            "name": "test",
-            "title": "Testing",
-            "description": "blah",
-            "type": "test",
-            "required": true
-          },
-          {
-            "name": "essay",
-            "title": "Text",
-            "description": "blabbering",
-            "type": 0,
-            "required": true,
-            "minLength": 5,
-            "maxLength": 6
-          },
-          {
-            "name": "float",
-            "title": "Float",
-            "type": 2
-          }
-        ]
-      },
-      {
-        "id": "spawnermfish2",
-        "title": "Spawn Ermfish x2",
-        "description": "Spawn an Ermfish in front of Vedal",
-        "image": "https://vedalai.github.io/swarm-control/fish.png",
-        "price": 100,
-        "sku": "bits100",
-        "args": [
-          {
-            "name": "amount",
-            "type": 2,
-            "defaultValue": 1
-          },
-          {
-            "name": "behind",
-            "type": 3
-          },
-          {
-            "name": "test",
-            "type": "test"
-          }
-        ]
-      },
-      {
-        "id": "spawnermfish",
-        "title": "Spawn Ermfish x1",
-        "description": "Spawn an Ermfish in front of Vedal",
-        "image": "https://vedalai.github.io/swarm-control/fish.png",
-        "price": 200,
-        "sku": "bits200",
-        "args": [
-          {
-            "name": "amount",
-            "title": "Spawn Amount",
-            "description": "Number of ermfish to spawn (not x1)",
-            "type": 1,
-            "required": true,
-            "min": 1,
-            "max": 5,
-            "defaultValue": 1
-          },
-          {
-            "name": "behind",
-            "title": "Spawn Behind Player",
-            "description": "checked = funny",
-            "type": 3,
-            "required": false
-          },
-          {
-            "name": "test",
-            "title": "Testing",
-            "description": "blah",
-            "type": "test",
-            "required": true
-          },
-          {
-            "name": "essay",
-            "title": "Text",
-            "description": "blabbering",
-            "type": 0,
-            "required": true,
-            "minLength": 5,
-            "maxLength": 6
-          },
-          {
-            "name": "float",
-            "title": "Float",
-            "type": 2
-          }
-        ]
-      },
-      {
-        "id": "spawnermfish2",
-        "title": "Spawn Ermfish x2",
-        "description": "Spawn an Ermfish in front of Vedal",
-        "image": "https://vedalai.github.io/swarm-control/fish.png",
-        "price": 100,
-        "sku": "bits100",
-        "args": [
-          {
-            "name": "amount",
-            "type": 2,
-            "defaultValue": 1
-          },
-          {
-            "name": "behind",
-            "type": 3
-          },
-          {
-            "name": "test",
-            "type": "test"
-          }
-        ]
-      }
+    "range": [
+      "Near",
+      "Far"
+    ],
+    "aggressiveCreatures": [
+      "Ermshark",
+      "LilyPaddler",
+      "Cryptosuchus",
+      "SquidShark"
+    ],
+    "commonResources": [
+      "Titanium",
+      "Copper",
+      "Silver",
+      "Lead"
+    ],
+    "passiveCreature": [
+      "Ermfish",
+      "Anneel",
+      "Tutel",
+      "ArcticPeeper",
+      "Bladderfish",
+      "Boomerang",
+      "SpinnerFish"
     ]
+  },
+  "redeems": {
+    "redeem_hint": {
+      "id": "redeem_hint",
+      "title": "Send Hint",
+      "description": "Display a message in the center of the screen",
+      "args": [
+        {
+          "type": 0,
+          "required": true,
+          "name": "message",
+          "title": "The message to display"
+        }
+      ],
+      "announce": 3,
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "redeem_say": {
+      "id": "redeem_say",
+      "title": "Send Text",
+      "description": "Display text in the top left of the screen",
+      "args": [
+        {
+          "type": 0,
+          "required": true,
+          "name": "message",
+          "title": "Message",
+          "description": "The message to display"
+        }
+      ],
+      "announce": 3,
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "redeem_isekai": {
+      "id": "redeem_isekai",
+      "title": "Isekai",
+      "description": "Snap a specific type of entity around the player.",
+      "args": [
+        {
+          "type": "isekaiTechType",
+          "required": true,
+          "name": "creature",
+          "title": "Creature",
+          "description": "Creature to isekai."
+        },
+        {
+          "type": "range",
+          "required": true,
+          "name": "range",
+          "title": "Range"
+        }
+      ],
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "spawn_aggressive": {
+      "id": "spawn_aggressive",
+      "title": "Spawn Aggressive Creature",
+      "description": "Spawn an aggressive creature near the player",
+      "args": [
+        {
+          "type": "aggressiveCreatures",
+          "required": true,
+          "name": "creature",
+          "title": "Creature",
+          "description": "The type of creature to spawn."
+        },
+        {
+          "type": 3,
+          "required": true,
+          "defaultValue": false,
+          "name": "behind",
+          "title": "Spawn Behind",
+          "description": "Spawn the creature behind the player"
+        }
+      ],
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "spawn_resource_common": {
+      "id": "spawn_resource_common",
+      "title": "Spawn Common Resource",
+      "args": [
+        {
+          "type": "commonResources",
+          "required": true,
+          "name": "resource",
+          "title": "Resource",
+          "description": "The type of resource to spawn."
+        },
+        {
+          "type": 3,
+          "required": true,
+          "defaultValue": false,
+          "name": "behind",
+          "title": "Spawn Behind",
+          "description": "Spawn the creature behind the player"
+        }
+      ],
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "spawn_passive": {
+      "id": "spawn_passive",
+      "title": "Spawn Passive Creature",
+      "description": "Spawn a passive creature near the player",
+      "args": [
+        {
+          "type": "passiveCreature",
+          "required": true,
+          "name": "creature",
+          "title": "Creature",
+          "description": "The type of creature to spawn."
+        },
+        {
+          "type": 3,
+          "required": true,
+          "defaultValue": false,
+          "name": "behind",
+          "title": "Spawn Behind",
+          "description": "Spawn the creature behind the player"
+        }
+      ],
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "redeem_addsignal": {
+      "id": "redeem_addsignal",
+      "title": "Add Beacon",
+      "description": "Adds a beacon ping to the map.",
+      "args": [
+        {
+          "type": 4,
+          "required": true,
+          "name": "coords",
+          "title": "Coordinates",
+          "description": "Beacon coordinates"
+        },
+        {
+          "type": 0,
+          "required": true,
+          "name": "name",
+          "title": "Name",
+          "description": "Beacon name"
+        }
+      ],
+      "announce": 2,
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "redeem_rerollname": {
+      "id": "redeem_rerollname",
+      "title": "Reroll Vedal's Name",
+      "description": "Reroll Vedal's name in the Neuro integration.",
+      "args": [],
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "redeem_setname": {
+      "id": "redeem_setname",
+      "title": "Set Vedal's Name",
+      "description": "Set Vedal's name in the Neuro integration.",
+      "args": [
+        {
+          "type": 0,
+          "required": true,
+          "name": "name"
+        }
+      ],
+      "image": "UNSET",
+      "price": 1,
+      "sku": "bits1"
+    }
   }
+}
