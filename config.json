@@ -55,7 +55,7 @@
         }
       ],
       "announce": 3,
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
@@ -73,7 +73,7 @@
         }
       ],
       "announce": 3,
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
@@ -96,7 +96,7 @@
           "title": "Range"
         }
       ],
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
@@ -121,7 +121,7 @@
           "description": "Spawn the creature behind the player"
         }
       ],
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
@@ -145,7 +145,7 @@
           "description": "Spawn the creature behind the player"
         }
       ],
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
@@ -170,7 +170,7 @@
           "description": "Spawn the creature behind the player"
         }
       ],
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
@@ -195,7 +195,7 @@
         }
       ],
       "announce": 2,
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
@@ -204,7 +204,7 @@
       "title": "Reroll Vedal's Name",
       "description": "Reroll Vedal's name in the Neuro integration.",
       "args": [],
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
@@ -219,7 +219,7 @@
           "name": "name"
         }
       ],
-      "image": "UNSET",
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     }
