@@ -219,10 +219,14 @@ async function prePurchase() {
 
     if (!response.ok) {
         hideProcessingModal();
-        showErrorModal(
-            "Invalid transaction, please try again.",
-            `${response.status} ${response.statusText} - ${await response.text()}\nIf this problem persists, please refresh the page or contact a moderator (preferably AlexejheroDev).`
-        );
+        if (response.status == 403) {
+            showErrorModal("You are banned from using this extension.", `${response.status} ${response.statusText} - ${await response.text()}\n`);
+        } else {
+            showErrorModal(
+                "Invalid transaction, please try again.",
+                `${response.status} ${response.statusText} - ${await response.text()}\nIf this problem persists, please refresh the page or contact a moderator (preferably AlexejheroDev).`
+            );
+        }
         return false;
     }
 

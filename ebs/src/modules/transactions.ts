@@ -10,6 +10,11 @@ app.post("/public/prepurchase", async (req, res) => {
     const cart = req.body as Cart;
     const idCart = { ...cart, userId: req.twitchAuthorization!.user_id! };
 
+    if (await isUserBanned(req.twitchAuthorization!.user_id!)) {
+        res.status(403).send("You are banned from using this extension.");
+        return;
+    }
+
     const config = await getConfig();
     if (cart.version != config.version) {
         logToDiscord({
@@ -24,11 +29,6 @@ app.post("/public/prepurchase", async (req, res) => {
             ],
         }).then();
         res.status(409).send(`Invalid config version (${cart.version}/${config.version})`);
-        return;
-    }
-
-    if (await isUserBanned(req.twitchAuthorization!.user_id!)) {
-        res.status(403).send("You are banned from using this extension");
         return;
     }
 
@@ -73,7 +73,7 @@ app.post("/public/transaction", async (req, res) => {
                 },
             ],
         }).then();
-        res.status(403).send("Invalid receipt");
+        res.status(403).send("Invalid receipt.");
         return;
     }
 

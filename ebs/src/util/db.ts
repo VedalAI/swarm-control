@@ -7,7 +7,8 @@ export async function setupDb() {
     await db.query(`
         CREATE TABLE IF NOT EXISTS transactions (
             receipt VARCHAR(255) PRIMARY KEY,
-            token VARCHAR(255) NOT NULL
+            token VARCHAR(255) NOT NULL,
+            userId VARCHAR(255) NOT NULL
         )
     `);
 
@@ -36,9 +37,9 @@ export async function isReceiptUsed(receipt: string): Promise<boolean> {
     }
 }
 
-export async function addFulfilledTransaction(receipt: string, token: string) {
+export async function addFulfilledTransaction(receipt: string, token: string, userId: string) {
     try {
-        await db.query("INSERT INTO transactions (receipt, token) VALUES (?, ?)", [receipt, token]);
+        await db.query("INSERT INTO transactions (receipt, token, userId) VALUES (?, ?, ?)", [receipt, token, userId]);
         await db.query("DELETE FROM prepurchases WHERE token = ?", [token]);
     } catch (e: any) {
         console.error("Database query failed (addFulfilledTransaction)");
