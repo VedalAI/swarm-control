@@ -1,22 +1,21 @@
-const path = require("path");
-const {CleanWebpackPlugin} = require("clean-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+import path from "path";
+import { CleanWebpackPlugin } from "clean-webpack-plugin";
+import ZipWebpackPlugin from "zip-webpack-plugin";
+import CopyWebpackPlugin from "copy-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import { Configuration } from "webpack";
 
 const htmlFile = "./www/html/index.html";
 const tsFile = "./www/src/index.ts";
 
-module.exports = {
+const config: Configuration = {
     entry: tsFile,
     plugins: [
         new CleanWebpackPlugin(),
-        new MiniCssExtractPlugin({filename: "[name].css"}),
-/*        new HtmlWebpackPlugin({
-            title: "Video Overlay View",
-            template: htmlFile,
-            filename: "video_overlay.html",
-        }),*/
+        new MiniCssExtractPlugin({
+            filename: "[name].css",
+        }),
         new HtmlWebpackPlugin({
             title: "Video Component View",
             template: htmlFile,
@@ -32,19 +31,17 @@ module.exports = {
             template: htmlFile,
             filename: "mobile.html",
         }),
-/*        new HtmlWebpackPlugin({
-            title: "Broadcaster Configuration View",
-            template: htmlFile,
-            filename: "config.html",
-        }),*/
-/*        new HtmlWebpackPlugin({
-            title: "Live Configuration View",
-            template: htmlFile,
-            filename: "live_config.html",
-        }),*/
-        new CopyWebpackPlugin({'patterns': [
-            { from: './www/img', to: 'img' }
-        ]}),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: "./www/img",
+                    to: "img",
+                },
+            ],
+        }),
+        new ZipWebpackPlugin({
+            filename: "frontend.zip",
+        }),
     ],
     module: {
         rules: [
@@ -54,13 +51,13 @@ module.exports = {
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
-                type: 'asset/resource'
+                type: "asset/resource",
             },
             {
                 test: /\.tsx?$/,
                 use: "ts-loader",
                 exclude: /node_modules/,
-            }
+            },
         ],
     },
     resolve: {
@@ -88,3 +85,5 @@ module.exports = {
         path: path.resolve(__dirname, "dist"),
     },
 };
+
+export default config;

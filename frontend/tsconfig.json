@@ -10,5 +10,10 @@
     "strict": true,
     "skipLibCheck": true,
     "moduleResolution": "node"
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   }
 }
