@@ -1,0 +1,225 @@
+{
+    "version": 3,
+    "enums": [
+      {
+        "name": "test",
+        "values": ["One", "Two"]
+      }
+    ],
+    "banned": [],
+    "redeems": [
+      {
+        "id": "spawnermfish",
+        "title": "Spawn Ermfish x1",
+        "description": "Spawn an Ermfish in front of Vedal",
+        "image": "https://vedalai.github.io/swarm-control/fish.png",
+        "price": 1,
+        "sku": "bits1",
+        "args": [
+          {
+            "name": "amount",
+            "title": "Spawn Amount",
+            "description": "Number of ermfish to spawn (not x1)",
+            "type": 1,
+            "required": true,
+            "min": 1,
+            "max": 5,
+            "defaultValue": 1
+          },
+          {
+            "name": "behind",
+            "title": "Spawn Behind Player",
+            "description": "checked = funny",
+            "type": 3,
+            "required": false
+          },
+          {
+            "name": "test",
+            "title": "Testing",
+            "description": "blah",
+            "type": "test",
+            "required": true
+          },
+          {
+            "name": "essay",
+            "title": "Text",
+            "description": "blabbering",
+            "type": 0,
+            "required": true,
+            "minLength": 5,
+            "maxLength": 6
+          },
+          {
+            "name": "float",
+            "title": "Float",
+            "type": 2
+          }
+        ]
+      },
+      {
+        "id": "spawnermfish2",
+        "title": "Spawn Ermfish x2",
+        "description": "Spawn an Ermfish in front of Vedal",
+        "image": "https://vedalai.github.io/swarm-control/fish.png",
+        "price": 100,
+        "sku": "bits100",
+        "args": [
+          {
+            "name": "amount",
+            "type": 2,
+            "defaultValue": 1
+          },
+          {
+            "name": "behind",
+            "type": 3
+          },
+          {
+            "name": "test",
+            "type": "test"
+          }
+        ]
+      },
+      {
+        "id": "spawnermfish",
+        "title": "Spawn Ermfish x1",
+        "description": "Spawn an Ermfish in front of Vedal",
+        "image": "https://vedalai.github.io/swarm-control/fish.png",
+        "price": 200,
+        "sku": "bits200",
+        "args": [
+          {
+            "name": "amount",
+            "title": "Spawn Amount",
+            "description": "Number of ermfish to spawn (not x1)",
+            "type": 1,
+            "required": true,
+            "min": 1,
+            "max": 5,
+            "defaultValue": 1
+          },
+          {
+            "name": "behind",
+            "title": "Spawn Behind Player",
+            "description": "checked = funny",
+            "type": 3,
+            "required": false
+          },
+          {
+            "name": "test",
+            "title": "Testing",
+            "description": "blah",
+            "type": "test",
+            "required": true
+          },
+          {
+            "name": "essay",
+            "title": "Text",
+            "description": "blabbering",
+            "type": 0,
+            "required": true,
+            "minLength": 5,
+            "maxLength": 6
+          },
+          {
+            "name": "float",
+            "title": "Float",
+            "type": 2
+          }
+        ]
+      },
+      {
+        "id": "spawnermfish2",
+        "title": "Spawn Ermfish x2",
+        "description": "Spawn an Ermfish in front of Vedal",
+        "image": "https://vedalai.github.io/swarm-control/fish.png",
+        "price": 100,
+        "sku": "bits100",
+        "args": [
+          {
+            "name": "amount",
+            "type": 2,
+            "defaultValue": 1
+          },
+          {
+            "name": "behind",
+            "type": 3
+          },
+          {
+            "name": "test",
+            "type": "test"
+          }
+        ]
+      },
+      {
+        "id": "spawnermfish",
+        "title": "Spawn Ermfish x1",
+        "description": "Spawn an Ermfish in front of Vedal",
+        "image": "https://vedalai.github.io/swarm-control/fish.png",
+        "price": 200,
+        "sku": "bits200",
+        "args": [
+          {
+            "name": "amount",
+            "title": "Spawn Amount",
+            "description": "Number of ermfish to spawn (not x1)",
+            "type": 1,
+            "required": true,
+            "min": 1,
+            "max": 5,
+            "defaultValue": 1
+          },
+          {
+            "name": "behind",
+            "title": "Spawn Behind Player",
+            "description": "checked = funny",
+            "type": 3,
+            "required": false
+          },
+          {
+            "name": "test",
+            "title": "Testing",
+            "description": "blah",
+            "type": "test",
+            "required": true
+          },
+          {
+            "name": "essay",
+            "title": "Text",
+            "description": "blabbering",
+            "type": 0,
+            "required": true,
+            "minLength": 5,
+            "maxLength": 6
+          },
+          {
+            "name": "float",
+            "title": "Float",
+            "type": 2
+          }
+        ]
+      },
+      {
+        "id": "spawnermfish2",
+        "title": "Spawn Ermfish x2",
+        "description": "Spawn an Ermfish in front of Vedal",
+        "image": "https://vedalai.github.io/swarm-control/fish.png",
+        "price": 100,
+        "sku": "bits100",
+        "args": [
+          {
+            "name": "amount",
+            "type": 2,
+            "defaultValue": 1
+          },
+          {
+            "name": "behind",
+            "type": 3
+          },
+          {
+            "name": "test",
+            "type": "test"
+          }
+        ]
+      }
+    ]
+  }
