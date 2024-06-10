@@ -16,6 +16,8 @@
 
     transition: all;
     transition-duration: 0.25s;
+
+    overscroll-behavior: contain;
 }
 
 .modal {
@@ -36,6 +38,8 @@
 
     -webkit-user-select: none;
     user-select: none;
+
+    overscroll-behavior: contain;
 }
 
 .modal-inside-wrapper {
@@ -52,6 +56,8 @@
     max-height: 80vh;
 
     overflow-y: auto;
+
+    overscroll-behavior: contain;
 }
 
 .modal-image {

@@ -11,12 +11,16 @@ body {
     overscroll-behavior: contain;
 }
 
+html {
+    overscroll-behavior: contain;
+}
+
 main {
     height: 100dvh;
     /* Some older browsers don't support the
        dvh property and we need a fallback value. */
     height: 100vh;
-
+    overscroll-behavior: contain;
     overflow-y: auto;
 }
 
