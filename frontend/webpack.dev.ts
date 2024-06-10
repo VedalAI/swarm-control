@@ -8,6 +8,7 @@ const config = merge<Configuration>(common, {
     devtool: "inline-source-map",
     devServer: {
         static: "./dist",
+        port: 8080,
     },
 });
 

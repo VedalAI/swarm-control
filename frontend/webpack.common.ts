@@ -6,11 +6,8 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import { Configuration } from "webpack";
 
-const htmlFile = "./www/html/index.html";
-const tsFile = "./www/src/index.ts";
-
 const config: Configuration = {
-    entry: tsFile,
+    entry: "./www/src/index.ts",
     plugins: [
         new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
@@ -18,18 +15,18 @@ const config: Configuration = {
         }),
         new HtmlWebpackPlugin({
             title: "Video Component View",
-            template: htmlFile,
+            template: "./www/html/index.html",
             filename: "video_component.html",
         }),
         new HtmlWebpackPlugin({
-            title: "Panel View",
-            template: htmlFile,
-            filename: "panel.html",
+            title: "Mobile View",
+            template: "./www/html/index.html",
+            filename: "mobile.html",
         }),
         new HtmlWebpackPlugin({
-            title: "Mobile View",
-            template: htmlFile,
-            filename: "mobile.html",
+            title: "Config",
+            template: "./www/html/index.html",
+            filename: "config.html",
         }),
         new CopyWebpackPlugin({
             patterns: [
