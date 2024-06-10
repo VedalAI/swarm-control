@@ -102,7 +102,7 @@ Twitch.ext.bits.onTransactionCancelled(async () => {
         headers: {
             "Content-Type": "application/json",
         },
-        body: transactionToken,
+        body: JSON.stringify({ "token": transactionToken }),
     });
     hideProcessingModal();
     showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken}`);

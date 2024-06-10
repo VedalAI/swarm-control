@@ -205,7 +205,7 @@ app.post("/public/transaction", async (req, res) => {
 });
 
 app.post("/public/transaction/cancel", async (req, res) => {
-    const token = req.body as string;
+    const token = req.body.token as string;
 
     // remove transaction from db
     try {
