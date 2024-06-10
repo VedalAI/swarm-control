@@ -21,6 +21,7 @@ document.addEventListener("auxclick", (e) => {
 /* Containers */
 const $modalWrapper = document.getElementById("modal-wrapper")!;
 const $modal = document.getElementById("modal-wrapper")!.getElementsByClassName("modal")[0]!;
+const $modalInsideWrapper = $modal.getElementsByClassName("modal-inside-wrapper")[0]!;
 
 /* Descriptors */
 const $modalTitle = document.getElementById("modal-title")!;
@@ -108,6 +109,9 @@ export async function openModal(redeem: Redeem | null) {
     $modalDescription.textContent = redeem.description;
     $modalPrice.textContent = redeem.price.toString();
     $modalImage.src = redeem.image;
+
+    // scroll to top of modal
+    $modalInsideWrapper.scrollTop = 0;
 
     setTimeout(() => $modal.classList.add("active-modal"), 10);
 
