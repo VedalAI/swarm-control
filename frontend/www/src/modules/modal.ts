@@ -3,10 +3,17 @@ import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
 import { logToDiscord } from "../util/logger";
 
-// get body element
-const body = document.body;
-// stop double click events
-body.addEventListener("dblclick", (e) => {
+document.body.addEventListener("click", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+});
+
+document.body.addEventListener("dblclick", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+});
+
+document.addEventListener("auxclick", (e) => {
     e.stopPropagation();
     e.preventDefault();
 });
