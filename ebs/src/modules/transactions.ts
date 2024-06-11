@@ -16,6 +16,10 @@ app.post("/public/prepurchase", async (req, res) => {
         res.status(403).send("You are banned from using this extension.");
         return;
     }
+    if (!connection.isConnected()) {
+        res.status(502).send("Game connection is not available");
+        return;
+    }
 
     const config = await getConfig();
     if (cart.version != config.version) {

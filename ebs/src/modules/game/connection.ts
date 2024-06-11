@@ -114,7 +114,8 @@ export class GameConnection {
             if (err)
                 console.error(err);
         });
-        console.log(`Sent message ${JSON.stringify(msg)}`);
+        if (msg.messageType !== MessageType.Ping)
+            console.log(`Sent message ${JSON.stringify(msg)}`);
     }
     public makeMessage(type: MessageType, guid?: string): Message {
         return {
