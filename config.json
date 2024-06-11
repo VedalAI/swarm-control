@@ -39,9 +39,58 @@
       "Bladderfish",
       "Boomerang",
       "SpinnerFish"
+    ],
+    "commonTechTypes": [
+      "Ermfish",
+      "Ermshark",
+      "Tutel",
+      "Anneel",
+      "NeuroFumoItem",
+      "EvilFumoItem",
+      "Salt",
+      "Quartz",
+      "Titanium",
+      "Copper",
+      "Silver",
+      "Lead",
+      "Gold",
+      "ScrapMetal",
+      "Lithium",
+      "Magnetite",
+      "Kyanite",
+      "Nickel",
+      "Diamond",
+      "ArcticPeeper",
+      "Bladderfish",
+      "RadioTowerPPUFragment"
     ]
   },
   "redeems": {
+    "redeem_addsignal": {
+      "id": "redeem_addsignal",
+      "title": "Add Beacon",
+      "description": "Adds a beacon ping to the map.",
+      "args": [
+        {
+          "type": 4,
+          "required": true,
+          "name": "coords",
+          "title": "Coordinates",
+          "description": "Beacon coordinates"
+        },
+        {
+          "type": 0,
+          "required": true,
+          "name": "name",
+          "title": "Name",
+          "description": "Beacon name"
+        }
+      ],
+      "announce": true,
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 1,
+      "sku": "bits1"
+    },
     "redeem_hint": {
       "id": "redeem_hint",
       "title": "Send Hint",
@@ -54,7 +103,6 @@
           "title": "The message to display"
         }
       ],
-      "announce": 3,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -72,7 +120,6 @@
           "description": "The message to display"
         }
       ],
-      "announce": 3,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -96,6 +143,7 @@
           "title": "Range"
         }
       ],
+      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -121,6 +169,7 @@
           "description": "Spawn the creature behind the player"
         }
       ],
+      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -145,6 +194,7 @@
           "description": "Spawn the creature behind the player"
         }
       ],
+      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -170,31 +220,7 @@
           "description": "Spawn the creature behind the player"
         }
       ],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1"
-    },
-    "redeem_addsignal": {
-      "id": "redeem_addsignal",
-      "title": "Add Beacon",
-      "description": "Adds a beacon ping to the map.",
-      "args": [
-        {
-          "type": 4,
-          "required": true,
-          "name": "coords",
-          "title": "Coordinates",
-          "description": "Beacon coordinates"
-        },
-        {
-          "type": 0,
-          "required": true,
-          "name": "name",
-          "title": "Name",
-          "description": "Beacon name"
-        }
-      ],
-      "announce": 2,
+      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -204,6 +230,7 @@
       "title": "Reroll Vedal's Name",
       "description": "Reroll Vedal's name in the Neuro integration.",
       "args": [],
+      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -219,6 +246,25 @@
           "name": "name"
         }
       ],
+      "announce": true,
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "redeem_attachalert": {
+      "id": "redeem_attachalert",
+      "title": "Attach Alert",
+      "description": "Attach an alert to an entity.",
+      "args": [
+        {
+          "type": "commonTechTypes",
+          "required": true,
+          "name": "techType",
+          "title": "Entity Type",
+          "description": "Type of entity to attach alerts to."
+        }
+      ],
+      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
