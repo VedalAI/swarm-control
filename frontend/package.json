@@ -25,5 +25,8 @@
     "webpack-dev-server": "^5.0.4",
     "webpack-merge": "^5.10.0",
     "zip-webpack-plugin": "^4.0.1"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2"
   }
 }
