@@ -10,7 +10,6 @@ Twitch.ext.listen("global", async (_t, _c, message) => {
 
     switch (pubSubMessage.type) {
         case "config_refreshed":
-            console.log(pubSubMessage.data);
             const config = JSON.parse(strFromU8(decompressSync(strToU8(pubSubMessage.data, true)))) as Config;
             // console.log(config);
             await setConfig(postProcessConfig(config));
