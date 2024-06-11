@@ -67,7 +67,7 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
 
     if (result.ok) {
         // Transaction token can no longer be used to log
-        showSuccessModal("Purchase completed", `Your transaction was successful! Your redeem will appear on stream soon.\nTransaction ID: ${transactionToken}`);
+        showSuccessModal("Purchase completed", `${await result.text()}\nTransaction ID: ${transactionToken}`);
     } else {
         logToDiscord({
             transactionToken: transactionToken,

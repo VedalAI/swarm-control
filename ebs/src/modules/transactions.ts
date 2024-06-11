@@ -243,7 +243,7 @@ app.post("/public/transaction", async (req, res) => {
         connection.redeem(redeem, cart, userInfo, transaction.token);
     }
 
-    res.sendStatus(200);
+    res.sendStatus(200).send("Your transaction was successful! Your redeem will appear on stream soon.");
 });
 
 app.post("/public/transaction/cancel", async (req, res) => {
