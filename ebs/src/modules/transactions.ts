@@ -214,36 +214,78 @@ app.post("/public/transaction", async (req, res) => {
                 },
             ],
         }).then();
-    } else {
-        let userInfo = await getTwitchUser(cart.userId);
-        if (!userInfo) {
+        res.status(500).send("Redeem could not be found");
+        return;
+    }
+
+    let userInfo = await getTwitchUser(cart.userId);
+    if (!userInfo) {
+        logToDiscord({
+            transactionToken: transaction.token,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
+            important: false,
+            fields: [
+                {
+                    header: "Could not get Twitch user info",
+                    content: {
+                        config: currentConfig.version,
+                        cart: cart,
+                        transaction: transaction,
+                        error: userInfo,
+                    }
+                }
+            ]
+        }).then();
+        // very much not ideal but they've already paid... so...
+        userInfo = {
+            id: cart.userId,
+            login: cart.userId,
+            displayName: cart.userId,
+        }
+    }
+    try {
+        const resMsg = await connection.redeem(redeem, cart, userInfo, transaction.token);
+        if (resMsg?.success) {
+            console.log(`[${resMsg.guid}] Redeem succeeded: ${JSON.stringify(resMsg)}`);
+            let msg: string = "Your transaction was successful! Your redeem will appear on stream soon.";
+            if (resMsg.message) {
+                msg += "\n" + resMsg.message;
+            }
+            res.status(200).send(msg);
+        }
+        else {
             logToDiscord({
-                transactionToken: transaction.token,
-                userIdInsecure: req.twitchAuthorization!.user_id!,
+                transactionToken: resMsg.guid,
+                userIdInsecure: null,
                 important: false,
                 fields: [
                     {
-                        header: "Could not get Twitch user info",
-                        content: {
-                            config: currentConfig.version,
-                            cart: cart,
-                            transaction: transaction,
-                            error: userInfo,
-                        }
-                    }
-                ]
+                        header: "Redeem did not succeed",
+                        content: resMsg,
+                    },
+                ],
             });
-            // very much not ideal but they've already paid... so...
-            userInfo = {
-                id: cart.userId,
-                login: cart.userId,
-                displayName: cart.userId,
-            }
+            res.status(500).send(resMsg?.message ?? "Redeem failed");
         }
-        connection.redeem(redeem, cart, userInfo, transaction.token);
+    } catch (error) {
+        logToDiscord({
+            transactionToken: transaction.token,
+            userIdInsecure: req.twitchAuthorization!.user_id!,
+            important: false,
+            fields: [
+                {
+                    header: "Failed to send redeem",
+                    content: {
+                        config: currentConfig.version,
+                        cart: cart,
+                        transaction: transaction,
+                        error: error,
+                    }
+                }
+            ]
+        }).then();
+        res.status(500).send(`Failed to redeem - ${error}`);
     }
-
-    res.sendStatus(200);
 });
 
 app.post("/public/transaction/cancel", async (req, res) => {

@@ -4,6 +4,7 @@ import * as ServerWS from "ws";
 import { v4 as uuid } from "uuid";
 import { CommandInvocationSource, RedeemMessage, ServerMessage } from "./messages.server";
 import { Cart, Redeem } from "common/types";
+import { setCanSpawn, setIngame } from "../config";
 
 const VERSION = "0.1.0";
 
@@ -12,14 +13,13 @@ type ResultHandler = (result: ResultMessage) => any;
 export class GameConnection {
     private handshake: boolean = false;
     private socket: ServerWS | null = null;
-    private resultHandlers: ResultHandler[] = [];
-    private outstandingRedeems: Map<string, RedeemMessage> = new Map<string, RedeemMessage>();
+    private unsentQueue: ServerMessage[] = [];
+    private outstandingRedeems: Map<string, RedeemMessage> = new Map();
+    private resultHandlers: Map<string, ResultHandler> = new Map();
+    static resultWaitTimeout: number = 10000;
 
     public isConnected() {
         return this.socket?.readyState == ServerWS.OPEN;
-    }
-    public onResult(handler: ResultHandler) {
-        this.resultHandlers.push(handler);
     }
     public setSocket(ws: ServerWS | null) {
         if (this.isConnected()) {
@@ -46,6 +46,7 @@ export class GameConnection {
         });
         ws.on("close", (code, reason) => {
             console.log(`Connection closed with code ${code} and reason ${reason}`);
+            setIngame(false);
         })
         ws.on("error", (error) => {
             console.log(`Connection error ${error}`);
@@ -68,46 +69,33 @@ export class GameConnection {
                 if (!this.outstandingRedeems.has(msg.guid)) {
                     console.error(`[${msg.guid}] Redeeming untracked ${msg.guid} (either unpaid or more than once)`);
                 }
-                for (const handler of this.resultHandlers) {
-                    handler(msg);
+                const resolve = this.resultHandlers.get(msg.guid);
+                if (!resolve) {
+                    // nobody cares about this redeem :(
+                    console.warn(`[${msg.guid}] No result handler for ${msg.guid}`);
+                } else {
+                    resolve(msg);
                 }
                 this.outstandingRedeems.delete(msg.guid);
+                this.resultHandlers.delete(msg.guid);
                 break;
             case MessageType.IngameStateChanged:
-                this.logMessage(msg, `${MessageType[MessageType.IngameStateChanged]} stub`);
+                setIngame(msg.ingame);
+                setCanSpawn(msg.canSpawn);
                 break;
-            // case MessageType.CommandAvailabilityChanged:
-            //     await this.updateCommandAvailability(msg);
-            //     break;
             default:
-                console.error(`[${msg.guid}] Unknown message type ${msg.messageType}`);
+                this.logMessage(msg, `Unknown message type ${msg.messageType}`);
                 break;
         }
     }
-    // private async updateCommandAvailability(msg: CommandAvailabilityChangedMessage) {
-    //     const config = await getConfig();
-    //     if (!config) {
-    //         console.error("Can't change command availability, no config");
-    //     }
-    //     for (const id of msg.becameAvailable) {
-    //         const redeem = config.redeems![id];
-    //         redeem.disabled = false;
-    //     }
-    //     for (const id of msg.becameUnavailable) {
-    //         const redeem = config.redeems![id];
-    //         redeem.disabled = true;
-    //     }
-    //     broadcastConfigRefresh(config);
-    // }
 
     public sendMessage(msg: ServerMessage) {
         if (!this.socket) {
-            // todo queue unsent messages
-            console.error(`Tried to send message without a connected socket: ${JSON.stringify(msg)}`);
+            this.msgSendError(msg, `Tried to send message without a connected socket`);
             return;
         }
         if (!this.handshake) {
-            console.error(`Tried to send message before handshake was complete: ${JSON.stringify(msg)}`);
+            this.msgSendError(msg, `Tried to send message before handshake was complete`);
             return;
         }
         this.socket.send(JSON.stringify(msg), { binary: false, fin: true }, (err) => {
@@ -115,7 +103,7 @@ export class GameConnection {
                 console.error(err);
         });
         if (msg.messageType !== MessageType.Ping)
-            console.log(`Sent message ${JSON.stringify(msg)}`);
+            console.debug(`Sent message ${JSON.stringify(msg)}`);
     }
     public makeMessage(type: MessageType, guid?: string): Message {
         return {
@@ -124,35 +112,45 @@ export class GameConnection {
             timestamp: Date.now()
         }
     }
-    public redeem(redeem: Redeem, cart: Cart, user: TwitchUser, transactionId: string) {
-        if (!transactionId) {
-            console.error(`Tried to redeem without transaction ID`);
-            return;
-        }
-
-        const msg: RedeemMessage = {
-            ...this.makeMessage(MessageType.Redeem),
-            guid: transactionId,
-            source: CommandInvocationSource.Swarm,
-            command: redeem.id,
-            title: redeem.title,
-            announce: redeem.announce,
-            args: cart.args,
-            user
-        } as RedeemMessage;
-        if (this.outstandingRedeems.has(msg.guid)) {
-            console.error(`Redeeming ${msg.guid} more than once`);
-        }
-        this.outstandingRedeems.set(msg.guid, msg);
-
-        if (!this.isConnected()) {
-            console.error(`Redeemed without active connection`);
-        }
-
-        this.sendMessage(msg);
+    public redeem(redeem: Redeem, cart: Cart, user: TwitchUser, transactionId: string) : Promise<ResultMessage> {
+        return Promise.race([
+            new Promise<any>((_, reject) => setTimeout(() => reject(`Timed out waiting for result`), GameConnection.resultWaitTimeout)),
+            new Promise<ResultMessage>((resolve, reject) => {
+                if (!transactionId) {
+                    reject(`Tried to redeem without transaction ID`);
+                }
+    
+                const msg: RedeemMessage = {
+                    ...this.makeMessage(MessageType.Redeem),
+                    guid: transactionId,
+                    source: CommandInvocationSource.Swarm,
+                    command: redeem.id,
+                    title: redeem.title,
+                    announce: redeem.announce,
+                    args: cart.args,
+                    user
+                } as RedeemMessage;
+                if (this.outstandingRedeems.has(msg.guid)) {
+                    reject(`Redeeming ${msg.guid} more than once`);
+                }
+                this.outstandingRedeems.set(msg.guid, msg);
+    
+                if (!this.isConnected()) {
+                    reject(`Redeemed without active connection`);
+                }
+                this.resultHandlers.set(msg.guid, resolve);
+    
+                this.sendMessage(msg);
+            })
+        ]);
     }
 
     private logMessage(msg: Message, message: string) {
         console.log(`[${msg.guid}] ${message}`);
+    }
+
+    private msgSendError(msg: ServerMessage, error: any) {
+        this.unsentQueue.push(msg);
+        console.error(error + `\n${JSON.stringify(msg)}`);
     }
 }

@@ -33,12 +33,8 @@ export type IngameStateChangedMessage = GameMessageBase & {
     messageType: MessageType.IngameStateChanged,
     // if false, commands that need Player.main will be disabled
     ingame: boolean,
-    // if true, commands that depend on ingame time will be queued
-    paused: boolean,
-    // inside base or seatruck - disables spawns
-    indoors: boolean,
-    // also disables spawns
-    inWater: boolean,
+    // being on land or inside base/seatruck should disable spawns
+    canSpawn: boolean,
 }
 
 // export type CommandAvailabilityChangedMessage = GameMessageBase & {

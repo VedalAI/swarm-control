@@ -4,7 +4,8 @@ import { sendPubSubMessage } from "../util/pubsub";
 import { strToU8, compressSync, strFromU8 } from "fflate";
 import { getBannedUsers } from "../util/db";
 
-let config: Config | undefined;
+let activeConfig: Config | undefined;
+let configData: Config | undefined;
 
 const gistUrl = "https://raw.githubusercontent.com/VedalAI/swarm-control/main/config.json";
 
@@ -29,12 +30,30 @@ async function fetchConfig(): Promise<Config> {
     }
 }
 
+function processConfig(data: Config) {
+    const config: Config = JSON.parse(JSON.stringify(data));
+    if (!ingameState) {
+        Object.values(config.redeems!)
+            .forEach((redeem) => (redeem.disabled = true));
+    } else if (!canSpawnState) {
+        Object.values(config.redeems!)
+            .filter(r => r.id.includes("spawn")) // if it works it works
+            .forEach((redeem) => (redeem.disabled = true));
+    }
+    return config;
+}
+
 export async function getConfig(): Promise<Config> {
-    if (!config) {
-        config = await fetchConfig();
+    if (!configData) {
+        await refreshConfig();
     }
 
-    return config;
+    return activeConfig!;
+}
+
+export async function setActiveConfig(data: Config) {
+    activeConfig = processConfig(data);
+    broadcastConfigRefresh(activeConfig);
 }
 
 export async function broadcastConfigRefresh(config: Config) {
@@ -44,10 +63,38 @@ export async function broadcastConfigRefresh(config: Config) {
     });
 }
 
+let ingameState: boolean = false;
+let canSpawnState: boolean = false;
+
+export function isIngame() {
+    return ingameState;
+}
+
+export function canSpawn() {
+    return canSpawnState;
+}
+
+export function setIngame(newIngame: boolean) {
+    if (ingameState == newIngame) return;
+    ingameState = newIngame;
+    setActiveConfig(configData!);
+}
+
+export function setCanSpawn(newCanSpawn: boolean) {
+    if (canSpawnState == newCanSpawn) return;
+    canSpawnState = newCanSpawn;
+    setActiveConfig(configData!);
+}
+
+async function refreshConfig() {
+    configData = await fetchConfig();
+    activeConfig = processConfig(configData);
+}
+
 app.get("/private/refresh", async (_, res) => {
-    config = await fetchConfig();
-    console.log("Refreshed config, new config version is ", config.version);
-    await broadcastConfigRefresh(config);
+    activeConfig = await fetchConfig();
+    console.log("Refreshed config, new config version is ", activeConfig.version);
+    await broadcastConfigRefresh(activeConfig);
     res.sendStatus(200);
 });
 
