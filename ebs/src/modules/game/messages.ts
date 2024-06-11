@@ -24,10 +24,10 @@ export type Message = {
 }
 
 export type TwitchUser = {
-    /** Channel id */
-    id: number,
+    /** Numeric user id */
+    id: string,
     /** Twitch username (login name) */
-    userName: string,
+    login: string,
     /** User's chosen display name. */
     displayName: string
 }

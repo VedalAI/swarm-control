@@ -7,6 +7,8 @@ import { getConfig } from "./config";
 import { getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase, deletePrepurchase } from "../util/db";
 import { logToDiscord } from "../util/logger";
 import { connection } from "./game";
+import { TwitchUser } from "./game/messages";
+import { getHelixUser } from "../util/twitch";
 
 app.post("/public/prepurchase", async (req, res) => {
     const cart = req.body as Cart;
@@ -213,30 +215,32 @@ app.post("/public/transaction", async (req, res) => {
             ],
         }).then();
     } else {
-        const redeemAnnounce = redeem.announce || 0;
-        const [doAnnounce, canChange] = [!(redeemAnnounce & 1), !(redeemAnnounce & 2)]; // funny
-        // don't allow to change when you shouldn't
-        if (cart.announce != doAnnounce && !canChange) {
+        let userInfo = await getTwitchUser(cart.userId);
+        if (!userInfo) {
             logToDiscord({
                 transactionToken: transaction.token,
                 userIdInsecure: req.twitchAuthorization!.user_id!,
                 important: false,
                 fields: [
                     {
-                        header: "Invalid announce",
+                        header: "Could not get Twitch user info",
                         content: {
                             config: currentConfig.version,
                             cart: cart,
                             transaction: transaction,
-                            announceType: redeemAnnounce,
-                            userPicked: cart.announce,
-                        },
-                    },
-                ],
+                            error: userInfo,
+                        }
+                    }
+                ]
             });
-            cart.announce = doAnnounce!;
+            // very much not ideal but they've already paid... so...
+            userInfo = {
+                id: cart.userId,
+                login: cart.userId,
+                displayName: cart.userId,
+            }
         }
-        connection.redeem(redeem, cart.args, cart.announce, transaction.token);
+        connection.redeem(redeem, cart, userInfo, transaction.token);
     }
 
     res.sendStatus(200);
@@ -268,3 +272,15 @@ app.post("/public/transaction/cancel", async (req, res) => {
         res.sendStatus(404);
     }
 });
+
+async function getTwitchUser(id: string): Promise<TwitchUser | null> {
+    const user = await getHelixUser(id);
+    if (!user) {
+        return null;
+    }
+    return {
+        id: user.id,
+        displayName: user.displayName,
+        login: user.name,
+    }
+}

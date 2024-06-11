@@ -1,9 +1,9 @@
-import { Message, MessageType } from "./messages";
-import { ResultMessage, HelloMessage, GameMessage } from "./messages.game";
+import { Message, MessageType, TwitchUser } from "./messages";
+import { ResultMessage, GameMessage } from "./messages.game";
 import * as ServerWS from "ws";
 import { v4 as uuid } from "uuid";
 import { CommandInvocationSource, RedeemMessage, ServerMessage } from "./messages.server";
-import { Redeem } from "common/types";
+import { Cart, Redeem } from "common/types";
 
 const VERSION = "0.1.0";
 
@@ -124,7 +124,7 @@ export class GameConnection {
             timestamp: Date.now()
         }
     }
-    public redeem(redeem: Redeem, args: {[name: string]: any}, announce: boolean, transactionId: string) {
+    public redeem(redeem: Redeem, cart: Cart, user: TwitchUser, transactionId: string) {
         if (!transactionId) {
             console.error(`Tried to redeem without transaction ID`);
             return;
@@ -136,8 +136,9 @@ export class GameConnection {
             source: CommandInvocationSource.Swarm,
             command: redeem.id,
             title: redeem.title,
-            announce,
-            args
+            announce: redeem.announce,
+            args: cart.args,
+            user
         } as RedeemMessage;
         if (this.outstandingRedeems.has(msg.guid)) {
             console.error(`Redeeming ${msg.guid} more than once`);
