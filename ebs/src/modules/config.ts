@@ -40,7 +40,7 @@ export async function getConfig(): Promise<Config> {
 export async function broadcastConfigRefresh(config: Config) {
     return sendPubSubMessage({
         type: "config_refreshed",
-        data: strFromU8(compressSync(strToU8(JSON.stringify(config)))),
+        data: strFromU8(compressSync(strToU8(JSON.stringify(config), true))),
     });
 }
 
