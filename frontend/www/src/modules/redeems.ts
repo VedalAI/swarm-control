@@ -5,10 +5,6 @@ const $mainContainer = document.getElementsByTagName("main")!;
 const $redeemContainer = document.getElementById("items")!;
 const $modalProcessing = document.getElementById("modal-processing")!;
 
-document.addEventListener("DOMContentLoaded", () => {
-    renderRedeemButtons().then();
-});
-
 export async function renderRedeemButtons() {
     $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
 
