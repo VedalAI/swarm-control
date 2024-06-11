@@ -58,7 +58,7 @@ export async function isReceiptUsed(receipt: string): Promise<boolean> {
     } catch (e: any) {
         console.error("Database query failed (isReceiptUsed)");
         console.error(e);
-        throw new Error("Database query failed");
+        throw e;
     }
 }
 
@@ -69,7 +69,7 @@ export async function addFulfilledTransaction(receipt: string, token: string, us
     } catch (e: any) {
         console.error("Database query failed (addFulfilledTransaction)");
         console.error(e);
-        throw new Error("Database query failed");
+        throw e;
     }
 }
 
@@ -81,7 +81,7 @@ export async function registerPrepurchase(cart: IdentifiableCart): Promise<strin
     } catch (e: any) {
         console.error("Database query failed (registerPrepurchase)");
         console.error(e);
-        throw new Error("Database query failed");
+        throw e;
     }
 }
 
@@ -93,7 +93,7 @@ export async function getPrepurchase(token: string): Promise<IdentifiableCart | 
     } catch (e: any) {
         console.error("Database query failed (isPrepurchaseValid)");
         console.error(e);
-        throw new Error("Database query failed");
+        throw e;
     }
 }
 
@@ -103,7 +103,7 @@ export async function deletePrepurchase(token: string) {
     } catch (e: any) {
         console.error("Database query failed (deletePrepurchase)");
         console.error(e);
-        throw new Error("Database query failed");
+        throw e;
     }
 }
 
@@ -114,7 +114,7 @@ export async function isUserBanned(userId: string): Promise<boolean> {
     } catch (e: any) {
         console.error("Database query failed (isBanned)");
         console.error(e);
-        throw new Error("Database query failed");
+        throw e;
     }
 }
 
@@ -125,6 +125,6 @@ export async function getBannedUsers(): Promise<string[]> {
     } catch (e: any) {
         console.error("Database query failed (getBannedUsers)");
         console.error(e);
-        throw new Error("Database query failed");
+        throw e;
     }
 }
