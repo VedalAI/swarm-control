@@ -1,4 +1,4 @@
-import { AnnounceType, BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, Redeem, TextParam, VectorParam } from "common/types";
+import { BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, Redeem, TextParam, VectorParam } from "common/types";
 import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
 import { logToDiscord } from "../util/logger";
@@ -90,10 +90,7 @@ export async function openModal(redeem: Redeem | null) {
 
     const config = await getConfig();
 
-    const announceType = redeem.announce || AnnounceType.DefaultAnnounce;
-    const defaultAnnounce = !(announceType & 1);
-
-    cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {}, announce: defaultAnnounce };
+    cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {}};
 
     $modalWrapper.style.opacity = "1";
     $modalWrapper.style.pointerEvents = "unset";
@@ -262,7 +259,6 @@ async function prePurchase() {
 }
 
 function addOptionsFields(modal: HTMLFormElement, redeem: Redeem) {
-    addAnnounceCheckbox(modal, redeem.announce);
     for (const param of redeem.args || []) {
         switch (param.type) {
             case LiteralTypes.String:
@@ -392,31 +388,4 @@ function setupField(field: HTMLElement, inputElem: HTMLSelectElement | HTMLInput
         inputElem.required = true;
         label.ariaRequired = "";
     }
-}
-
-const announceParam: BooleanParam = {
-    name: "_announce",
-    type: LiteralTypes.Boolean,
-    title: "Announce",
-    description: "Whether to announce the redeem on stream",
-}
-
-function addAnnounceCheckbox(modal: HTMLFormElement, announce: AnnounceType | undefined) {
-    announce = announce || AnnounceType.DefaultAnnounce;
-    if (announce > AnnounceType.DefaultSilent) {
-        return;
-    }
-    const field = $paramTemplates.toggle.cloneNode(true) as HTMLSelectElement;
-    const input = field.querySelector("input")!;
-    setupField(field, input, announceParam);
-    input.onformdata = (e) => {
-        e.formData.delete(announceParam.name);
-    };
-    input.onchange = (e) => {
-        cart!.announce = input.checked;
-    }
-    if (announce === AnnounceType.DefaultAnnounce) {
-        input.checked = true;
-    }
-    modal.appendChild(field);
 }
