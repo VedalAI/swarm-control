@@ -65,10 +65,12 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
 
     setTimeout(() => hideProcessingModal(), 250);
 
+    const text = await result.text();
     if (result.ok) {
         // Transaction token can no longer be used to log
-        showSuccessModal("Purchase completed", `${await result.text()}\nTransaction ID: ${transactionToken}`);
+        showSuccessModal("Purchase completed", `${text}\nTransaction ID: ${transactionToken}`);
     } else {
+        const errorText = `${result.status} ${result.statusText} - ${text}`;
         logToDiscord({
             transactionToken: transactionToken,
             userIdInsecure: Twitch.ext.viewer.id!,
@@ -76,13 +78,13 @@ Twitch.ext.bits.onTransactionComplete(async (transaction) => {
             fields: [
                 {
                     header: "Transaction failed (frontend)",
-                    content: `${result.status} ${result.statusText} - ${await result.text()}`,
+                    content: errorText,
                 },
             ],
         }).then();
         showErrorModal(
             "An error occurred.",
-            `${result.status} ${result.statusText} - ${await result.text()}\nPlease contact a moderator (preferably AlexejheroDev) about this!\nTransaction ID: ${transactionToken}`
+            `${errorText}\nPlease contact a moderator (preferably AlexejheroDev) about this!\nTransaction ID: ${transactionToken}`
         );
     }
 });
