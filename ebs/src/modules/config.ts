@@ -35,10 +35,6 @@ function processConfig(data: Config) {
     if (!ingameState) {
         Object.values(config.redeems!)
             .forEach((redeem) => (redeem.disabled = true));
-    } else if (!canSpawnState) {
-        Object.values(config.redeems!)
-            .filter(r => r.id.includes("spawn")) // if it works it works
-            .forEach((redeem) => (redeem.disabled = true));
     }
     return config;
 }
@@ -64,25 +60,14 @@ export async function broadcastConfigRefresh(config: Config) {
 }
 
 let ingameState: boolean = false;
-let canSpawnState: boolean = false;
 
 export function isIngame() {
     return ingameState;
 }
 
-export function canSpawn() {
-    return canSpawnState;
-}
-
 export function setIngame(newIngame: boolean) {
     if (ingameState == newIngame) return;
     ingameState = newIngame;
-    setActiveConfig(configData!);
-}
-
-export function setCanSpawn(newCanSpawn: boolean) {
-    if (canSpawnState == newCanSpawn) return;
-    canSpawnState = newCanSpawn;
     setActiveConfig(configData!);
 }
 

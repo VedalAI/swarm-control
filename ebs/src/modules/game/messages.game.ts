@@ -31,14 +31,6 @@ export type ResultMessage = GameMessageBase & {
 
 export type IngameStateChangedMessage = GameMessageBase & {
     messageType: MessageType.IngameStateChanged,
-    // if false, commands that need Player.main will be disabled
+    // disable all redeems if false
     ingame: boolean,
-    // being on land or inside base/seatruck should disable spawns
-    canSpawn: boolean,
 }
-
-// export type CommandAvailabilityChangedMessage = GameMessageBase & {
-//     messageType: MessageType.CommandAvailabilityChanged,
-//     becameAvailable: string[],
-//     becameUnavailable: string[],
-// }

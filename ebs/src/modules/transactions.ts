@@ -249,7 +249,7 @@ app.post("/public/transaction", async (req, res) => {
             console.log(`[${resMsg.guid}] Redeem succeeded: ${JSON.stringify(resMsg)}`);
             let msg: string = "Your transaction was successful! Your redeem will appear on stream soon.";
             if (resMsg.message) {
-                msg += "\n" + resMsg.message;
+                msg += "\n\n" + resMsg.message;
             }
             res.status(200).send(msg);
         }

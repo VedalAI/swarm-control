@@ -4,7 +4,7 @@ import * as ServerWS from "ws";
 import { v4 as uuid } from "uuid";
 import { CommandInvocationSource, RedeemMessage, ServerMessage } from "./messages.server";
 import { Cart, Redeem } from "common/types";
-import { setCanSpawn, setIngame } from "../config";
+import { setIngame } from "../config";
 
 const VERSION = "0.1.0";
 
@@ -82,7 +82,6 @@ export class GameConnection {
                 break;
             case MessageType.IngameStateChanged:
                 setIngame(msg.ingame);
-                setCanSpawn(msg.canSpawn);
                 break;
             default:
                 this.logMessage(msg, `Unknown message type ${msg.messageType}`);
