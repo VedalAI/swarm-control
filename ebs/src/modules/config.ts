@@ -77,9 +77,9 @@ async function refreshConfig() {
 }
 
 app.get("/private/refresh", async (_, res) => {
-    activeConfig = await fetchConfig();
-    console.log("Refreshed config, new config version is ", activeConfig.version);
-    await broadcastConfigRefresh(activeConfig);
+    await refreshConfig();
+    console.log("Refreshed config, new config version is ", activeConfig!.version);
+    await broadcastConfigRefresh(activeConfig!);
     res.sendStatus(200);
 });
 

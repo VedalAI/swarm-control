@@ -61,7 +61,6 @@
           "description": "Beacon name"
         }
       ],
-      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -78,6 +77,7 @@
           "title": "The message to display"
         }
       ],
+      "announce": false,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -95,6 +95,16 @@
           "description": "The message to display"
         }
       ],
+      "announce": false,
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "redeem_bigerm": {
+      "id": "redeem_bigerm",
+      "title": "Big Erm",
+      "description": "It's time to Get Big",
+      "args": [],
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -118,7 +128,6 @@
           "title": "Range"
         }
       ],
-      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -144,7 +153,6 @@
           "description": "Spawn the creature behind the player"
         }
       ],
-      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -169,7 +177,6 @@
           "description": "Spawn the creature behind the player"
         }
       ],
-      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -195,7 +202,6 @@
           "description": "Spawn the creature behind the player"
         }
       ],
-      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -204,7 +210,15 @@
       "id": "redeem_o2plants",
       "title": "Deplete O2 Plants",
       "args": [],
-      "announce": true,
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 1,
+      "sku": "bits1"
+    },
+    "redeem_flippda": {
+      "id": "redeem_flippda",
+      "title": "Flip PDA",
+      "description": "Oops I forgot how to hold things",
+      "args": [],
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -213,7 +227,6 @@
       "id": "redeem_floodbase",
       "title": "Flood Base",
       "args": [],
-      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
@@ -223,7 +236,6 @@
       "title": "Hide Vehicle Signals",
       "description": "Hides vehicle and base signals for 30 seconds.",
       "args": [],
-      "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"

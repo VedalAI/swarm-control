@@ -127,7 +127,7 @@ export class GameConnection {
                     source: CommandInvocationSource.Swarm,
                     command: redeem.id,
                     title: redeem.title,
-                    announce: redeem.announce,
+                    announce: redeem.announce ?? true,
                     args: cart.args,
                     user
                 } as RedeemMessage;
