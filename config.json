@@ -38,30 +38,6 @@
       "Bladderfish",
       "Boomerang",
       "SpinnerFish"
-    ],
-    "commonTechTypes": [
-      "Ermfish",
-      "Ermshark",
-      "Tutel",
-      "Anneel",
-      "NeuroFumoItem",
-      "EvilFumoItem",
-      "Salt",
-      "Quartz",
-      "Titanium",
-      "Copper",
-      "Silver",
-      "Lead",
-      "Gold",
-      "ScrapMetal",
-      "Lithium",
-      "Magnetite",
-      "Kyanite",
-      "Nickel",
-      "Diamond",
-      "ArcticPeeper",
-      "Bladderfish",
-      "RadioTowerPPUFragment"
     ]
   },
   "redeems": {
@@ -224,45 +200,29 @@
       "price": 1,
       "sku": "bits1"
     },
-    "redeem_rerollname": {
-      "id": "redeem_rerollname",
-      "title": "Reroll Vedal's Name",
-      "description": "Reroll Vedal's name in the Neuro integration.",
+    "redeem_o2plants": {
+      "id": "redeem_o2plants",
+      "title": "Deplete O2 Plants",
       "args": [],
       "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
-    "redeem_setname": {
-      "id": "redeem_setname",
-      "title": "Set Vedal's Name",
-      "description": "Set Vedal's name in the Neuro integration.",
-      "args": [
-        {
-          "type": 0,
-          "required": true,
-          "name": "name"
-        }
-      ],
+    "redeem_floodbase": {
+      "id": "redeem_floodbase",
+      "title": "Flood Base",
+      "args": [],
       "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
       "sku": "bits1"
     },
-    "redeem_attachalert": {
-      "id": "redeem_attachalert",
-      "title": "Attach Alert",
-      "description": "Attach an alert to an entity.",
-      "args": [
-        {
-          "type": "commonTechTypes",
-          "required": true,
-          "name": "techType",
-          "title": "Entity Type",
-          "description": "Type of entity to attach alerts to."
-        }
-      ],
+    "redeem_hidecarpings": {
+      "id": "redeem_hidecarpings",
+      "title": "Hide Vehicle Signals",
+      "description": "Hides vehicle and base signals for 30 seconds.",
+      "args": [],
       "announce": true,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
