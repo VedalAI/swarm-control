@@ -284,7 +284,7 @@ app.post("/public/transaction", async (req, res) => {
                 }
             ]
         }).then();
-        res.status(500).send(`Failed to redeem - ${error}`);
+        res.status(500).send(`Failed to process redeem - ${error}`);
     }
 });
 

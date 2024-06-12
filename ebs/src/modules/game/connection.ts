@@ -41,7 +41,8 @@ export class GameConnection {
                 console.error("Could not parse message" + msgText);
                 return;
             }
-            console.log(`Got message ${JSON.stringify(msg)}`);
+            if (msg.messageType !== MessageType.Ping)
+                console.log(`Got message ${JSON.stringify(msg)}`);
             this.processMessage(msg);
         });
         ws.on("close", (code, reason) => {
@@ -102,7 +103,7 @@ export class GameConnection {
             if (err)
                 console.error(err);
         });
-        if (msg.messageType !== MessageType.Ping)
+        if (msg.messageType !== MessageType.Pong)
             console.debug(`Sent message ${JSON.stringify(msg)}`);
     }
     public makeMessage(type: MessageType, guid?: string): Message {
@@ -118,6 +119,7 @@ export class GameConnection {
             new Promise<ResultMessage>((resolve, reject) => {
                 if (!transactionId) {
                     reject(`Tried to redeem without transaction ID`);
+                    return;
                 }
     
                 const msg: RedeemMessage = {
@@ -132,11 +134,13 @@ export class GameConnection {
                 } as RedeemMessage;
                 if (this.outstandingRedeems.has(msg.guid)) {
                     reject(`Redeeming ${msg.guid} more than once`);
+                    return;
                 }
                 this.outstandingRedeems.set(msg.guid, msg);
     
                 if (!this.isConnected()) {
                     reject(`Redeemed without active connection`);
+                    return;
                 }
                 this.resultHandlers.set(msg.guid, resolve);
     
