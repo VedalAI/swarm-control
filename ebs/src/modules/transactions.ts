@@ -1,4 +1,4 @@
-import { Cart, Transaction } from "common/types";
+import { Cart, Config, LiteralTypes, LogMessage, Transaction } from "common/types";
 //import { AnnounceType } from "common/types"; // esbuild dies
 import { app } from "../index";
 import { parseJWT, verifyJWT } from "../util/jwt";
@@ -30,63 +30,71 @@ app.post("/public/prepurchase", asyncCatch(async (req, res) => {
         return;
     }
 
+    const logContext: LogMessage = {
+        transactionToken: null,
+        userIdInsecure: idCart.userId,
+        important: false,
+        fields: [
+            {
+                header: "",
+                content: "",
+            },
+        ],
+    };
+    const logMessage = logContext.fields[0];
+
     const config = await getConfig();
     if (cart.version != config.version) {
-        logToDiscord({
-            transactionToken: null,
-            userIdInsecure: idCart.userId,
-            important: false,
-            fields: [
-                {
-                    header: "Invalid config version",
-                    content: `Received: ${cart.version}\nExpected: ${config.version}`,
-                },
-            ],
-        }).then();
+        logMessage.header = "Invalid config version";
+        logMessage.content = `Received: ${cart.version}\nExpected: ${config.version}`;
+        logToDiscord(logContext).then();
         res.status(409).send(`Invalid config version (${cart.version}/${config.version})`);
         return;
     }
 
-    // TODO: Verify redeem ID and sku
-    // TODO: Verify redeem disabled/hidden status
-    // TODO: Verify parameters
+    const redeem = config.redeems?.[cart.id];
+    if (!redeem
+        || redeem.sku != cart.sku
+        || redeem.disabled || redeem.hidden
+    ) {
+        logMessage.header = "Invalid redeem";
+        logMessage.content = `Received: ${JSON.stringify(cart)}\nRedeem in config: ${JSON.stringify(redeem)}`;
+        logToDiscord(logContext).then();
+        res.status(409).send(`Invalid redeem`);
+        return;
+    }
+
+    const valError = validateArgs(config, cart, logContext);
+    if (valError) {
+        logMessage.header = "Arg validation failed";
+        logMessage.content = {
+            error: valError,
+            redeem: cart.id,
+            expected: redeem.args,
+            provided: cart.args,
+        };
+        logToDiscord(logContext).then();
+        res.status(409).send("Invalid arguments");
+        return;
+    }
+
     // TODO: text input moderation
 
     let token: string;
     try {
         token = await registerPrepurchase(idCart);
     } catch (e: any) {
-        logToDiscord({
-            transactionToken: null,
-            userIdInsecure: idCart.userId,
-            important: true,
-            fields: [
-                {
-                    header: "Failed to register prepurchase",
-                    content: {
-                        cart: idCart,
-                        error: e,
-                    }
-                },
-            ]
-        }).then();
+        logContext.important = true;
+        logMessage.header = "Failed to register prepurchase";
+        logMessage.content = { cart: idCart, error: e };
+        logToDiscord(logContext).then();
         res.status(500).send("Failed to register prepurchase");
         return;
     }
 
-    logToDiscord({
-        transactionToken: token,
-        userIdInsecure: idCart.userId,
-        important: false,
-        fields: [
-            {
-                header: "Created prepurchase",
-                content: {
-                    cart: idCart,
-                }
-            }
-        ]
-    }).then();
+    logMessage.header = "Created prepurchase";
+    logMessage.content = { cart: idCart };
+    logToDiscord(logContext).then();
 
     res.status(200).send(token);
 }));
@@ -94,34 +102,31 @@ app.post("/public/prepurchase", asyncCatch(async (req, res) => {
 app.post("/public/transaction", asyncCatch(async (req, res) => {
     const transaction = req.body as Transaction;
 
+    const logContext: LogMessage = {
+        transactionToken: transaction.token,
+        userIdInsecure: req.twitchAuthorization!.user_id!,
+        important: true,
+        fields: [
+            {
+                header: "",
+                content: "",
+            },
+        ],
+    };
+    const logMessage = logContext.fields[0];
+
     if (!transaction.receipt) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: true,
-            fields: [
-                {
-                    header: "Missing receipt",
-                    content: transaction,
-                },
-            ],
-        }).then();
+        logMessage.header = "Missing receipt";
+        logMessage.content = transaction;
+        logToDiscord(logContext).then();
         res.status(400).send("Missing receipt");
         return;
     }
 
     if (!verifyJWT(transaction.receipt)) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: true,
-            fields: [
-                {
-                    header: "Invalid receipt",
-                    content: transaction,
-                },
-            ],
-        }).then();
+        logMessage.header = "Invalid receipt";
+        logMessage.content = transaction;
+        logToDiscord(logContext).then();
         res.status(403).send("Invalid receipt.");
         return;
     }
@@ -129,17 +134,9 @@ app.post("/public/transaction", asyncCatch(async (req, res) => {
     const payload = parseJWT(transaction.receipt) as BitsTransactionPayload;
 
     if (await isReceiptUsed(payload.data.transactionId)) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: true,
-            fields: [
-                {
-                    header: "Transaction already processed",
-                    content: transaction,
-                },
-            ],
-        }).then();
+        logMessage.header = "Transaction already processed";
+        logMessage.content = transaction;
+        logToDiscord(logContext).then();
         res.status(409).send("Transaction already processed");
         return;
     }
@@ -147,17 +144,9 @@ app.post("/public/transaction", asyncCatch(async (req, res) => {
     const cart = await getPrepurchase(transaction.token);
 
     if (!cart) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: true,
-            fields: [
-                {
-                    header: "Invalid transaction token",
-                    content: transaction,
-                },
-            ],
-        }).then();
+        logMessage.header = "Invalid transaction token";
+        logMessage.content = transaction;
+        logToDiscord(logContext).then();
         res.status(404).send("Invalid transaction token");
         return;
     }
@@ -165,40 +154,26 @@ app.post("/public/transaction", asyncCatch(async (req, res) => {
     // TODO: mark transaction fulfilled
 
     if (cart.userId != req.twitchAuthorization!.user_id!) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: false,
-            fields: [
-                {
-                    header: "Mismatched user ID",
-                    content: {
-                        auth: req.twitchAuthorization,
-                        cart: cart,
-                        transaction: transaction,
-                    },
-                },
-            ],
-        }).then();
+        logContext.important = false;
+        logMessage.header = "Mismatched user ID";
+        logMessage.content = {
+            auth: req.twitchAuthorization,
+            cart,
+            transaction,
+        }
+        logToDiscord(logContext).then();
     }
 
     const currentConfig = await getConfig();
     if (cart.version != currentConfig.version) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: false,
-            fields: [
-                {
-                    header: "Mismatched config version",
-                    content: {
-                        config: currentConfig.version,
-                        cart: cart,
-                        transaction: transaction,
-                    },
-                },
-            ],
-        }).then();
+        logContext.important = false;
+        logMessage.header = "Mismatched config version";
+        logMessage.content = {
+            config: currentConfig.version,
+            cart: cart,
+            transaction: transaction,
+        };
+        logToDiscord(logContext).then();
     }
 
     console.log(transaction);
@@ -206,21 +181,14 @@ app.post("/public/transaction", asyncCatch(async (req, res) => {
 
     const redeem = currentConfig.redeems?.[cart.id];
     if (!redeem) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: false,
-            fields: [
-                {
-                    header: "Redeem not found",
-                    content: {
-                        config: currentConfig.version,
-                        cart: cart,
-                        transaction: transaction,
-                    },
-                },
-            ],
-        }).then();
+        logContext.important = false;
+        logMessage.header = "Redeem not found";
+        logMessage.content = {
+            config: currentConfig.version,
+            cart: cart,
+            transaction: transaction,
+        };
+        logToDiscord(logContext).then();
         res.status(500).send("Redeem could not be found");
         return;
     }
@@ -232,70 +200,48 @@ app.post("/public/transaction", asyncCatch(async (req, res) => {
         userInfo = null;
     }
     if (!userInfo) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: false,
-            fields: [
-                {
-                    header: "Could not get Twitch user info",
-                    content: {
-                        config: currentConfig.version,
-                        cart: cart,
-                        transaction: transaction,
-                        error: userInfo,
-                    }
-                }
-            ]
-        }).then();
+        logContext.important = false;
+        logMessage.header = "Could not get Twitch user info";
+        logMessage.content = {
+            config: currentConfig.version,
+            cart: cart,
+            transaction: transaction,
+            error: userInfo,
+        };
+        logToDiscord(logContext).then();
         // very much not ideal but they've already paid... so...
         userInfo = {
             id: cart.userId,
             login: cart.userId,
             displayName: cart.userId,
-        }
+        };
     }
     try {
         const resMsg = await connection.redeem(redeem, cart, userInfo, transaction.token);
         if (resMsg?.success) {
             console.log(`[${resMsg.guid}] Redeem succeeded: ${JSON.stringify(resMsg)}`);
-            let msg: string = "Your transaction was successful! Your redeem will appear on stream soon.";
+            let msg = "Your transaction was successful! Your redeem will appear on stream soon.";
             if (resMsg.message) {
                 msg += "\n\n" + resMsg.message;
             }
             res.status(200).send(msg);
-        }
-        else {
-            logToDiscord({
-                transactionToken: resMsg.guid,
-                userIdInsecure: null,
-                important: false,
-                fields: [
-                    {
-                        header: "Redeem did not succeed",
-                        content: resMsg,
-                    },
-                ],
-            });
+        } else {
+            logContext.important = false;
+            logMessage.header = "Redeem did not succeed";
+            logMessage.content = resMsg;
+            logToDiscord(logContext);
             res.status(500).send(resMsg?.message ?? "Redeem failed");
         }
     } catch (error) {
-        logToDiscord({
-            transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
-            important: false,
-            fields: [
-                {
-                    header: "Failed to send redeem",
-                    content: {
-                        config: currentConfig.version,
-                        cart: cart,
-                        transaction: transaction,
-                        error: error,
-                    }
-                }
-            ]
-        }).then();
+        logContext.important = true;
+        logMessage.header = "Failed to send redeem";
+        logMessage.content = {
+            config: currentConfig.version,
+            cart: cart,
+            transaction: transaction,
+            error: error,
+        };
+        logToDiscord(logContext).then();
         res.status(500).send(`Failed to process redeem - ${error}`);
     }
 }));
@@ -336,5 +282,73 @@ async function getTwitchUser(id: string): Promise<TwitchUser | null> {
         id: user.id,
         displayName: user.displayName,
         login: user.name,
+    }
+}
+
+function validateArgs(config: Config, cart: Cart, logContext: LogMessage): string | undefined {
+    const redeem = config.redeems![cart.id];
+
+    for (const arg of redeem.args) {
+        const value = cart.args[arg.name];
+        if (!value) {
+            if (!arg.required) continue;
+            
+            return `Missing required argument ${arg.name}`;
+        }
+        switch (arg.type) {
+            case LiteralTypes.String:
+                if (typeof value !== "string") {
+                    return `Argument ${arg.name} not a string`;
+                }
+                const minLength = arg.minLength ?? 0;
+                const maxLength = arg.maxLength ?? 255;
+                if ((value.length < minLength || value.length > maxLength)
+                ) {
+                    return `Text length out of range for ${arg.name}`;
+                }
+                break;
+            case LiteralTypes.Integer:
+            case LiteralTypes.Float:
+                let parsed = parseInt(value);
+                if (Number.isNaN(parsed)) {
+                    return `Argument ${arg.name} is not a number`;
+                }
+                if (arg.type === LiteralTypes.Integer && parseFloat(value) != parsed) {
+                    return `Argument ${arg.name} is not an integer`;
+                }
+                if ((arg.min && parsed < arg.min) || (arg.max && parsed > arg.max)) {
+                    return `Number ${arg.name} out of range`;
+                }
+                break;
+            case LiteralTypes.Boolean:
+                if (typeof value !== "boolean" && value !== "true" && value !== "false") {
+                    return `Argument ${arg.name} not a boolean`;
+                }
+                break;
+            case LiteralTypes.Vector:
+                if (!Array.isArray(value) || value.length != 3) {
+                    return `Vector3 ${arg.name} not a 3-elem array`;
+                }
+                for (const v of value) {
+                    parsed = parseFloat(v);
+                    if (Number.isNaN(parsed)) {
+                        return `Vector3 ${arg.name} components not all floats`;
+                    }
+                }
+                break;
+            default:
+                const argEnum = config.enums?.[arg.type];
+                if (!argEnum) {
+                    return `No such enum ${arg.type}`;
+                }
+                parsed = parseInt(value);
+                if (Number.isNaN(parsed) || parsed != parseFloat(value)) {
+                    return `Enum value ${value} (for enum ${arg.type}) not an integer`;
+                }
+                if (parsed < 0 || parsed >= argEnum.length) {
+                    return `Enum value ${value} (for enum ${arg.type}) out of range`;
+                }
+                break;
+        }
     }
 }

@@ -77,7 +77,7 @@ async function refreshConfig() {
     activeConfig = processConfig(configData);
 }
 
-app.get("/private/refresh", asyncCatch(async (_, res, next) => {
+app.get("/private/refresh", asyncCatch(async (_, res) => {
     await refreshConfig();
     console.log("Refreshed config, new config version is ", activeConfig!.version);
     await broadcastConfigRefresh(activeConfig!);
