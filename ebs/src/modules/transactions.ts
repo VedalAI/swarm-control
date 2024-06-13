@@ -9,8 +9,9 @@ import { logToDiscord } from "../util/logger";
 import { connection } from "./game";
 import { TwitchUser } from "./game/messages";
 import { getHelixUser } from "../util/twitch";
+import { asyncCatch } from "../util/middleware";
 
-app.post("/public/prepurchase", async (req, res) => {
+app.post("/public/prepurchase", asyncCatch(async (req, res) => {
     const cart = req.body as Cart;
     const idCart = { ...cart, userId: req.twitchAuthorization!.user_id! };
 
@@ -88,9 +89,9 @@ app.post("/public/prepurchase", async (req, res) => {
     }).then();
 
     res.status(200).send(token);
-});
+}));
 
-app.post("/public/transaction", async (req, res) => {
+app.post("/public/transaction", asyncCatch(async (req, res) => {
     const transaction = req.body as Transaction;
 
     if (!transaction.receipt) {
@@ -297,9 +298,9 @@ app.post("/public/transaction", async (req, res) => {
         }).then();
         res.status(500).send(`Failed to process redeem - ${error}`);
     }
-});
+}));
 
-app.post("/public/transaction/cancel", async (req, res) => {
+app.post("/public/transaction/cancel", asyncCatch(async (req, res) => {
     const token = req.body.token as string;
 
     // remove transaction from db
@@ -324,7 +325,7 @@ app.post("/public/transaction/cancel", async (req, res) => {
 
         res.sendStatus(404);
     }
-});
+}));
 
 async function getTwitchUser(id: string): Promise<TwitchUser | null> {
     const user = await getHelixUser(id);

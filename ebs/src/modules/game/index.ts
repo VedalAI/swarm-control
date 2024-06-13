@@ -1,4 +1,5 @@
 import { app } from "../../index";
+import { asyncCatch } from "../../util/middleware";
 import { GameConnection } from "./connection";
 import { MessageType } from "./messages";
 import { ResultMessage } from "./messages.game";
@@ -7,11 +8,11 @@ import { StressTestRequest, isStressTesting, startStressTest } from "./stresstes
 
 export let connection: GameConnection = new GameConnection();
 
-app.ws("/private/socket", async (ws, req) => {
+app.ws("/private/socket", (ws, req) => {
     connection.setSocket(ws);
-})
+});
 
-app.post("/private/redeem", async (req, res) => {
+app.post("/private/redeem", asyncCatch(async (req, res) => {
     //console.log(req.body);
     const msg = {
         ...connection.makeMessage(MessageType.Redeem),
@@ -29,9 +30,9 @@ app.post("/private/redeem", async (req, res) => {
     } catch (e) {
         res.status(500).send(e);
     }
-})
+}));
 
-app.post("/private/setresult", async (req, res) => {
+app.post("/private/setresult", (req, res) => {
     //console.log(req.body);
     const msg = {
         ...connection.makeMessage(MessageType.Result),
@@ -46,7 +47,7 @@ app.post("/private/setresult", async (req, res) => {
     res.sendStatus(200);
 });
 
-app.post("/private/stress", async (req, res) => {
+app.post("/private/stress", (req, res) => {
     if (!process.env.ENABLE_STRESS_TEST) {
         res.status(501).send("Disabled unless you set the ENABLE_STRESS_TEST env var\nREMEMBER TO REMOVE IT FROM PROD");
         return;
@@ -72,12 +73,12 @@ app.post("/private/stress", async (req, res) => {
     res.sendStatus(200);
 })
 
-app.get("/private/unsent", async (req, res) => {
+app.get("/private/unsent", (req, res) => {
     const unsent = connection.getUnsent();
     res.send(JSON.stringify(unsent));
 })
 
-app.get("/private/outstanding", async (req, res) => {
+app.get("/private/outstanding", (req, res) => {
     const outstanding = connection.getOutstanding();
     res.send(JSON.stringify(outstanding));
 })

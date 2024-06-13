@@ -11,7 +11,7 @@ dotenv();
 const port = 3000;
 
 export const { app } = expressWs(express());
-app.use(cors({ origin: "*" }))
+app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 app.use("/public/*", publicApiAuth);
 app.use("/private/*", privateApiAuth);

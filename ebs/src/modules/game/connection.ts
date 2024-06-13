@@ -59,7 +59,7 @@ export class GameConnection {
             console.log(`Game socket error\n${error}`);
         })
     }
-    public async processMessage(msg: GameMessage) {
+    public processMessage(msg: GameMessage) {
         switch (msg.messageType) {
             case MessageType.Hello:
                 this.handshake = true;

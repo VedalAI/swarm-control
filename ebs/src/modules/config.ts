@@ -3,6 +3,7 @@ import { app } from "../index";
 import { sendPubSubMessage } from "../util/pubsub";
 import { strToU8, compressSync, strFromU8 } from "fflate";
 import { getBannedUsers } from "../util/db";
+import { asyncCatch } from "../util/middleware";
 
 let activeConfig: Config | undefined;
 let configData: Config | undefined;
@@ -76,17 +77,17 @@ async function refreshConfig() {
     activeConfig = processConfig(configData);
 }
 
-app.get("/private/refresh", async (_, res) => {
+app.get("/private/refresh", asyncCatch(async (_, res, next) => {
     await refreshConfig();
     console.log("Refreshed config, new config version is ", activeConfig!.version);
     await broadcastConfigRefresh(activeConfig!);
     res.sendStatus(200);
-});
+}));
 
-app.get("/public/config", async (req, res) => {
+app.get("/public/config", asyncCatch(async (req, res) => {
     const config = await getConfig();
     res.send(JSON.stringify(config));
-});
+}));
 
 (async () => {
     const config = await getConfig();
