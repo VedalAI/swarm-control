@@ -107,7 +107,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
-      "sku": "bits1"
+      "sku": "bits1",
+      "hidden": true
     },
     "redeem_isekai": {
       "id": "redeem_isekai",
@@ -212,7 +213,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
-      "sku": "bits1"
+      "sku": "bits1",
+      "hidden": true
     },
     "redeem_flippda": {
       "id": "redeem_flippda",
@@ -221,7 +223,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
-      "sku": "bits1"
+      "sku": "bits1",
+      "hidden": true
     },
     "redeem_floodbase": {
       "id": "redeem_floodbase",
@@ -229,7 +232,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
-      "sku": "bits1"
+      "sku": "bits1",
+      "hidden": true
     },
     "redeem_hidecarpings": {
       "id": "redeem_hidecarpings",
@@ -238,7 +242,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
       "price": 1,
-      "sku": "bits1"
+      "sku": "bits1",
+      "hidden": true
     }
   }
 }
