@@ -183,4 +183,11 @@ export class GameConnection {
     public stressTestSetHandshake(handshake: boolean) {
         this.handshake = handshake;
     }
+
+    public getUnsent() {
+        return Array.from(this.unsentQueue);
+    }
+    public getOutstanding() {
+        return Array.from(this.outstandingRedeems.values());
+    }
 }

@@ -48,7 +48,7 @@ app.post("/private/setresult", async (req, res) => {
 
 app.post("/private/stress", async (req, res) => {
     if (!process.env.ENABLE_STRESS_TEST) {
-        res.status(403).send("Disabled unless you set the ENABLE_STRESS_TEST env var");
+        res.status(501).send("Disabled unless you set the ENABLE_STRESS_TEST env var\nREMEMBER TO REMOVE IT FROM PROD");
         return;
     }
 
@@ -70,4 +70,14 @@ app.post("/private/stress", async (req, res) => {
     console.log(reqObj);
     startStressTest(reqObj.type, reqObj.duration, reqObj.interval);
     res.sendStatus(200);
+})
+
+app.get("/private/unsent", async (req, res) => {
+    const unsent = connection.getUnsent();
+    res.send(JSON.stringify(unsent));
+})
+
+app.get("/private/outstanding", async (req, res) => {
+    const outstanding = connection.getOutstanding();
+    res.send(JSON.stringify(outstanding));
 })
