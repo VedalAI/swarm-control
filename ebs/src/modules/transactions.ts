@@ -1,5 +1,4 @@
-import { Cart, Config, LiteralTypes, LogMessage, Transaction } from "common/types";
-//import { AnnounceType } from "common/types"; // esbuild dies
+import { Cart, Config, LogMessage, Transaction } from "common/types";
 import { app } from "../index";
 import { parseJWT, verifyJWT } from "../util/jwt";
 import { BitsTransactionPayload } from "../types";
@@ -296,7 +295,9 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
             return `Missing required argument ${arg.name}`;
         }
         switch (arg.type) {
-            case LiteralTypes.String:
+            // esbuild dies if you use enums
+            // so we have to use their pure values instead
+            case 0: // LiteralTypes.String
                 if (typeof value !== "string") {
                     return `Argument ${arg.name} not a string`;
                 }
@@ -307,25 +308,26 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
                     return `Text length out of range for ${arg.name}`;
                 }
                 break;
-            case LiteralTypes.Integer:
-            case LiteralTypes.Float:
+            case 1: // LiteralTypes.Integer
+            case 2: // LiteralTypes.Float
                 let parsed = parseInt(value);
                 if (Number.isNaN(parsed)) {
                     return `Argument ${arg.name} is not a number`;
                 }
-                if (arg.type === LiteralTypes.Integer && parseFloat(value) != parsed) {
+                // LiteralTypes.Integer
+                if (arg.type === 1 && parseFloat(value) != parsed) {
                     return `Argument ${arg.name} is not an integer`;
                 }
                 if ((arg.min && parsed < arg.min) || (arg.max && parsed > arg.max)) {
                     return `Number ${arg.name} out of range`;
                 }
                 break;
-            case LiteralTypes.Boolean:
+            case 3: // LiteralTypes.Boolean
                 if (typeof value !== "boolean" && value !== "true" && value !== "false") {
                     return `Argument ${arg.name} not a boolean`;
                 }
                 break;
-            case LiteralTypes.Vector:
+            case 4: // LiteralTypes.Vector
                 if (!Array.isArray(value) || value.length != 3) {
                     return `Vector3 ${arg.name} not a 3-elem array`;
                 }
