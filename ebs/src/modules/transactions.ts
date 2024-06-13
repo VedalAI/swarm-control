@@ -291,9 +291,16 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
         const value = cart.args[arg.name];
         if (!value) {
             if (!arg.required) continue;
+
+            // LiteralTypes.Boolean
+            if (arg.type === 3) {
+                // HTML form conventions - false is not transmitted, true is "on" (to save 2 bytes i'm guessing)
+                continue;
+            }
             
             return `Missing required argument ${arg.name}`;
         }
+        let parsed: number;
         switch (arg.type) {
             // esbuild dies if you use enums
             // so we have to use their pure values instead
@@ -310,7 +317,7 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
                 break;
             case 1: // LiteralTypes.Integer
             case 2: // LiteralTypes.Float
-                let parsed = parseInt(value);
+                parsed = parseInt(value);
                 if (Number.isNaN(parsed)) {
                     return `Argument ${arg.name} is not a number`;
                 }
@@ -323,8 +330,12 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
                 }
                 break;
             case 3: // LiteralTypes.Boolean
-                if (typeof value !== "boolean" && value !== "true" && value !== "false") {
+                if (typeof value !== "boolean" && value !== "true" && value !== "false" && value !== "on") {
                     return `Argument ${arg.name} not a boolean`;
+                }
+                if (value === "on") {
+                    cart.args[arg.name] = true;
+                    console.log(cart);
                 }
                 break;
             case 4: // LiteralTypes.Vector
