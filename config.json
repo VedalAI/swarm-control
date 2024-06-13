@@ -44,7 +44,7 @@
     "redeem_addsignal": {
       "id": "redeem_addsignal",
       "title": "Add Beacon",
-      "description": "Adds a beacon ping to the map.",
+      "description": "Adds a beacon ping to the map. (This one has a chance to fail on purpose)",
       "args": [
         {
           "type": 4,

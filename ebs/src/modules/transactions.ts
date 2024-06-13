@@ -325,7 +325,7 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
                 if (arg.type === 1 && parseFloat(value) != parsed) {
                     return `Argument ${arg.name} is not an integer`;
                 }
-                if ((arg.min && parsed < arg.min) || (arg.max && parsed > arg.max)) {
+                if ((arg.min !== undefined && parsed < arg.min) || (arg.max !== undefined && parsed > arg.max)) {
                     return `Number ${arg.name} out of range`;
                 }
                 break;
