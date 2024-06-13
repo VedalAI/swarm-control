@@ -31,7 +31,7 @@ export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
                 },
             ],
         }).then();
-        res.status(500).send("Missing required data in JTW");
+        res.status(500).send("Missing required data in JWT");
         return;
     }
 

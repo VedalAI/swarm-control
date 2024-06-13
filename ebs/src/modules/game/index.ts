@@ -3,6 +3,7 @@ import { GameConnection } from "./connection";
 import { MessageType } from "./messages";
 import { ResultMessage } from "./messages.game";
 import { CommandInvocationSource, RedeemMessage } from "./messages.server";
+import { StressTestRequest, isStressTesting, startStressTest } from "./stresstest";
 
 export let connection: GameConnection = new GameConnection();
 
@@ -22,8 +23,12 @@ app.post("/private/redeem", async (req, res) => {
         return;
     }
 
-    connection.sendMessage(msg);
-    res.status(201).send(JSON.stringify(msg));
+    try {
+        await connection.sendMessage(msg);
+        res.status(201).send(JSON.stringify(msg));
+    } catch (e) {
+        res.status(500).send(e);
+    }
 })
 
 app.post("/private/setresult", async (req, res) => {
@@ -40,3 +45,29 @@ app.post("/private/setresult", async (req, res) => {
     connection.processMessage(msg);
     res.sendStatus(200);
 });
+
+app.post("/private/stress", async (req, res) => {
+    if (!process.env.ENABLE_STRESS_TEST) {
+        res.status(403).send("Disabled unless you set the ENABLE_STRESS_TEST env var");
+        return;
+    }
+
+    if (isStressTesting()) {
+        res.status(400).send("Already stress testing");
+        return;
+    }
+
+    if (!connection.isConnected()) {
+        res.status(500).send("Not connected");
+        return;
+    }
+    
+    const reqObj = req.body as StressTestRequest;
+    if (reqObj.type === undefined || reqObj.duration === undefined || reqObj.interval === undefined) {
+        res.status(400).send("Must have type, duration, and interval");
+        return;
+    }
+    console.log(reqObj);
+    startStressTest(reqObj.type, reqObj.duration, reqObj.interval);
+    res.sendStatus(200);
+})

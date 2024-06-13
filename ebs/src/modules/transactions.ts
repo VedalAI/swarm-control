@@ -224,7 +224,12 @@ app.post("/public/transaction", async (req, res) => {
         return;
     }
 
-    let userInfo = await getTwitchUser(cart.userId);
+    let userInfo: TwitchUser | null;
+    try {
+        userInfo = await getTwitchUser(cart.userId);
+    } catch {
+        userInfo = null;
+    }
     if (!userInfo) {
         logToDiscord({
             transactionToken: transaction.token,

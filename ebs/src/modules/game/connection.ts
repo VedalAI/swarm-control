@@ -17,6 +17,8 @@ export class GameConnection {
     private outstandingRedeems: Map<string, RedeemMessage> = new Map();
     private resultHandlers: Map<string, ResultHandler> = new Map();
     static resultWaitTimeout: number = 10000;
+    private resendIntervalHandle?: number;
+    private resendInterval = 500;
 
     public isConnected() {
         return this.socket?.readyState == ServerWS.OPEN;
@@ -29,9 +31,9 @@ export class GameConnection {
         if (!ws) {
             return;
         }
-        ws.on('connection', () => {
-            this.handshake = false;
-        })
+        console.log("Connected to game");
+        this.handshake = false;
+        this.resendIntervalHandle = +setInterval(() => this.tryResendFromQueue(), this.resendInterval);
         ws.on('message', async (message) => {
             const msgText = message.toString();
             let msg: GameMessage;
@@ -46,11 +48,15 @@ export class GameConnection {
             this.processMessage(msg);
         });
         ws.on("close", (code, reason) => {
-            console.log(`Connection closed with code ${code} and reason ${reason}`);
+            const reasonStr = reason ? `reason '${reason}'` : "no reason"
+            console.log(`Game socket closed with code ${code} and ${reasonStr}`);
             setIngame(false);
+            if (this.resendIntervalHandle) {
+                clearInterval(this.resendIntervalHandle);
+            }
         })
         ws.on("error", (error) => {
-            console.log(`Connection error ${error}`);
+            console.log(`Game socket error\n${error}`);
         })
     }
     public async processMessage(msg: GameMessage) {
@@ -61,10 +67,10 @@ export class GameConnection {
                     ...this.makeMessage(MessageType.HelloBack),
                     allowed: msg.version == VERSION,
                 }
-                this.sendMessage(reply);
+                this.sendMessage(reply).then().catch(e => e);
                 break;
             case MessageType.Ping:
-                this.sendMessage(this.makeMessage(MessageType.Pong));
+                this.sendMessage(this.makeMessage(MessageType.Pong)).then().catch(e => e);
                 break;
             case MessageType.Result:
                 if (!this.outstandingRedeems.has(msg.guid)) {
@@ -89,21 +95,32 @@ export class GameConnection {
         }
     }
 
-    public sendMessage(msg: ServerMessage) {
-        if (!this.socket) {
-            this.msgSendError(msg, `Tried to send message without a connected socket`);
-            return;
-        }
-        if (!this.handshake) {
-            this.msgSendError(msg, `Tried to send message before handshake was complete`);
-            return;
-        }
-        this.socket.send(JSON.stringify(msg), { binary: false, fin: true }, (err) => {
-            if (err)
-                console.error(err);
+    public sendMessage(msg: ServerMessage): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (!this.isConnected()) {
+                const error = `Tried to send message without a connected socket`;
+                this.msgSendError(msg, error);
+                reject(error);
+                return;
+            }
+            // allow pong for stress test
+            if (!this.handshake && msg.messageType !== MessageType.Pong) {
+                const error = `Tried to send message before handshake was complete`;
+                this.msgSendError(msg, error);
+                reject(error);
+                return;
+            }
+            this.socket!.send(JSON.stringify(msg), { binary: false, fin: true }, (err) => {
+                if (err) {
+                    this.msgSendError(msg, `${err.name}: ${err.message}`);
+                    reject(err);
+                    return;
+                }
+                if (msg.messageType !== MessageType.Pong)
+                    console.debug(`Sent message ${JSON.stringify(msg)}`);
+                resolve();
+            });
         });
-        if (msg.messageType !== MessageType.Pong)
-            console.debug(`Sent message ${JSON.stringify(msg)}`);
     }
     public makeMessage(type: MessageType, guid?: string): Message {
         return {
@@ -114,7 +131,7 @@ export class GameConnection {
     }
     public redeem(redeem: Redeem, cart: Cart, user: TwitchUser, transactionId: string) : Promise<ResultMessage> {
         return Promise.race([
-            new Promise<any>((_, reject) => setTimeout(() => reject(`Timed out waiting for result`), GameConnection.resultWaitTimeout)),
+            new Promise<any>((_, reject) => setTimeout(() => reject(`Timed out waiting for result. The redeem may still go through later, contact Alexejhero if it doesn't.`), GameConnection.resultWaitTimeout)),
             new Promise<ResultMessage>((resolve, reject) => {
                 if (!transactionId) {
                     reject(`Tried to redeem without transaction ID`);
@@ -136,14 +153,9 @@ export class GameConnection {
                     return;
                 }
                 this.outstandingRedeems.set(msg.guid, msg);
-    
-                if (!this.isConnected()) {
-                    reject(`Redeemed without active connection`);
-                    return;
-                }
                 this.resultHandlers.set(msg.guid, resolve);
     
-                this.sendMessage(msg);
+                this.sendMessage(msg).then().catch(e => e); // will get queued to re-send later
             })
         ]);
     }
@@ -154,6 +166,21 @@ export class GameConnection {
 
     private msgSendError(msg: ServerMessage, error: any) {
         this.unsentQueue.push(msg);
-        console.error(error + `\n${JSON.stringify(msg)}`);
+        console.error(`Error sending message\n\tMessage: ${JSON.stringify(msg)}\n\tError: ${error}`);
+        console.log(`Position ${this.unsentQueue.length} in queue`);
+    }
+
+    private tryResendFromQueue() {
+        const msg = this.unsentQueue.shift();
+        if (msg === undefined) {
+            //console.log("Nothing to re-send");
+            return;
+        }
+
+        console.log(`Re-sending message ${JSON.stringify(msg)}`);
+        this.sendMessage(msg).then().catch(e => e);
+    }
+    public stressTestSetHandshake(handshake: boolean) {
+        this.handshake = handshake;
     }
 }
