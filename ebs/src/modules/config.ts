@@ -10,14 +10,17 @@ import { sendToLogger } from "../util/logger";
 let activeConfig: Config | undefined;
 let configData: Config | undefined;
 
-const gistUrl = "https://raw.githubusercontent.com/VedalAI/swarm-control/main/config.json";
+const apiURL = "https://api.github.com/repos/vedalai/swarm-control/contents/config.json";
+const rawURL = "https://raw.githubusercontent.com/VedalAI/swarm-control/main/config.json";
 
 async function fetchConfig(): Promise<Config> {
-    const url = `${gistUrl}?${Date.now()}`;
+    let url = `${apiURL}?${Date.now()}`;
 
     try {
         const response = await fetch(url);
-        const data: Config = await response.json();
+        const responseData = await response.json();
+
+        const data: Config = JSON.parse(atob(responseData.content))
 
         console.log(data);
 
@@ -25,7 +28,7 @@ async function fetchConfig(): Promise<Config> {
 
         return data;
     } catch (e: any) {
-        console.error("Error when fetching config");
+        console.error("Error when fetching config from api URL, falling back to raw URL");
         console.error(e);
 
         sendToLogger({
@@ -34,17 +37,45 @@ async function fetchConfig(): Promise<Config> {
             important: true,
             fields: [
                 {
-                    header: "Error when fetching config",
+                    header: "Error when fetching config from api URL, falling back to raw URL",
                     content: e.toString(),
                 },
             ],
         }).then();
 
-        return {
-            version: -1,
-            message: "Error when fetching config",
-        };
+        try {
+            url = `${rawURL}?${Date.now()}`;
+            const response = await fetch(url);
+            const data: Config = await response.json();
+    
+            console.log(data)
+    
+            data.banned = await getBannedUsers();
+    
+            return data;
+        } catch (e: any) {
+            console.error("Error when fetching config from raw URL, panic");
+            console.error(e);
+    
+            sendToLogger({
+                transactionToken: null,
+                userIdInsecure: null,
+                important: true,
+                fields: [
+                    {
+                        header: "Error when fetching config from raw URL, panic",
+                        content: e.toString(),
+                    },
+                ],
+            }).then();
+    
+            return {
+                version: -1,
+                message: "Error when fetching config from raw URL, panic",
+            };
+        }
     }
+
 }
 
 function processConfig(data: Config) {
@@ -95,10 +126,7 @@ async function refreshConfig() {
 app.get(
     "/private/refresh",
     asyncCatch(async (_, res) => {
-        await refreshConfig();
-        console.log("Refreshed config, new config version is ", activeConfig!.version);
-        await broadcastConfigRefresh(activeConfig!);
-        res.sendStatus(200);
+        sendRefresh();
     })
 );
 
@@ -118,17 +146,22 @@ app.post(
             return;
         }
 
-    // only refresh if the config.json file was changed
-    if(req.body.commits.some((commit: any) => commit.modified.includes("config.json"))) {
-        await refreshConfig();
-        console.log("Refreshed config, new config version is ", activeConfig!.version);
-        await broadcastConfigRefresh(activeConfig!);
+        // only refresh if the config.json file was changed
+        if (req.body.commits.some((commit: any) => commit.modified.includes("config.json"))) {
+            sendRefresh();
 
-        res.status(200).send("Config refreshed.");
-    } else {
-        res.status(200).send("Config not refreshed.");
-    }
-}));
+            res.status(200).send("Config refreshed.");
+        } else {
+            res.status(200).send("Config not refreshed.");
+        }
+    })
+);
+
+async function sendRefresh() {
+    await refreshConfig();
+    console.log("Refreshed config, new config version is ", activeConfig!.version);
+    await broadcastConfigRefresh(activeConfig!);
+}
 
 app.get(
     "/public/config",
