@@ -90,7 +90,7 @@ export async function openModal(redeem: Redeem | null) {
 
     const config = await getConfig();
 
-    cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {}};
+    cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {} };
 
     $modalWrapper.style.opacity = "1";
     $modalWrapper.style.pointerEvents = "unset";
@@ -106,6 +106,7 @@ export async function openModal(redeem: Redeem | null) {
     setTimeout(() => $modal.classList.add("active-modal"), 10);
 
     hideProcessingModal();
+    hideSuccessModal();
     hideErrorModal();
 
     for (let node of Array.from($modalOptionsForm.childNodes)) $modalOptionsForm.removeChild(node);
