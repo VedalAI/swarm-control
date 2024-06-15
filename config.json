@@ -342,7 +342,7 @@
       "title": "Scan Random Fragment",
       "description": "Auto-scans a random fragment, chosen by fair dice roll.",
       "args": [],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "image": "https://vedalai.github.io/swarm-control/thermal_plant_fragments.gif",
       "price": 500,
       "sku": "bits500"
     },
