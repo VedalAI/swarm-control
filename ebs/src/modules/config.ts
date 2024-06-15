@@ -99,10 +99,16 @@ app.post("/webhook/refresh", asyncCatch(async (req, res) => {
         return;
     }
 
-    await refreshConfig();
-    console.log("Refreshed config, new config version is ", activeConfig!.version);
-    await broadcastConfigRefresh(activeConfig!);
-    res.sendStatus(200);
+    // only refresh if the config.json file was changed
+    if(req.body.commits.some((commit: any) => commit.modified.includes("config.json"))) {
+        await refreshConfig();
+        console.log("Refreshed config, new config version is ", activeConfig!.version);
+        await broadcastConfigRefresh(activeConfig!);
+
+        res.sendStatus(200).send("Config refreshed.");
+    } else {
+        res.sendStatus(200).send("Config not refreshed.");
+    }
 }));
 
 app.get("/public/config", asyncCatch(async (req, res) => {
