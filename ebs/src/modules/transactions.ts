@@ -310,8 +310,7 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
                 }
                 const minLength = arg.minLength ?? 0;
                 const maxLength = arg.maxLength ?? 255;
-                if ((value.length < minLength || value.length > maxLength)
-                ) {
+                if ((value.length < minLength || value.length > maxLength)) {
                     return `Text length out of range for ${arg.name}`;
                 }
                 break;
@@ -335,19 +334,21 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
                 }
                 if (value === "on") {
                     cart.args[arg.name] = true;
-                    console.log(cart);
                 }
                 break;
             case 4: // LiteralTypes.Vector
-                if (!Array.isArray(value) || value.length != 3) {
+                if (!Array.isArray(value) || value.length < 3) {
                     return `Vector3 ${arg.name} not a 3-elem array`;
                 }
-                for (const v of value) {
+                // workaround for #49
+                const lastThree = value.slice(value.length - 3);
+                for (const v of lastThree) {
                     parsed = parseFloat(v);
                     if (Number.isNaN(parsed)) {
                         return `Vector3 ${arg.name} components not all floats`;
                     }
                 }
+                cart!.args[arg.name] = lastThree;
                 break;
             default:
                 const argEnum = config.enums?.[arg.type];
