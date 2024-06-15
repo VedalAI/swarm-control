@@ -3,6 +3,7 @@
   "forAnyoneElse": "If you leak this in the Discord or Twitch or wherever, I will send you to the shadow realm",
 
   "version": 1,
+  "message": "More redeems will be enabled as the stream goes on.",
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -78,7 +79,10 @@
       "Discord Join",
       "USB Disconnect",
       "USB Connect",
-      "Grindr"
+      "Grindr",
+      "Filian Scream",
+      "Program in C",
+      "Stereo Knock"
     ]
   },
   "redeems": {
@@ -185,42 +189,6 @@
       "price": 500,
       "sku": "bits500"
     },
-    "redeem_bigerm": {
-      "id": "redeem_bigerm",
-      "title": "Big Erm",
-      "description": "The Erm Moon sends its regards.",
-      "args": [],
-      "image": "https://vedalai.github.io/swarm-control/bigerm.png",
-      "price": 1000,
-      "sku": "bits1000"
-    },
-    "redeem_airbladder": {
-      "id": "redeem_airbladder",
-      "title": "Floaties",
-      "description": "Push player up towards the surface for 10 seconds. Does nothing if above water.",
-      "args": [],
-      "image": "https://vedalai.github.io/swarm-control/airbladder.png",
-      "price": 1000,
-      "sku": "bits1000"
-    },
-    "redeem_midas": {
-      "id": "redeem_midas",
-      "title": "Midas' Touch",
-      "description": "And all that glitters is gold...",
-      "args": [],
-      "image": "https://vedalai.github.io/swarm-control/gold.png",
-      "price": 2500,
-      "sku": "bits2500"
-    },
-    "redeem_save": {
-      "id": "redeem_save",
-      "title": "Save Game",
-      "description": "Please don't spam this one or we will disable it. Has no effect if game was saved during the last minute.",
-      "args": [],
-      "image": "https://vedalai.github.io/swarm-control/loading.png",
-      "price": 1000,
-      "sku": "bits1000"
-    },
     "redeem_seamonkey_common": {
       "id": "redeem_seamonkey_common",
       "title": "Sea Monkey Delivery System",
@@ -235,6 +203,15 @@
         }
       ],
       "image": "https://vedalai.github.io/swarm-control/seamonkey.webp",
+      "price": 1000,
+      "sku": "bits1000"
+    },
+    "redeem_save": {
+      "id": "redeem_save",
+      "title": "Save Game",
+      "description": "Please don't spam this one or we will disable it. Has no effect if game was saved during the last minute.",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/loading.png",
       "price": 1000,
       "sku": "bits1000"
     },
@@ -256,6 +233,7 @@
     },
     "redeem_trollnoise": {
       "id": "redeem_trollnoise",
+      "disabled": true,
       "title": "Play Troll Sound",
       "description": "IMPORTANT: Leviathan sound will not play if not underwater!",
       "args": [
@@ -271,19 +249,19 @@
       "price": 1000,
       "sku": "bits1000"
     },
-    "redeem_deadpixel": {
-      "id": "redeem_deadpixel",
-      "title": "Dead Pixel",
-      "description": "The whole screen is your canvas... Lasts 5 minutes.",
+    "redeem_airbladder": {
+      "id": "redeem_airbladder",
+      "title": "Floaties",
+      "description": "Push player up towards the surface for 10 seconds. Does nothing if above water.",
       "args": [],
-      "announce": false,
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 150,
-      "sku": "bits150"
+      "image": "https://vedalai.github.io/swarm-control/airbladder.png",
+      "price": 2000,
+      "sku": "bits2000"
     },
     "redeem_o2plants": {
       "id": "redeem_o2plants",
-      "title": "Deplete all Oxygen Plants around the player.",
+      "title": "Deplete O2 Plants",
+      "description": "Deplete all Oxygen Plants around the player.",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/oxygen_plant.png",
       "price": 500,
@@ -298,9 +276,42 @@
       "price": 2000,
       "sku": "bits2000"
     },
+    "redeem_midas": {
+      "id": "redeem_midas",
+      "disabled": true,
+      "title": "Midas' Touch",
+      "description": "And all that glitters is gold...",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/gold.png",
+      "price": 2500,
+      "sku": "bits2500"
+    },
+    "redeem_bigerm": {
+      "id": "redeem_bigerm",
+      "disabled": true,
+      "title": "Big Erm",
+      "description": "The Erm Moon sends its regards.",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/bigerm.png",
+      "price": 1000,
+      "sku": "bits1000"
+    },
+    "redeem_deadpixel": {
+      "id": "redeem_deadpixel",
+      "disabled": true,
+      "title": "Dead Pixel",
+      "description": "The whole screen is your canvas... Lasts 5 minutes.",
+      "args": [],
+      "announce": false,
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 150,
+      "sku": "bits150"
+    },
     "redeem_flippda": {
       "id": "redeem_flippda",
-      "title": "Flip PDA",
+      "disabled": true,
+      "title": "???",
+      "_title": "Flip PDA",
       "description": "Oops I forgot how to hold things...",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/pda.webp",
@@ -327,6 +338,7 @@
     },
     "redeem_scanrandomfragment": {
       "id": "redeem_scanrandomfragment",
+      "disabled": true,
       "title": "Scan Random Fragment",
       "description": "Auto-scans a random fragment, chosen by fair dice roll.",
       "args": [],
@@ -336,20 +348,33 @@
     },
     "redeem_captcha": {
       "id": "redeem_captcha",
-      "title": "Show Captcha",
+      "disabled": true,
+      "title": "???",
+      "_title": "Show Captcha",
       "description": "Force Vedal to prove he's human (or he dies).",
       "args": [],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "image": "https://vedalai.github.io/swarm-control/recaptcha.png",
       "price": 5000,
       "sku": "bits5000"
     },
     "redeem_spin": {
       "id": "redeem_spin",
-      "title": "Spin Him Around and Make Him Dizzy",
+      "title": "MODS",
+      "description": "Spin him around and make him dizzy.",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/MODS.gif",
       "price": 2000,
       "sku": "bits2000"
+    },
+    "redeem_pishock": {
+      "id": "redeem_pishock",
+      "title": "Controlled Shock",
+      "description": "The animatronic characters here do get a bit quirky at night",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 10000,
+      "sku": "bits10000",
+      "hidden": true
     }
   }
 }
