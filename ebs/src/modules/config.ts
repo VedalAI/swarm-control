@@ -92,7 +92,7 @@ const webhooks = new Webhooks({
 app.post("/webhook/refresh", asyncCatch(async (req, res) => {
     // github webhook
     const signature = req.headers["x-hub-signature-256"] as string;
-    const body = req.body as string;
+    const body = JSON.stringify(req.body);
 
     if(!(await webhooks.verify(body, signature))) {
         res.sendStatus(403);
