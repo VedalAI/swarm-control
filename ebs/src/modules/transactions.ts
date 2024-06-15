@@ -7,9 +7,9 @@ import { addFulfilledTransaction, deletePrepurchase, getPrepurchase, isReceiptUs
 import { sendToLogger } from "../util/logger";
 import { connection } from "./game";
 import { TwitchUser } from "./game/messages";
-import { getHelixUser } from "../util/twitch";
 import { asyncCatch } from "../util/middleware";
 import { sendShock } from "../util/pishock";
+import { getTwitchUser } from "./twitch";
 
 app.post(
     "/public/prepurchase",
@@ -286,18 +286,6 @@ app.post(
         }
     })
 );
-
-async function getTwitchUser(id: string): Promise<TwitchUser | null> {
-    const user = await getHelixUser(id);
-    if (!user) {
-        return null;
-    }
-    return {
-        id: user.id,
-        displayName: user.displayName,
-        login: user.name,
-    };
-}
 
 function validateArgs(config: Config, cart: Cart, logContext: LogMessage): string | undefined {
     const redeem = config.redeems![cart.id];
