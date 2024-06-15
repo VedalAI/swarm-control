@@ -38,6 +38,17 @@ jobs:
         with:
           # Upload images folder only
           path: 'images'
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload config.json
+          path: 'config.json'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Webhook Trigger
+        uses: zzzze/webhook-trigger@v1.0.0
+        with:
+          data: "{\"event_type\":\"push\"}"
+          webhook_url: "https://subnautica.vedal.ai/private/refresh"
+          options: "-H \"Accept: application/vnd.github.everest-preview+json\" -H \"Authorization: Bearer ${{ secrets.PRIVATE_KEY }}\""
