@@ -105,9 +105,9 @@ app.post("/webhook/refresh", asyncCatch(async (req, res) => {
         console.log("Refreshed config, new config version is ", activeConfig!.version);
         await broadcastConfigRefresh(activeConfig!);
 
-        res.sendStatus(200).send("Config refreshed.");
+        res.status(200).send("Config refreshed.");
     } else {
-        res.sendStatus(200).send("Config not refreshed.");
+        res.status(200).send("Config not refreshed.");
     }
 }));
 
