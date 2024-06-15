@@ -30,7 +30,7 @@ export async function initDb() {
 export async function setupDb() {
     await db.query(`
         CREATE TABLE IF NOT EXISTS transactions (
-            receipt VARCHAR(255) PRIMARY KEY,
+            receipt VARCHAR(1024) PRIMARY KEY,
             token VARCHAR(255) NOT NULL,
             userId VARCHAR(255) NOT NULL
         );
