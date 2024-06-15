@@ -1,4 +1,7 @@
 {
+  "forVedal": "Vedal, the whole point of hiding the redeems is so that they aren't spoiled for you. Please don't read this file",
+  "forAnyoneElse": "If you leak this in the Discord or Twitch or wherever, I will send you to the shadow realm",
+
   "version": 1,
   "enums": {
     "isekaiTechType": [
@@ -7,185 +10,92 @@
       "Tutel",
       "Ermshark",
       "Bladderfish",
-      "Cryptosuchus",
-      "Titanium",
-      "Diamond",
-      "Ruby",
-      "Gold",
-      "Copper"
-    ],
-    "range": [
-      "Near",
-      "Far"
-    ],
-    "aggressiveCreatures": [
-      "Ermshark",
-      "LilyPaddler",
-      "Cryptosuchus",
-      "SquidShark"
-    ],
-    "commonResources": [
       "Titanium",
       "Copper",
       "Silver",
-      "Lead"
+      "Lead",
+      "Gold",
+      "Diamond",
+      "Ruby"
+    ],
+    "aggressiveCreature": [
+      "Ermshark",
+      "Brinewing",
+      "Cryptosuchus",
+      "Squid Shark"
     ],
     "passiveCreature": [
       "Ermfish",
       "Anneel",
       "Tutel",
-      "ArcticPeeper",
+      "Arctic Peeper",
       "Bladderfish",
       "Boomerang",
-      "SpinnerFish"
+      "Spinner Fish",
+      "Hoopfish",
+      "Spinefish",
+      "Pengling",
+      "Pengwing",
+      "Rockgrub",
+      "Noot Fish",
+      "Discus Fish",
+      "Feather Fish"
+    ],
+    "commonItems": [
+      "Salt",
+      "Quartz",
+      "Titanium",
+      "Copper",
+      "Silver",
+      "Lead",
+      "Neuro fumo",
+      "Evil fumo",
+      "Ermfish",
+      "Tutel",
+      "Gold",
+      "Table Coral",
+      "Ribbon Plant",
+      "Filtered Water",
+      "Nutrient Block"
+    ],
+    "normalNoise": [
+      "Ermfish Ambient",
+      "Ermfish Cook",
+      "Ermfish Eat",
+      "Anneel Ambient",
+      "Anneel Hurt",
+      "Tutel Ambient",
+      "Tutel Cook",
+      "Tutel Eat",
+      "Ermshark Ambient",
+      "Ermshark Attack",
+      "Ermshark Hurt"
+    ],
+    "trollNoise": [
+      "Someone tell Vedal",
+      "Leviathan Roar",
+      "Discord Disconnect",
+      "Discord Join",
+      "USB Disconnect",
+      "USB Connect",
+      "Grindr"
     ]
   },
   "redeems": {
-    "redeem_addsignal": {
-      "id": "redeem_addsignal",
-      "title": "Add Beacon",
-      "description": "Adds a beacon ping to the map.",
-      "args": [
-        {
-          "type": 4,
-          "required": true,
-          "name": "coords",
-          "title": "Coordinates",
-          "description": "Beacon coordinates"
-        },
-        {
-          "type": 0,
-          "required": true,
-          "name": "name",
-          "title": "Name",
-          "description": "Beacon name"
-        }
-      ],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1"
-    },
     "redeem_hint": {
       "id": "redeem_hint",
-      "title": "Send Hint",
-      "description": "Display a message in the center of the screen",
-      "args": [
-        {
-          "type": 0,
-          "required": true,
-          "name": "message",
-          "title": "The message to display"
-        }
-      ],
-      "announce": false,
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1"
-    },
-    "redeem_say": {
-      "id": "redeem_say",
-      "title": "Send Text",
-      "description": "Display text in the top left of the screen",
-      "args": [
-        {
-          "type": 0,
-          "required": true,
-          "name": "message",
-          "title": "Message",
-          "description": "The message to display"
-        }
-      ],
-      "announce": false,
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1"
-    },
-    "redeem_bigerm": {
-      "id": "redeem_bigerm",
-      "title": "Big Erm",
-      "description": "It's time to Get Big",
+      "title": "Send Message",
+      "description": "Your next Twitch chat message will be displayed in-game",
       "args": [],
+      "announce": false,
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1",
-      "hidden": true
-    },
-    "redeem_isekai": {
-      "id": "redeem_isekai",
-      "title": "Isekai",
-      "description": "Snap a specific type of entity around the player.",
-      "args": [
-        {
-          "type": "isekaiTechType",
-          "required": true,
-          "name": "creature",
-          "title": "Creature",
-          "description": "Creature to isekai."
-        },
-        {
-          "type": "range",
-          "required": true,
-          "name": "range",
-          "title": "Range"
-        }
-      ],
-      "image": "https://vedalai.github.io/swarm-control/fish.png",
-      "price": 1,
-      "sku": "bits1"
-    },
-    "spawn_aggressive": {
-      "id": "spawn_aggressive",
-      "title": "Spawn Aggressive Creature",
-      "description": "Spawn an aggressive creature near the player",
-      "args": [
-        {
-          "type": "aggressiveCreatures",
-          "required": true,
-          "name": "creature",
-          "title": "Creature",
-          "description": "The type of creature to spawn."
-        },
-        {
-          "type": 3,
-          "required": true,
-          "defaultValue": false,
-          "name": "behind",
-          "title": "Spawn Behind",
-          "description": "Spawn the creature behind the player"
-        }
-      ],
-      "image": "https://vedalai.github.io/swarm-control/fish.png",
-      "price": 1,
-      "sku": "bits1"
-    },
-    "spawn_resource_common": {
-      "id": "spawn_resource_common",
-      "title": "Spawn Common Resource",
-      "args": [
-        {
-          "type": "commonResources",
-          "required": true,
-          "name": "resource",
-          "title": "Resource",
-          "description": "The type of resource to spawn."
-        },
-        {
-          "type": 3,
-          "required": true,
-          "defaultValue": false,
-          "name": "behind",
-          "title": "Spawn Behind",
-          "description": "Spawn the creature behind the player"
-        }
-      ],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1"
+      "price": 500,
+      "sku": "bits500"
     },
     "spawn_passive": {
       "id": "spawn_passive",
       "title": "Spawn Passive Creature",
-      "description": "Spawn a passive creature near the player",
+      "description": "Spawn a passive creature near the player.",
       "args": [
         {
           "type": "passiveCreature",
@@ -200,40 +110,211 @@
           "defaultValue": false,
           "name": "behind",
           "title": "Spawn Behind",
-          "description": "Spawn the creature behind the player"
+          "description": "Spawn the creature behind the player."
         }
       ],
-      "image": "https://vedalai.github.io/swarm-control/turttle.png",
-      "price": 1,
-      "sku": "bits1"
+      "image": "https://vedalai.github.io/swarm-control/tutel.png",
+      "price": 300,
+      "sku": "bits300"
+    },
+    "spawn_aggressive": {
+      "id": "spawn_aggressive",
+      "title": "Spawn Aggressive Creature",
+      "description": "Spawn an aggressive creature near the player.",
+      "args": [
+        {
+          "type": "aggressiveCreature",
+          "required": true,
+          "name": "creature",
+          "title": "Creature",
+          "description": "The type of creature to spawn."
+        },
+        {
+          "type": 3,
+          "required": true,
+          "defaultValue": false,
+          "name": "behind",
+          "title": "Spawn Behind",
+          "description": "Spawn the creature behind the player."
+        }
+      ],
+      "image": "https://vedalai.github.io/swarm-control/ermshark.png",
+      "price": 500,
+      "sku": "bits500"
+    },
+    "redeem_isekai": {
+      "id": "redeem_isekai",
+      "title": "Remove Entities",
+      "description": "Remove a specific type of entity around the player. Does not include inventory/containers.",
+      "args": [
+        {
+          "type": "isekaiTechType",
+          "required": true,
+          "name": "creature",
+          "title": "Type",
+          "description": "Which type of entity to remove."
+        }
+      ],
+      "image": "https://vedalai.github.io/swarm-control/trashcan.png",
+      "price": 500,
+      "sku": "bits500"
+    },
+    "redeem_addsignal": {
+      "id": "redeem_addsignal",
+      "title": "Add Signal",
+      "description": "Add a signal marker to the world. After redeeming, your next Twitch chat message will name the beacon.",
+      "args": [
+        {
+          "type": 4,
+          "required": true,
+          "name": "coords",
+          "title": "Coordinates",
+          "description": "Beacon coordinates"
+        }
+      ],
+      "image": "https://vedalai.github.io/swarm-control/beacon.png",
+      "price": 750,
+      "sku": "bits750"
+    },
+    "redeem_nametag": {
+      "id": "redeem_nametag",
+      "title": "Your Ermfish",
+      "description": "Put your name on an ermfish!",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/ermfish_nametag.png",
+      "price": 500,
+      "sku": "bits500"
+    },
+    "redeem_bigerm": {
+      "id": "redeem_bigerm",
+      "title": "Big Erm",
+      "description": "The Erm Moon sends its regards.",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/bigerm.png",
+      "price": 1000,
+      "sku": "bits1000"
+    },
+    "redeem_airbladder": {
+      "id": "redeem_airbladder",
+      "title": "Floaties",
+      "description": "Push player up towards the surface for 10 seconds. Does nothing if above water.",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/airbladder.png",
+      "price": 1000,
+      "sku": "bits1000"
+    },
+    "redeem_midas": {
+      "id": "redeem_midas",
+      "title": "Midas' Touch",
+      "description": "And all that glitters is gold...",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/gold.png",
+      "price": 2500,
+      "sku": "bits2500"
+    },
+    "redeem_save": {
+      "id": "redeem_save",
+      "title": "Save Game",
+      "description": "Please don't spam this one or we will disable it. Has no effect if game was saved during the last minute.",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/loading.png",
+      "price": 1000,
+      "sku": "bits1000"
+    },
+    "redeem_seamonkey_common": {
+      "id": "redeem_seamonkey_common",
+      "title": "Sea Monkey Delivery System",
+      "description": "DISCLAIMER: Delivery not guaranteed.",
+      "args": [
+        {
+          "type": "commonItems",
+          "required": true,
+          "name": "item",
+          "title": "Item",
+          "description": "Item you wish delivered."
+        }
+      ],
+      "image": "https://vedalai.github.io/swarm-control/seamonkey.webp",
+      "price": 1000,
+      "sku": "bits1000"
+    },
+    "redeem_noise": {
+      "id": "redeem_noise",
+      "title": "Play Sound",
+      "args": [
+        {
+          "type": "normalNoise",
+          "required": true,
+          "name": "noise",
+          "title": "Sound"
+        }
+      ],
+      "announce": false,
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 69,
+      "sku": "bits69"
+    },
+    "redeem_trollnoise": {
+      "id": "redeem_trollnoise",
+      "title": "Play Troll Sound",
+      "description": "IMPORTANT: Leviathan sound will not play if not underwater!",
+      "args": [
+        {
+          "type": "trollNoise",
+          "required": true,
+          "name": "noise",
+          "title": "Sound"
+        }
+      ],
+      "announce": false,
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 1000,
+      "sku": "bits1000"
+    },
+    "redeem_deadpixel": {
+      "id": "redeem_deadpixel",
+      "title": "Dead Pixel",
+      "description": "The whole screen is your canvas... Lasts 5 minutes.",
+      "args": [],
+      "announce": false,
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 150,
+      "sku": "bits150"
     },
     "redeem_o2plants": {
       "id": "redeem_o2plants",
-      "title": "Deplete O2 Plants",
+      "title": "Deplete all Oxygen Plants around the player.",
       "args": [],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1",
-      "hidden": true
+      "image": "https://vedalai.github.io/swarm-control/oxygen_plant.png",
+      "price": 500,
+      "sku": "bits500"
+    },
+    "redeem_detach": {
+      "id": "redeem_detach",
+      "title": "Bad Glue",
+      "description": "Whoever designed the Sea Truck module connector should be fired...",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/seatruck_docking_module.png",
+      "price": 2000,
+      "sku": "bits2000"
     },
     "redeem_flippda": {
       "id": "redeem_flippda",
       "title": "Flip PDA",
-      "description": "Oops I forgot how to hold things",
+      "description": "Oops I forgot how to hold things...",
       "args": [],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1",
-      "hidden": true
+      "image": "https://vedalai.github.io/swarm-control/pda.webp",
+      "price": 1500,
+      "sku": "bits1500"
     },
     "redeem_floodbase": {
       "id": "redeem_floodbase",
       "title": "Flood Base",
+      "description": "Flood all underwater bases.",
       "args": [],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1",
-      "hidden": true
+      "image": "https://vedalai.github.io/swarm-control/flooding.png",
+      "price": 2500,
+      "sku": "bits2500"
     },
     "redeem_hidecarpings": {
       "id": "redeem_hidecarpings",
@@ -241,9 +322,34 @@
       "description": "Hides vehicle and base signals for 30 seconds.",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 1,
-      "sku": "bits1",
-      "hidden": true
+      "price": 1000,
+      "sku": "bits1000"
+    },
+    "redeem_scanrandomfragment": {
+      "id": "redeem_scanrandomfragment",
+      "title": "Scan Random Fragment",
+      "description": "Auto-scans a random fragment, chosen by fair dice roll.",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 500,
+      "sku": "bits500"
+    },
+    "redeem_captcha": {
+      "id": "redeem_captcha",
+      "title": "Show Captcha",
+      "description": "Force Vedal to prove he's human (or he dies).",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 5000,
+      "sku": "bits5000"
+    },
+    "redeem_spin": {
+      "id": "redeem_spin",
+      "title": "Spin him around and make him dizzy.",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 2000,
+      "sku": "bits2000"
     }
   }
 }
