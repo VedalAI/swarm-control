@@ -127,6 +127,8 @@ app.get(
     "/private/refresh",
     asyncCatch(async (_, res) => {
         sendRefresh();
+
+        res.send(configData);
     })
 );
 
