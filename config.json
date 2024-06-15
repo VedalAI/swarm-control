@@ -2,7 +2,7 @@
   "forVedal": "Vedal, the whole point of hiding the redeems is so that they aren't spoiled for you. Please don't read this file",
   "forAnyoneElse": "If you leak this in the Discord or Twitch or wherever, I will send you to the shadow realm",
 
-  "version": 3,
+  "version": 4,
   "message": "More redeems will be enabled as the stream goes on.",
   "enums": {
     "isekaiTechType": [
@@ -193,7 +193,7 @@
     "redeem_seamonkey_common": {
       "id": "redeem_seamonkey_common",
       "title": "Sea Monkey Delivery System",
-      "description": "DISCLAIMER: Delivery not guaranteed.",
+      "description": "DISCLAIMER: Delivery not guaranteed. Streamer might ignore the sea monkey.",
       "args": [
         {
           "type": "commonItems",
@@ -204,8 +204,8 @@
         }
       ],
       "image": "https://vedalai.github.io/swarm-control/seamonkey.webp",
-      "price": 750,
-      "sku": "bits750"
+      "price": 500,
+      "sku": "bits500"
     },
     "redeem_save": {
       "id": "redeem_save",
