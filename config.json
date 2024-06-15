@@ -41,10 +41,19 @@
     ]
   },
   "redeems": {
+    "redeem_crushhisskull": {
+      "id": "redeem_crushhisskull",
+      "title": "MODS",
+      "description": "Crush His Skull",
+      "args": [],
+      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "price": 1,
+      "sku": "bits1"
+    },
     "redeem_addsignal": {
       "id": "redeem_addsignal",
       "title": "Add Beacon",
-      "description": "Adds a beacon ping to the map. (This one has a chance to fail on purpose)",
+      "description": "Adds a beacon ping to the map.",
       "args": [
         {
           "type": 4,

@@ -33,7 +33,7 @@ export async function setupDb() {
             receipt VARCHAR(255) PRIMARY KEY,
             token VARCHAR(255) NOT NULL,
             userId VARCHAR(255) NOT NULL
-        )
+        );
     `);
 
     await db.query(`
@@ -41,13 +41,24 @@ export async function setupDb() {
             token VARCHAR(255) PRIMARY KEY,
             cart JSON NOT NULL,
             userId VARCHAR(255) NOT NULL
-        )
+        );
     `);
 
     await db.query(`
         CREATE TABLE IF NOT EXISTS bans (
             userId VARCHAR(255) PRIMARY KEY
-        )
+        );
+    `);
+
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS logs (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            userId VARCHAR(255) NOT NULL,
+            transactionToken VARCHAR(255) NOT NULL,
+            data TEXT NOT NULL,
+            fromBackend BOOLEAN NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
     `);
 }
 

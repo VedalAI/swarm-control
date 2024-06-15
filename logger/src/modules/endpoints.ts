@@ -1,15 +1,14 @@
 import { app } from "../index";
-import { LogBuilder } from "../util/discord";
+import { logToDiscord } from "../util/discord";
 import { LogMessage } from "common/types";
-import { canLog, getUserIdFromTransactionToken, isUserBanned } from "../util/db";
+import { canLog, getUserIdFromTransactionToken, isUserBanned, logToDatabase } from "../util/db";
 
 app.post("/log", async (req, res) => {
     try {
         const logMessage = req.body as LogMessage & { backendToken?: string };
+        const isBackendRequest = process.env.PRIVATE_LOGGER_TOKEN == logMessage.backendToken;
 
-        if (process.env.PRIVATE_LOGGER_TOKEN! == logMessage.backendToken) {
-            // This is a log comin from the backend, we should let it through
-        } else {
+        if (!isBackendRequest) {
             const validTransactionToken = await canLog(logMessage.transactionToken);
             if (!validTransactionToken) {
                 res.status(403).send("Invalid transaction token.");
@@ -20,21 +19,36 @@ app.post("/log", async (req, res) => {
             // In the eventuality that this happens, we also check for extension bans here.
 
             const userId = await getUserIdFromTransactionToken(logMessage.transactionToken!);
+
             if (userId && (await isUserBanned(userId))) {
                 res.status(403).send("User is banned.");
                 return;
             }
+
+            if (userId != logMessage.userIdInsecure) {
+                const warningMessage: LogMessage = {
+                    transactionToken: logMessage.transactionToken,
+                    userIdInsecure: userId,
+                    important: true,
+                    fields: [
+                        {
+                            header: "Someone tried to bamboozle the logger user id check",
+                            content: "Received user id: " + logMessage.userIdInsecure,
+                        },
+                    ],
+                };
+                logToDiscord(warningMessage, true);
+                logToDatabase(warningMessage, true).then();
+                res.status(403).send("Invalid user id.");
+                return;
+            }
         }
 
-        const builder = new LogBuilder();
+        await logToDatabase(logMessage, isBackendRequest);
 
-        // TODO: add transaction token and user id to the log message
-
-        for (const field of logMessage.fields) {
-            builder.addField(field.header, field.content);
+        if (logMessage.important) {
+            logToDiscord(logMessage, isBackendRequest);
         }
-
-        builder.send(logMessage.important);
 
         res.sendStatus(200);
     } catch (e: any) {
