@@ -192,6 +192,7 @@ function hideSuccessModal(closeMainModal = false) {
 
 function checkForm() {
     $modalConfirm.ariaDisabled = $modalOptionsForm.checkValidity() ? null : "";
+    $modalConfirm.disabled = !$modalOptionsForm.checkValidity();
 }
 
 function setCartArgsFromForm(form: HTMLFormElement) {
