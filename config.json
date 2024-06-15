@@ -341,6 +341,7 @@
       "id": "redeem_captcha",
       "title": "Show Captcha",
       "description": "Force Vedal to prove he's human (or he dies).",
+      "disabled": true,
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/recaptcha.png",
       "price": 1500,
