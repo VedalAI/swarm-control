@@ -218,6 +218,8 @@ app.post(
             };
         }
         try {
+            // TODO: special handling for different types of redeems
+
             const resMsg = await connection.redeem(redeem, cart, userInfo, transaction.token);
             if (resMsg?.success) {
                 console.log(`[${resMsg.guid}] Redeem succeeded: ${JSON.stringify(resMsg)}`);
@@ -230,7 +232,7 @@ app.post(
                 logContext.important = false;
                 logMessage.header = "Redeem did not succeed";
                 logMessage.content = resMsg;
-                sendToLogger(logContext);
+                sendToLogger(logContext).then();
                 res.status(500).send(resMsg?.message ?? "Redeem failed");
             }
         } catch (error) {
