@@ -7,7 +7,7 @@ hook.setUsername("Swarm Control");
 
 function log(message: string) {
     console.error(message);
-    hook.setContent(message);
+    hook.setContent(message.substring(0, 1950));
     hook.send().then();
 }
 
