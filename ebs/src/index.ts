@@ -30,6 +30,7 @@ async function main() {
         require("./modules/config");
         require("./modules/transactions");
         require("./modules/game");
+        require("./modules/twitch");
 
         const { setIngame } = require("./modules/config");
 
