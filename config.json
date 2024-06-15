@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -183,8 +183,8 @@
       "description": "Put your name on an ermfish!",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/ermfish_nametag.png",
-      "price": 500,
-      "sku": "bits500"
+      "price": 300,
+      "sku": "bits300"
     },
     "redeem_seamonkey_common": {
       "id": "redeem_seamonkey_common",
@@ -322,7 +322,7 @@
     "redeem_hidecarpings": {
       "id": "redeem_hidecarpings",
       "title": "Hide Vehicle Signals",
-      "description": "Hides vehicle and base signals for 30 seconds.",
+      "description": "Hides vehicle and base signals for 1 minute.",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/seatruck_signal.png",
       "price": 1000,
