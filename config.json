@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -90,8 +90,8 @@
       "args": [],
       "announce": false,
       "image": "https://vedalai.github.io/swarm-control/chat.svg",
-      "price": 250,
-      "sku": "bits250"
+      "price": 69,
+      "sku": "bits69"
     },
     "spawn_passive": {
       "id": "spawn_passive",
@@ -115,8 +115,8 @@
         }
       ],
       "image": "https://vedalai.github.io/swarm-control/tutel.png",
-      "price": 300,
-      "sku": "bits300"
+      "price": 69,
+      "sku": "bits69"
     },
     "spawn_aggressive": {
       "id": "spawn_aggressive",
@@ -140,8 +140,8 @@
         }
       ],
       "image": "https://vedalai.github.io/swarm-control/ermshark.png",
-      "price": 300,
-      "sku": "bits300"
+      "price": 69,
+      "sku": "bits69"
     },
     "redeem_isekai": {
       "id": "redeem_isekai",
@@ -157,8 +157,8 @@
         }
       ],
       "image": "https://vedalai.github.io/swarm-control/trashcan.png",
-      "price": 500,
-      "sku": "bits500"
+      "price": 69,
+      "sku": "bits69"
     },
     "redeem_addsignal": {
       "id": "redeem_addsignal",
@@ -175,7 +175,8 @@
       ],
       "image": "https://vedalai.github.io/swarm-control/signal.webp",
       "price": 500,
-      "sku": "bits500"
+      "sku": "bits500",
+      "hidden": true
     },
     "redeem_nametag": {
       "id": "redeem_nametag",
@@ -183,8 +184,8 @@
       "description": "Put your name on an ermfish!",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/ermfish_nametag.png",
-      "price": 300,
-      "sku": "bits300"
+      "price": 69,
+      "sku": "bits69"
     },
     "redeem_seamonkey_common": {
       "id": "redeem_seamonkey_common",
@@ -201,7 +202,8 @@
       ],
       "image": "https://vedalai.github.io/swarm-control/seamonkey.webp",
       "price": 750,
-      "sku": "bits750"
+      "sku": "bits750",
+      "hidden": true
     },
     "redeem_save": {
       "id": "redeem_save",
@@ -211,7 +213,7 @@
       "image": "https://vedalai.github.io/swarm-control/loading.png",
       "price": 1000,
       "sku": "bits1000",
-      "disabled": true
+      "hidden": true
     },
     "redeem_noise": {
       "id": "redeem_noise",
@@ -226,8 +228,8 @@
       ],
       "announce": false,
       "image": "https://vedalai.github.io/swarm-control/pepegaphone.webp",
-      "price": 150,
-      "sku": "bits150"
+      "price": 1,
+      "sku": "bits1"
     },
     "redeem_trollnoise": {
       "id": "redeem_trollnoise",
@@ -243,8 +245,8 @@
       ],
       "announce": false,
       "image": "https://vedalai.github.io/swarm-control/tomfooleryphone.png",
-      "price": 750,
-      "sku": "bits750"
+      "price": 69,
+      "sku": "bits69"
     },
     "redeem_airbladder": {
       "id": "redeem_airbladder",
@@ -253,7 +255,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/airbladder.png",
       "price": 2000,
-      "sku": "bits2000"
+      "sku": "bits2000",
+      "hidden": true
     },
     "redeem_o2plants": {
       "id": "redeem_o2plants",
@@ -262,7 +265,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/oxygen_plant.png",
       "price": 500,
-      "sku": "bits500"
+      "sku": "bits500",
+      "hidden": true
     },
     "redeem_detach": {
       "id": "redeem_detach",
@@ -272,7 +276,8 @@
       "image": "https://vedalai.github.io/swarm-control/seatruck_docking_module.png",
       "announce": false,
       "price": 2000,
-      "sku": "bits2000"
+      "sku": "bits2000",
+      "hidden": true
     },
     "redeem_midas": {
       "id": "redeem_midas",
@@ -281,7 +286,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/gold.png",
       "price": 2500,
-      "sku": "bits2500"
+      "sku": "bits2500",
+      "hidden": true
     },
     "redeem_bigerm": {
       "id": "redeem_bigerm",
@@ -289,8 +295,8 @@
       "description": "The Erm Moon sends its regards.",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/bigerm.png",
-      "price": 1000,
-      "sku": "bits1000"
+      "price": 69,
+      "sku": "bits69"
     },
     "redeem_deadpixel": {
       "id": "redeem_deadpixel",
@@ -299,8 +305,8 @@
       "args": [],
       "announce": false,
       "image": "https://vedalai.github.io/swarm-control/wysi.webp",
-      "price": 100,
-      "sku": "bits100"
+      "price": 1,
+      "sku": "bits1"
     },
     "redeem_flippda": {
       "id": "redeem_flippda",
@@ -309,7 +315,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/pda.webp",
       "price": 1500,
-      "sku": "bits1500"
+      "sku": "bits1500",
+      "hidden": true
     },
     "redeem_floodbase": {
       "id": "redeem_floodbase",
@@ -318,7 +325,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/flooding.png",
       "price": 2500,
-      "sku": "bits2500"
+      "sku": "bits2500",
+      "hidden": true
     },
     "redeem_hidecarpings": {
       "id": "redeem_hidecarpings",
@@ -327,7 +335,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/seatruck_signal.png",
       "price": 1000,
-      "sku": "bits1000"
+      "sku": "bits1000",
+      "hidden": true
     },
     "redeem_scanrandomfragment": {
       "id": "redeem_scanrandomfragment",
@@ -335,8 +344,8 @@
       "description": "Auto-scans a random fragment, chosen by fair dice roll.",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/thermal_plant_fragments.gif",
-      "price": 500,
-      "sku": "bits500"
+      "price": 69,
+      "sku": "bits69"
     },
     "redeem_captcha": {
       "id": "redeem_captcha",
@@ -346,7 +355,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/recaptcha.png",
       "price": 1500,
-      "sku": "bits1500"
+      "sku": "bits1500",
+      "hidden": true
     },
     "redeem_spin": {
       "id": "redeem_spin",
@@ -355,7 +365,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/MODS.gif",
       "price": 2000,
-      "sku": "bits2000"
+      "sku": "bits2000",
+      "hidden": true
     },
     "redeem_pishock": {
       "id": "redeem_pishock",
