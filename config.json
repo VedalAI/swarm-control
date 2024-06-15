@@ -3,7 +3,7 @@
   "forAnyoneElse": "If you leak this in the Discord or Twitch or wherever, I will send you to the shadow realm",
 
   "version": 2,
-  "message": "More redeems will be enabled as the stream goes on.",
+  "message": "This is broken lmao",
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -85,7 +85,27 @@
       "Stereo Knock"
     ]
   },
+
   "redeems": {
+    "redeem_noise": {
+      "id": "redeem_noise",
+      "title": "Play Sound",
+      "args": [
+        {
+          "type": "normalNoise",
+          "required": true,
+          "name": "noise",
+          "title": "Sound"
+        }
+      ],
+      "announce": false,
+      "image": "https://vedalai.github.io/swarm-control/pepegaphone.webp",
+      "price": 1,
+      "sku": "bits1"
+    }
+  },
+
+  "_redeems": {
     "redeem_hint": {
       "id": "redeem_hint",
       "title": "Show Message",
@@ -93,8 +113,8 @@
       "args": [],
       "announce": false,
       "image": "https://vedalai.github.io/swarm-control/chat.svg",
-      "price": 500,
-      "sku": "bits500"
+      "price": 250,
+      "sku": "bits250"
     },
     "spawn_passive": {
       "id": "spawn_passive",
@@ -143,8 +163,8 @@
         }
       ],
       "image": "https://vedalai.github.io/swarm-control/ermshark.png",
-      "price": 500,
-      "sku": "bits500"
+      "price": 300,
+      "sku": "bits300"
     },
     "redeem_isekai": {
       "id": "redeem_isekai",
@@ -177,8 +197,8 @@
         }
       ],
       "image": "https://vedalai.github.io/swarm-control/signal.webp",
-      "price": 750,
-      "sku": "bits750"
+      "price": 500,
+      "sku": "bits500"
     },
     "redeem_nametag": {
       "id": "redeem_nametag",
@@ -203,8 +223,8 @@
         }
       ],
       "image": "https://vedalai.github.io/swarm-control/seamonkey.webp",
-      "price": 1000,
-      "sku": "bits1000"
+      "price": 750,
+      "sku": "bits750"
     },
     "redeem_save": {
       "id": "redeem_save",
@@ -246,8 +266,8 @@
       ],
       "announce": false,
       "image": "https://vedalai.github.io/swarm-control/tomfooleryphone.png",
-      "price": 1000,
-      "sku": "bits1000"
+      "price": 750,
+      "sku": "bits750"
     },
     "redeem_airbladder": {
       "id": "redeem_airbladder",
