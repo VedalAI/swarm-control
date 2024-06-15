@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -19,7 +19,7 @@
       "Ermshark",
       "Brinewing",
       "Cryptosuchus",
-      "Squid Shark"
+      "[DISABLED] Squid Shark"
     ],
     "passiveCreature": [
       "Ermfish",
