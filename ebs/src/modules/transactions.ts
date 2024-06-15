@@ -377,6 +377,9 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
                 if (parsed < 0 || parsed >= argEnum.length) {
                     return `Enum value ${value} (for enum ${arg.type}) out of range`;
                 }
+                if (argEnum[parsed].startsWith("[DISABLED]")) {
+                    return `Enum value ${value} (for enum ${arg.type}) is disabled`;
+                }
                 break;
         }
     }
