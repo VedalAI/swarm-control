@@ -9,6 +9,7 @@ import { connection } from "./game";
 import { TwitchUser } from "./game/messages";
 import { getHelixUser } from "../util/twitch";
 import { asyncCatch } from "../util/middleware";
+import { sendShock } from "../util/pishock";
 
 app.post(
     "/public/prepurchase",
@@ -216,7 +217,15 @@ app.post(
             };
         }
         try {
-            // TODO: special handling for different types of redeems
+            if (redeem.id == "redeem_pishock") {
+                const success = await sendShock(50, 100);
+                if (success) {
+                    res.status(200).send("Your transaction was successful!");
+                } else {
+                    res.status(500).send("Redeem failed");
+                }
+                return;
+            }
 
             const resMsg = await connection.redeem(redeem, cart, userInfo, transaction.token);
             if (resMsg?.success) {

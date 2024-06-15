@@ -26,13 +26,17 @@ async function sendOperation(op: number, intensity: number, duration: number) {
         if (!response.ok) {
             console.error("Failed to send PiShock operation");
             console.error(response.status, await response.text());
+            return false;
         }
+
+        return true;
     } catch (e: any) {
         console.error("Failed to send PiShock operation");
         console.error(e);
+        return false;
     }
 }
 
-export async function sendShock(intensity: number, duration: number) {
-    await sendOperation(0, intensity, duration);
+export function sendShock(intensity: number, duration: number) {
+    return sendOperation(0, intensity, duration);
 }
