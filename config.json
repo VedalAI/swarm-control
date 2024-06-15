@@ -345,9 +345,9 @@
     },
     "redeem_spin": {
       "id": "redeem_spin",
-      "title": "Spin him around and make him dizzy.",
+      "title": "Spin Him Around and Make Him Dizzy",
       "args": [],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "image": "https://vedalai.github.io/swarm-control/MODS.gif",
       "price": 2000,
       "sku": "bits2000"
     }
