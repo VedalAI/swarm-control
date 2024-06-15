@@ -1,10 +1,11 @@
 import { Config } from "common/types";
-import { app } from "../index";
+import { app } from "..";
 import { sendPubSubMessage } from "../util/pubsub";
-import { strToU8, compressSync, strFromU8 } from "fflate";
+import { compressSync, strFromU8, strToU8 } from "fflate";
 import { getBannedUsers } from "../util/db";
 import { asyncCatch } from "../util/middleware";
 import { Webhooks } from "@octokit/webhooks";
+import { sendToLogger } from "../util/logger";
 
 let activeConfig: Config | undefined;
 let configData: Config | undefined;
@@ -27,6 +28,18 @@ async function fetchConfig(): Promise<Config> {
         console.error("Error when fetching config");
         console.error(e);
 
+        sendToLogger({
+            transactionToken: null,
+            userIdInsecure: null,
+            important: true,
+            fields: [
+                {
+                    header: "Error when fetching config",
+                    content: e.toString(),
+                },
+            ],
+        }).then();
+
         return {
             version: -1,
             message: "Error when fetching config",
@@ -37,8 +50,7 @@ async function fetchConfig(): Promise<Config> {
 function processConfig(data: Config) {
     const config: Config = JSON.parse(JSON.stringify(data));
     if (!ingameState) {
-        Object.values(config.redeems!)
-            .forEach((redeem) => (redeem.disabled = true));
+        Object.values(config.redeems!).forEach((redeem) => (redeem.disabled = true));
     }
     return config;
 }
@@ -53,7 +65,7 @@ export async function getConfig(): Promise<Config> {
 
 export async function setActiveConfig(data: Config) {
     activeConfig = processConfig(data);
-    broadcastConfigRefresh(activeConfig);
+    await broadcastConfigRefresh(activeConfig);
 }
 
 export async function broadcastConfigRefresh(config: Config) {
@@ -72,7 +84,7 @@ export function isIngame() {
 export function setIngame(newIngame: boolean) {
     if (ingameState == newIngame) return;
     ingameState = newIngame;
-    setActiveConfig(configData!);
+    setActiveConfig(configData!).then();
 }
 
 async function refreshConfig() {
@@ -80,26 +92,31 @@ async function refreshConfig() {
     activeConfig = processConfig(configData);
 }
 
-app.get("/private/refresh", asyncCatch(async (_, res) => {
-    await refreshConfig();
-    console.log("Refreshed config, new config version is ", activeConfig!.version);
-    await broadcastConfigRefresh(activeConfig!);
-    res.sendStatus(200);
-}));
+app.get(
+    "/private/refresh",
+    asyncCatch(async (_, res) => {
+        await refreshConfig();
+        console.log("Refreshed config, new config version is ", activeConfig!.version);
+        await broadcastConfigRefresh(activeConfig!);
+        res.sendStatus(200);
+    })
+);
 
 const webhooks = new Webhooks({
     secret: process.env.PRIVATE_API_KEY!,
 });
 
-app.post("/webhook/refresh", asyncCatch(async (req, res) => {
-    // github webhook
-    const signature = req.headers["x-hub-signature-256"] as string;
-    const body = JSON.stringify(req.body);
+app.post(
+    "/webhook/refresh",
+    asyncCatch(async (req, res) => {
+        // github webhook
+        const signature = req.headers["x-hub-signature-256"] as string;
+        const body = JSON.stringify(req.body);
 
-    if(!(await webhooks.verify(body, signature))) {
-        res.sendStatus(403);
-        return;
-    }
+        if (!(await webhooks.verify(body, signature))) {
+            res.sendStatus(403);
+            return;
+        }
 
     // only refresh if the config.json file was changed
     if(req.body.commits.some((commit: any) => commit.modified.includes("config.json"))) {
@@ -113,10 +130,13 @@ app.post("/webhook/refresh", asyncCatch(async (req, res) => {
     }
 }));
 
-app.get("/public/config", asyncCatch(async (req, res) => {
-    const config = await getConfig();
-    res.send(JSON.stringify(config));
-}));
+app.get(
+    "/public/config",
+    asyncCatch(async (req, res) => {
+        const config = await getConfig();
+        res.send(JSON.stringify(config));
+    })
+);
 
 (async () => {
     const config = await getConfig();

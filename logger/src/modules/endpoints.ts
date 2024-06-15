@@ -1,4 +1,4 @@
-import { app } from "../index";
+import { app } from "..";
 import { logToDiscord } from "../util/discord";
 import { LogMessage } from "common/types";
 import { canLog, getUserIdFromTransactionToken, isUserBanned, logToDatabase } from "../util/db";
