@@ -60,7 +60,7 @@ export function asyncCatch(fn: (req: Request, res: Response, next: NextFunction)
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             await fn(req, res, next);
-        } catch (err) {
+        } catch (err: any) {
             console.log(err);
 
             sendToLogger({
@@ -70,7 +70,7 @@ export function asyncCatch(fn: (req: Request, res: Response, next: NextFunction)
                 fields: [
                     {
                         header: "Error in asyncCatch",
-                        content: err,
+                        content: err?.stack ?? err,
                     },
                 ],
             }).then();
