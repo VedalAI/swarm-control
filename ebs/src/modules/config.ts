@@ -18,6 +18,8 @@ async function fetchConfig(): Promise<Config> {
         const response = await fetch(url);
         const data: Config = await response.json();
 
+        console.log(data);
+
         data.banned = await getBannedUsers();
 
         return data;
