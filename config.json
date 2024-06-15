@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 13,
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -210,7 +210,8 @@
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/loading.png",
       "price": 1000,
-      "sku": "bits1000"
+      "sku": "bits1000",
+      "disabled": true
     },
     "redeem_noise": {
       "id": "redeem_noise",
