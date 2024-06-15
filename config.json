@@ -303,9 +303,9 @@
       "description": "The whole screen is your canvas... Lasts 5 minutes.",
       "args": [],
       "announce": false,
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
-      "price": 150,
-      "sku": "bits150"
+      "image": "https://vedalai.github.io/swarm-control/wysi.webp",
+      "price": 100,
+      "sku": "bits100"
     },
     "redeem_flippda": {
       "id": "redeem_flippda",
