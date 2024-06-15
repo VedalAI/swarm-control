@@ -87,25 +87,6 @@
   },
 
   "redeems": {
-    "redeem_noise": {
-      "id": "redeem_noise",
-      "title": "Play Sound",
-      "args": [
-        {
-          "type": "normalNoise",
-          "required": true,
-          "name": "noise",
-          "title": "Sound"
-        }
-      ],
-      "announce": false,
-      "image": "https://vedalai.github.io/swarm-control/pepegaphone.webp",
-      "price": 1,
-      "sku": "bits1"
-    }
-  },
-
-  "_redeems": {
     "redeem_hint": {
       "id": "redeem_hint",
       "title": "Show Message",
