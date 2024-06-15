@@ -5,7 +5,7 @@ export function stringify(logMessage: LogMessage, isFromBackend: boolean) {
 
     if (logMessage.important) data += "<@183249892712513536>\n";
 
-    data += `${logMessage.userIdInsecure} | ${logMessage.transactionToken} | ${isFromBackend ? "Backend" : "Extension"}`;
+    data += `${logMessage.userIdInsecure} | ${logMessage.transactionToken} | ${isFromBackend ? "Backend" : "Extension"}\n`;
 
     for (const field of logMessage.fields) {
         if (field.content) {
