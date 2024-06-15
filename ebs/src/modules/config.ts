@@ -4,6 +4,7 @@ import { sendPubSubMessage } from "../util/pubsub";
 import { strToU8, compressSync, strFromU8 } from "fflate";
 import { getBannedUsers } from "../util/db";
 import { asyncCatch } from "../util/middleware";
+import { Webhooks } from "@octokit/webhooks";
 
 let activeConfig: Config | undefined;
 let configData: Config | undefined;
@@ -78,6 +79,26 @@ async function refreshConfig() {
 }
 
 app.get("/private/refresh", asyncCatch(async (_, res) => {
+    await refreshConfig();
+    console.log("Refreshed config, new config version is ", activeConfig!.version);
+    await broadcastConfigRefresh(activeConfig!);
+    res.sendStatus(200);
+}));
+
+const webhooks = new Webhooks({
+    secret: process.env.PRIVATE_API_KEY!,
+});
+
+app.post("/webhook/refresh", asyncCatch(async (req, res) => {
+    // github webhook
+    const signature = req.headers["x-hub-signature-256"] as string;
+    const body = req.body as string;
+
+    if(!(await webhooks.verify(body, signature))) {
+        res.sendStatus(403);
+        return;
+    }
+
     await refreshConfig();
     console.log("Refreshed config, new config version is ", activeConfig!.version);
     await broadcastConfigRefresh(activeConfig!);
