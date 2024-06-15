@@ -3,8 +3,11 @@
   "forAnyoneElse": "If you leak this in the Discord or Twitch or wherever, I will send you to the shadow realm",
 
   "version": 1,
-  "message": "More redeems will be enabled as the stream goes on.",
-  "enums": {
+  "message": "Redeems will appear soon...",
+  "enums": {},
+  "redeems": {},
+  "message_": "More redeems will be enabled as the stream goes on.",
+  "enums_": {
     "isekaiTechType": [
       "Ermfish",
       "Anneel",
@@ -85,7 +88,7 @@
       "Stereo Knock"
     ]
   },
-  "redeems": {
+  "redeems_": {
     "redeem_hint": {
       "id": "redeem_hint",
       "title": "Show Message",
