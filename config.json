@@ -343,7 +343,7 @@
       "description": "Force Vedal to prove he's human (or he dies).",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/recaptcha.png",
-      "price": 3000,
+      "price": 1500,
       "sku": "bits1500"
     },
     "redeem_spin": {
