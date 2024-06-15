@@ -176,7 +176,7 @@
           "description": "Beacon coordinates"
         }
       ],
-      "image": "https://vedalai.github.io/swarm-control/beacon.png",
+      "image": "https://vedalai.github.io/swarm-control/signal.webp",
       "price": 750,
       "sku": "bits750"
     },
@@ -332,7 +332,7 @@
       "title": "Hide Vehicle Signals",
       "description": "Hides vehicle and base signals for 30 seconds.",
       "args": [],
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "image": "https://vedalai.github.io/swarm-control/seatruck_signal.png",
       "price": 1000,
       "sku": "bits1000"
     },
