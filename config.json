@@ -1,6 +1,5 @@
 {
   "version": 4,
-  "message": "More redeems will be enabled as the stream goes on.",
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -231,7 +230,6 @@
     },
     "redeem_trollnoise": {
       "id": "redeem_trollnoise",
-      "disabled": true,
       "title": "Play Troll Sound",
       "description": "IMPORTANT: Leviathan sound will not play if not underwater!",
       "args": [
@@ -277,7 +275,6 @@
     },
     "redeem_midas": {
       "id": "redeem_midas",
-      "disabled": true,
       "title": "Midas' Touch",
       "description": "And all that glitters is gold...",
       "args": [],
@@ -287,9 +284,7 @@
     },
     "redeem_bigerm": {
       "id": "redeem_bigerm",
-      "disabled": true,
-      "title": "???",
-      "_title": "Big Erm",
+      "title": "Big Erm",
       "description": "The Erm Moon sends its regards.",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/bigerm.png",
@@ -298,9 +293,7 @@
     },
     "redeem_deadpixel": {
       "id": "redeem_deadpixel",
-      "disabled": true,
-      "title": "???",
-      "_title": "Dead Pixel",
+      "title": "Dead Pixel",
       "description": "The whole screen is your canvas... Lasts 5 minutes.",
       "args": [],
       "announce": false,
@@ -310,9 +303,7 @@
     },
     "redeem_flippda": {
       "id": "redeem_flippda",
-      "disabled": true,
-      "title": "???",
-      "_title": "Flip PDA",
+      "title": "Flip PDA",
       "description": "Oops I forgot how to hold things...",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/pda.webp",
@@ -339,7 +330,6 @@
     },
     "redeem_scanrandomfragment": {
       "id": "redeem_scanrandomfragment",
-      "disabled": true,
       "title": "Scan Random Fragment",
       "description": "Auto-scans a random fragment, chosen by fair dice roll.",
       "args": [],
@@ -349,9 +339,7 @@
     },
     "redeem_captcha": {
       "id": "redeem_captcha",
-      "disabled": true,
-      "title": "???",
-      "_title": "Show Captcha",
+      "title": "Show Captcha",
       "description": "Force Vedal to prove he's human (or he dies).",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/recaptcha.png",
