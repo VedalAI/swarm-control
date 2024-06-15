@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -343,8 +343,8 @@
       "description": "Force Vedal to prove he's human (or he dies).",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/recaptcha.png",
-      "price": 5000,
-      "sku": "bits5000"
+      "price": 2500,
+      "sku": "bits2500"
     },
     "redeem_spin": {
       "id": "redeem_spin",
