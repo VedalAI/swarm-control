@@ -299,7 +299,8 @@
     "redeem_deadpixel": {
       "id": "redeem_deadpixel",
       "disabled": true,
-      "title": "Dead Pixel",
+      "title": "???",
+      "_title": "Dead Pixel",
       "description": "The whole screen is your canvas... Lasts 5 minutes.",
       "args": [],
       "announce": false,
