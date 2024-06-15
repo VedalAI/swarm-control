@@ -3,7 +3,7 @@ import { app } from "..";
 import { parseJWT, verifyJWT } from "../util/jwt";
 import { BitsTransactionPayload } from "../types";
 import { getConfig } from "./config";
-import { deletePrepurchase, getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase } from "../util/db";
+import { addFulfilledTransaction, deletePrepurchase, getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase } from "../util/db";
 import { sendToLogger } from "../util/logger";
 import { connection } from "./game";
 import { TwitchUser } from "./game/messages";
@@ -75,8 +75,6 @@ app.post(
             res.status(409).send("Invalid arguments");
             return;
         }
-
-        // TODO: text input moderation
 
         let token: string;
         try {
@@ -152,10 +150,10 @@ app.post(
             return;
         }
 
-        // TODO: mark transaction fulfilled
+        await addFulfilledTransaction(transaction.receipt, transaction.token, req.twitchAuthorization!.user_id!);
 
         if (cart.userId != req.twitchAuthorization!.user_id!) {
-            logContext.important = false;
+            logContext.important = true;
             logMessage.header = "Mismatched user ID";
             logMessage.content = {
                 auth: req.twitchAuthorization,
@@ -167,7 +165,7 @@ app.post(
 
         const currentConfig = await getConfig();
         if (cart.version != currentConfig.version) {
-            logContext.important = false;
+            logContext.important = true;
             logMessage.header = "Mismatched config version";
             logMessage.content = {
                 config: currentConfig.version,
@@ -182,7 +180,7 @@ app.post(
 
         const redeem = currentConfig.redeems?.[cart.id];
         if (!redeem) {
-            logContext.important = false;
+            logContext.important = true;
             logMessage.header = "Redeem not found";
             logMessage.content = {
                 config: currentConfig.version,
@@ -201,7 +199,7 @@ app.post(
             userInfo = null;
         }
         if (!userInfo) {
-            logContext.important = false;
+            logContext.important = true;
             logMessage.header = "Could not get Twitch user info";
             logMessage.content = {
                 config: currentConfig.version,
@@ -229,7 +227,7 @@ app.post(
                 }
                 res.status(200).send(msg);
             } else {
-                logContext.important = false;
+                logContext.important = true;
                 logMessage.header = "Redeem did not succeed";
                 logMessage.content = resMsg;
                 sendToLogger(logContext).then();
