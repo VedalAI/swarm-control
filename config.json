@@ -245,7 +245,7 @@
         }
       ],
       "announce": false,
-      "image": "https://vedalai.github.io/swarm-control/pepegaphone.webp",
+      "image": "https://vedalai.github.io/swarm-control/tomfooleryphone.png",
       "price": 1000,
       "sku": "bits1000"
     },
@@ -289,7 +289,8 @@
     "redeem_bigerm": {
       "id": "redeem_bigerm",
       "disabled": true,
-      "title": "Big Erm",
+      "title": "???",
+      "_title": "Big Erm",
       "description": "The Erm Moon sends its regards.",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/bigerm.png",
