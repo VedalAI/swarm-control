@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="140 20 32 38">
+  <defs>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.0054931640625 0.003662109375 0 276 323.5)" id="gradient0">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.0048828125 0.003662109375 0 116 324)" id="gradient1">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 116 135)" id="gradient2">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 156 95)" id="gradient3">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 236 135)" id="gradient4">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 156 55)" id="gradient5">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 116 55)" id="gradient6">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 76 55)" id="gradient7">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 36 55)" id="gradient8">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 196 55)" id="gradient9">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 236 55)" id="gradient10">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 356 55)" id="gradient11">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 396 55)" id="gradient12">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 316 55)" id="gradient13">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 196 95)" id="gradient14">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 236 95)" id="gradient15">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 276 55)" id="gradient16">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 36 95)" id="gradient17">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 76 95)" id="gradient18">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 276 95)" id="gradient19">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 316 95)" id="gradient20">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 356 95)" id="gradient21">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 396 95)" id="gradient22">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 36 135)" id="gradient23">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 76 135)" id="gradient24">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 116 95)" id="gradient25">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.009765625 0.009765625 0 108 77)" id="gradient26">
+      <stop offset="0" stop-color="#312D2D" stop-opacity="0" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+      <stop offset="1" stop-color="#312D2D" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.009765625 0.009765625 0 112 75)" id="gradient27">
+      <stop offset="0" stop-color="#312D2D" stop-opacity="0" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+      <stop offset="1" stop-color="#312D2D" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.009765625 0.009765625 0 124 77)" id="gradient28">
+      <stop offset="0" stop-color="#312D2D" stop-opacity="0" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+      <stop offset="1" stop-color="#312D2D" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.009765625 0.009765625 0 116 77)" id="gradient29">
+      <stop offset="0" stop-color="#312D2D" stop-opacity="0" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+      <stop offset="1" stop-color="#312D2D" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.009765625 0.009765625 0 120 79)" id="gradient30">
+      <stop offset="0" stop-color="#312D2D" stop-opacity="0" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+      <stop offset="1" stop-color="#312D2D" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #232628;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 156 135)" id="gradient31">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 196 135)" id="gradient32">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 316 135)" id="gradient33">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 356 135)" id="gradient34">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 396 135)" id="gradient35">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 276 135)" id="gradient36">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.003662109375 0.003662109375 0 36 325)" id="gradient37">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="-819.2" x2="819.2" spreadMethod="pad" gradientTransform="matrix(0 -0.0048828125 0.003662109375 0 156 322)" id="gradient38">
+      <stop offset="0" stop-color="#FFFFFF" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #181a1b;"/>
+      <stop offset="1" stop-color="#E2E2E2" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #282c2d;"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <path xmlns="http://www.w3.org/2000/svg" stroke="none" fill="#FFFFFF" d="M144 20 L168 20 Q172 20 172 24 L172 48 Q172 52 168 52 L144 52 Q140 52 140 48 L140 24 Q140 20 144 20" data-darkreader-inline-fill="" data-darkreader-inline-stroke="" style="--darkreader-inline-fill: #181a1b; --darkreader-inline-stroke: none;"/>
+	<path xmlns="http://www.w3.org/2000/svg" stroke="none" fill="url(#gradient5)" d="M162 52 L156 58 150 52 162 52" data-darkreader-inline-stroke="" style="--darkreader-inline-stroke: none;"/>
+	<path xmlns="http://www.w3.org/2000/svg" stroke="none" fill="#312D2D" d="M159 37 Q159 38.25 158.1 39.1 157.25 40 156 40 154.75 40 153.85 39.1 153 38.25 153 37 153 35.8 153.85 34.9 154.75 34 156 34 157.25 34 158.1 34.9 159 35.8 159 37 M167 37 Q167 38.25 166.1 39.1 165.25 40 164 40 162.75 40 161.85 39.1 161 38.25 161 37 161 35.8 161.85 34.9 162.75 34 164 34 165.25 34 166.1 34.9 167 35.8 167 37 M151 37 Q151 38.25 150.1 39.1 149.25 40 148 40 146.75 40 145.85 39.1 145 38.25 145 37 145 35.8 145.85 34.9 146.75 34 148 34 149.25 34 150.1 34.9 151 35.8 151 37" data-darkreader-inline-fill="" data-darkreader-inline-stroke="" style="--darkreader-inline-fill: #232628; --darkreader-inline-stroke: none;"/>
+  </g>
+</svg>

@@ -88,11 +88,11 @@
   "redeems": {
     "redeem_hint": {
       "id": "redeem_hint",
-      "title": "Send Message",
-      "description": "Your next Twitch chat message will be displayed in-game",
+      "title": "Show Message",
+      "description": "Your next Twitch chat message will be displayed in-game.",
       "args": [],
       "announce": false,
-      "image": "https://vedalai.github.io/swarm-control/Erm.png",
+      "image": "https://vedalai.github.io/swarm-control/chat.svg",
       "price": 500,
       "sku": "bits500"
     },
