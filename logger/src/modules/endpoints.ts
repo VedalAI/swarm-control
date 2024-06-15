@@ -25,7 +25,7 @@ app.post("/log", async (req, res) => {
                 return;
             }
 
-            if (userId != logMessage.userIdInsecure) {
+            /*if (userId != logMessage.userIdInsecure) {
                 const warningMessage: LogMessage = {
                     transactionToken: logMessage.transactionToken,
                     userIdInsecure: userId,
@@ -41,7 +41,7 @@ app.post("/log", async (req, res) => {
                 logToDatabase(warningMessage, true).then();
                 res.status(403).send("Invalid user id.");
                 return;
-            }
+            }*/
         }
 
         await logToDatabase(logMessage, isBackendRequest);
