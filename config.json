@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "enums": {
     "isekaiTechType": [
       "Ermfish",
@@ -345,15 +345,6 @@
       "image": "https://vedalai.github.io/swarm-control/recaptcha.png",
       "price": 3000,
       "sku": "bits3000"
-    },
-    "redeem_notif": {
-      "id": "redeem_notif",
-      "title": "Ping Alex",
-      "description": "This will log an error on the backend, pinging Alex for no reason",
-      "args": [],
-      "image": "https://vedalai.github.io/swarm-control/signal.webp",
-      "price": 500,
-      "sku": "bits500"
     },
     "redeem_spin": {
       "id": "redeem_spin",
