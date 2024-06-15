@@ -274,6 +274,7 @@
       "description": "Whoever designed the Sea Truck module connector should be fired...",
       "args": [],
       "image": "https://vedalai.github.io/swarm-control/seatruck_docking_module.png",
+      "announce": false,
       "price": 2000,
       "sku": "bits2000"
     },
