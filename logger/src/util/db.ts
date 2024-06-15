@@ -1,4 +1,4 @@
-import { db } from "../index";
+import { db } from "..";
 import { RowDataPacket } from "mysql2";
 import { LogMessage } from "common/types";
 import { stringify } from "./stringify";

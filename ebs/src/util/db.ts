@@ -53,8 +53,8 @@ export async function setupDb() {
     await db.query(`
         CREATE TABLE IF NOT EXISTS logs (
             id INT PRIMARY KEY AUTO_INCREMENT,
-            userId VARCHAR(255) NOT NULL,
-            transactionToken VARCHAR(255) NOT NULL,
+            userId VARCHAR(255),
+            transactionToken VARCHAR(255),
             data TEXT NOT NULL,
             fromBackend BOOLEAN NOT NULL,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP

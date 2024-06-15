@@ -2,7 +2,7 @@ import { LogMessage } from "common/types";
 
 const logEndpoint = `http://${process.env.LOGGER_HOST!}:3000/log`;
 
-export async function logToDiscord(data: LogMessage) {
+export async function sendToLogger(data: LogMessage) {
     try {
         const result = await fetch(logEndpoint, {
             method: "POST",

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { parseJWT, verifyJWT } from "./jwt";
 import { AuthorizationPayload } from "../types";
-import { logToDiscord } from "./logger";
+import { sendToLogger } from "./logger";
 
 export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     const auth = req.header("Authorization");
@@ -20,7 +20,7 @@ export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     req.twitchAuthorization = parseJWT(token) as AuthorizationPayload;
 
     if (!req.twitchAuthorization.user_id) {
-        logToDiscord({
+        sendToLogger({
             transactionToken: null,
             userIdInsecure: null,
             important: false,
@@ -61,6 +61,20 @@ export function asyncCatch(fn: (req: Request, res: Response, next: NextFunction)
         try {
             await fn(req, res, next);
         } catch (err) {
+            console.log(err);
+
+            sendToLogger({
+                transactionToken: null,
+                userIdInsecure: null,
+                important: true,
+                fields: [
+                    {
+                        header: "Error in asyncCatch",
+                        content: err,
+                    },
+                ],
+            }).then();
+
             next(err);
         }
     };
