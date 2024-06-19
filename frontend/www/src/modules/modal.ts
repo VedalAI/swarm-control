@@ -26,7 +26,7 @@ const $modalConfirm = document.getElementById("modal-confirm")! as HTMLButtonEle
 const $modalCancel = document.getElementById("modal-cancel")! as HTMLButtonElement;
 
 /* Options */
-const $modalOptionsForm: HTMLFormElement = document.getElementById("modal-options-form")! as HTMLFormElement;
+const $modalOptionsForm = document.getElementById("modal-options-form")! as HTMLFormElement;
 const $modalOptions = document.getElementById("modal-options")!;
 const $paramToggle = document.getElementById("modal-toggle")!;
 const $paramText = document.getElementById("modal-text")!;
@@ -196,13 +196,16 @@ function checkForm() {
 
 function setCartArgsFromForm(form: HTMLFormElement) {
     const formData = new FormData(form);
-    formData.forEach((v, k) => {
-        if (k.endsWith("[]")) {
-            k = k.slice(0, -2);
-
-            if (!cart!.args[k]) cart!.args[k] = [];
-            cart!.args[k].push(v);
-        } else cart!.args[k] = v;
+    formData.forEach((val, name) => {
+        const match = /(?<paramName>\w+)\[(?<index>\d{1,2})\]$/.exec(name);
+        if (!match?.length) {
+            cart!.args[name] = val;
+        } else {
+            const paramName = match.groups!["paramName"];
+            cart!.args[paramName] ??= [];
+            const index = parseInt(match.groups!["index"]);
+            cart!.args[paramName][index] = val;
+        }
     });
 }
 
@@ -361,15 +364,18 @@ function addVector(modal: HTMLElement, param: VectorParam) {
         input.min = param.min?.toString() ?? "";
         input.max = param.max?.toString() ?? "";
 
-        setupField(field, input, param, true);
+        setupField(field, input, param, i);
 
-        if (Number.isFinite((param.defaultValues ?? [])[i])) input.value = (param.defaultValues ?? [])![i]!.toString();
+        const defVal = param.defaultValue?.[i];
+        input.value = Number.isFinite(defVal)
+            ? defVal!.toString()
+            : "0";
     }
 
     modal.appendChild(field);
 }
 
-function setupField(field: HTMLElement, inputElem: HTMLSelectElement | HTMLInputElement, param: Parameter, isArray?: boolean) {
+function setupField(field: HTMLElement, inputElem: HTMLSelectElement | HTMLInputElement, param: Parameter, arrayIndex?: number) {
     const label = field.querySelector("label")!;
 
     field.id += "-" + param.name;
@@ -379,7 +385,7 @@ function setupField(field: HTMLElement, inputElem: HTMLSelectElement | HTMLInput
     }
 
     inputElem.id += "-" + param.name;
-    inputElem.name = param.name.concat(isArray !== undefined ? "[]" : "");
+    inputElem.name = param.name.concat(arrayIndex !== undefined ? `[${arrayIndex}]` : "");
 
     label.id += "-" + param.name;
     label.htmlFor = inputElem.id;

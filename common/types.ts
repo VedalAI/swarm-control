@@ -44,7 +44,7 @@ export type EnumParam = ParameterBase & {
 
 export type VectorParam = ParameterBase & {
     type: LiteralTypes.Vector;
-    defaultValues?: number[];
+    defaultValue?: [number, number, number];
     min?: number[];
     max?: number[];
 };

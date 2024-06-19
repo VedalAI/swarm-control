@@ -8,7 +8,7 @@ import { isStressTesting, startStressTest, StressTestRequest } from "./stresstes
 
 export let connection: GameConnection = new GameConnection();
 
-app.ws("/private/socket", (ws, req) => {
+app.ws("/private/socket", (ws) => {
     connection.setSocket(ws);
 });
 
@@ -36,7 +36,6 @@ app.post(
 );
 
 app.post("/private/setresult", (req, res) => {
-    //console.log(req.body);
     const msg = {
         ...connection.makeMessage(MessageType.Result),
         ...req.body,
