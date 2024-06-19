@@ -1,18 +1,10 @@
 import { app } from "../..";
-import { getUser, saveUser } from "../../util/db";
+import { getOrAddUser, saveUser } from "../../util/db";
 import { asyncCatch } from "../../util/middleware";
 import { sendPubSubMessage } from "../../util/pubsub";
 
-export type User = {
-    id: string,
-    login?: string,
-    displayName?: string,
-    credit: number,
-    banned: boolean,
-}
-
 export async function setUserBanned(id: string, banned: boolean) {
-    const user = await getUser(id);
+    const user = await getOrAddUser(id);
     user.banned = banned;
     await saveUser(user);
     await sendPubSubMessage({
@@ -40,7 +32,7 @@ app.delete("/private/ban/:id", asyncCatch(async (req, res) => {
 app.post("/private/credit/:id", asyncCatch(async (req, res) => {
     const id = req.params["id"];
     const amount = req.body.amount as number;
-    const user = await getUser(id);
+    const user = await getOrAddUser(id);
     user.credit += amount;
     await saveUser(user);
     res.sendStatus(200);

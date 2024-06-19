@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { parseJWT, verifyJWT } from "./jwt";
 import { AuthorizationPayload } from "../types";
 import { sendToLogger } from "./logger";
-import { User } from "../modules/transactions/user";
-import { getUser } from "./db";
+import { User } from "common/types";
+import { getOrAddUser } from "./db";
 
 export async function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     const auth = req.header("Authorization");
@@ -37,7 +37,7 @@ export async function publicApiAuth(req: Request, res: Response, next: NextFunct
         return;
     }
 
-    req.user = await getUser(twitchAuthorization.user_id);
+    req.user = await getOrAddUser(twitchAuthorization.user_id);
 
     if (req.user.banned) {
         res.status(403).send("You are banned from using this extension");

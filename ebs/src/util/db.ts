@@ -1,16 +1,12 @@
 import { RowDataPacket } from "mysql2";
 import mysql from "mysql2/promise";
-import { IdentifiableCart } from "common/types";
 import { v4 as uuid } from "uuid";
-import { User } from "../modules/transactions/user";
+import { Order } from "common/types";
+import { User } from "common/types";
 
 export let db: mysql.Connection;
 
 export async function initDb() {
-    if (!process.env.MYSQL_HOST) {
-        console.warn("No MYSQL_HOST specified (assuming local testing/development), skipping database setup");
-        return;
-    }
     while (!db) {
         try {
             db = await mysql.createConnection({
@@ -29,7 +25,7 @@ export async function initDb() {
     await setupDb();
 }
 
-export async function setupDb() {
+async function setupDb() {
     await db.query(`
         CREATE TABLE IF NOT EXISTS users (
             id VARCHAR(255) PRIMARY KEY,
@@ -40,96 +36,68 @@ export async function setupDb() {
         );
     `);
     await db.query(`
-        CREATE TABLE IF NOT EXISTS transactions (
-            receipt VARCHAR(1024) PRIMARY KEY,
-            token VARCHAR(255) NOT NULL,
-            userId VARCHAR(255) NOT NULL
-        );
-    `);
-
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS prepurchases (
-            token VARCHAR(255) PRIMARY KEY,
-            cart JSON NOT NULL,
-            userId VARCHAR(255) NOT NULL
-        );
-    `);
-
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS logs (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            userId VARCHAR(255),
-            transactionToken VARCHAR(255),
-            data TEXT NOT NULL,
-            fromBackend BOOLEAN NOT NULL,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        CREATE TABLE IF NOT EXISTS orders (
+            id VARCHAR(36) PRIMARY KEY,
+            userId VARCHAR(255) NOT NULL,
+            state INT NOT NULL DEFAULT 0,
+            cart JSON,
+            receipt VARCHAR(1024),
+            result TEXT,
+            createdAt BIGINT,
+            updatedAt BIGINT
         );
     `);
 }
 
-export async function isReceiptUsed(receipt: string): Promise<boolean> {
+export async function getOrder(guid: string) {
     try {
-        const [rows] = (await db.query("SELECT COUNT(*) FROM transactions WHERE receipt = ?", [receipt])) as [RowDataPacket[], any];
-        return rows[0]["COUNT(*)"] != 0;
+        const [rows] = (await db.query("SELECT * FROM orders WHERE id = ?", [guid])) as [RowDataPacket[], any];
+        if (!rows.length) {
+            return null;
+        }
+        return rows[0] as Order;
     } catch (e: any) {
-        console.error("Database query failed (isReceiptUsed)");
+        console.error("Database query failed (getOrder)");
         console.error(e);
         throw e;
     }
 }
 
-export async function addFulfilledTransaction(receipt: string, token: string, userId: string) {
+export async function createOrder(userId: string, initialState?: Omit<Partial<Order>, "id" | "userId" | "createdAt" | "updatedAt">) {
+    const order: Order = {
+        state: 0,
+        ...initialState,
+        id: uuid(),
+        userId,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    };
     try {
-        await db.query("INSERT INTO transactions (receipt, token, userId) VALUES (?, ?, ?)", [receipt, token, userId]);
-        await db.query("DELETE FROM prepurchases WHERE token = ?", [token]);
+        await db.query(`
+            INSERT INTO orders (id, userId, state, cart, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [order.id, order.userId, order.state, JSON.stringify(order.cart), order.createdAt, order.updatedAt]);
+        return order;
     } catch (e: any) {
-        console.error("Database query failed (addFulfilledTransaction)");
+        console.error("Database query failed (createOrder)");
         console.error(e);
         throw e;
     }
 }
 
-export async function registerPrepurchase(cart: IdentifiableCart): Promise<string> {
-    try {
-        const token = uuid();
-        await db.query("INSERT INTO prepurchases (token, cart, userId) VALUES (?, ?, ?)", [token, JSON.stringify(cart), cart.userId]);
-        return token;
-    } catch (e: any) {
-        console.error("Database query failed (registerPrepurchase)");
-        console.error(e);
-        throw e;
-    }
+export async function saveOrder(order: Order) {
+    order.updatedAt = Date.now();
+    await db.query(
+        `
+        UPDATE orders
+        SET state = ?, cart = ?, receipt = ?, result = ?, updatedAt = ?
+        WHERE id = ?
+    `,
+        [order.state, JSON.stringify(order.cart), order.receipt, order.receipt, order.updatedAt, order.id]
+    );
 }
 
-export async function getPrepurchase(token: string): Promise<IdentifiableCart | undefined> {
-    try {
-        const [rows] = (await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token])) as [RowDataPacket[], any];
-        if (rows.length === 0) return undefined;
-        return rows[0].cart as IdentifiableCart;
-    } catch (e: any) {
-        console.error("Database query failed (isPrepurchaseValid)");
-        console.error(e);
-        throw e;
-    }
-}
-
-export async function deletePrepurchase(token: string) {
-    try {
-        await db.query("DELETE FROM prepurchases WHERE token = ?", [token]);
-    } catch (e: any) {
-        console.error("Database query failed (deletePrepurchase)");
-        console.error(e);
-        throw e;
-    }
-}
-
-const emptyUser: User = {
-    id: "",
-    credit: 0,
-    banned: false
-};
-
-export async function getUser(id: string): Promise<User> {
+export async function getOrAddUser(id: string): Promise<User> {
     try {
         const [rows] = (await db.query("SELECT * FROM users WHERE id = ?", [id])) as [RowDataPacket[], any];
         if (rows.length === 0) {
@@ -145,19 +113,34 @@ export async function getUser(id: string): Promise<User> {
 
 async function createUser(id: string): Promise<User> {
     const user = {
-        ...emptyUser,
-        id
+        id,
+        credit: 0,
+        banned: false,
     };
-    await saveUser(user);
+    try {
+        await db.query(
+            `
+            INSERT INTO users (id, login, displayName, credit, banned)
+            VALUES (:id, :login, :displayName, :credit, :banned)`,
+            user
+        );
+    } catch (e: any) {
+        console.error("Database query failed (createUser)");
+        console.error(e);
+        throw e;
+    }
     return user;
 }
 
 export async function saveUser(user: User) {
     try {
-        await db.query("INSERT INTO users (id, login, displayName, credit, banned)"
-            + " VALUES (:id, :login, :displayName, :credit, :banned)"
-            + " ON DUPLICATE KEY UPDATE login=:login, displayName=:displayName, credit=:credit, banned=:banned",
-            {...user});
+        await db.query(
+            `
+            UPDATE users
+            SET login = :login, displayName = :displayName, credit = :credit, banned = :banned
+            WHERE id = :id`,
+            { ...user }
+        );
     } catch (e: any) {
         console.error("Database query failed (saveUser)");
         console.error(e);

@@ -1,15 +1,16 @@
-import { Cart, Config, LogMessage, Transaction } from "common/types";
+import { Cart, LogMessage, Order, Transaction } from "common/types";
 import { app } from "../..";
 import { parseJWT, verifyJWT } from "../../util/jwt";
 import { BitsTransactionPayload } from "../../types";
 import { getConfig } from "../config";
-import { addFulfilledTransaction, deletePrepurchase, getPrepurchase, isReceiptUsed, registerPrepurchase } from "../../util/db";
+import { createOrder, getOrder, saveOrder } from "../../util/db";
 import { sendToLogger } from "../../util/logger";
 import { connection } from "../game";
 import { TwitchUser } from "../game/messages";
 import { asyncCatch } from "../../util/middleware";
 import { sendShock } from "../../util/pishock";
 import { getTwitchUser } from "../twitch";
+import { validatePrepurchase } from "./order";
 
 require('./user');
 
@@ -17,16 +18,11 @@ app.post(
     "/public/prepurchase",
     asyncCatch(async (req, res) => {
         const cart = req.body as Cart;
-        const idCart = { ...cart, userId: req.user.id };
-
-        if (!connection.isConnected()) {
-            res.status(502).send("Game connection is not available");
-            return;
-        }
-
+        const userId = req.user.id;
+        
         const logContext: LogMessage = {
             transactionToken: null,
-            userIdInsecure: idCart.userId,
+            userIdInsecure: userId,
             important: false,
             fields: [
                 {
@@ -37,55 +33,40 @@ app.post(
         };
         const logMessage = logContext.fields[0];
 
-        const config = await getConfig();
-        if (cart.version != config.version) {
-            logMessage.header = "Invalid config version";
-            logMessage.content = `Received: ${cart.version}\nExpected: ${config.version}`;
-            sendToLogger(logContext).then();
-            res.status(409).send(`Invalid config version (${cart.version}/${config.version})`);
+        if (!connection.isConnected()) {
+            res.status(502).send("Game connection is not available");
             return;
         }
-
-        const redeem = config.redeems?.[cart.id];
-        if (!redeem || redeem.sku != cart.sku || redeem.disabled || redeem.hidden) {
-            logMessage.header = "Invalid redeem";
-            logMessage.content = `Received: ${JSON.stringify(cart)}\nRedeem in config: ${JSON.stringify(redeem)}`;
-            sendToLogger(logContext).then();
-            res.status(409).send(`Invalid redeem`);
-            return;
-        }
-
-        const valError = validateArgs(config, cart, logContext);
-        if (valError) {
-            logMessage.header = "Arg validation failed";
-            logMessage.content = {
-                error: valError,
-                redeem: cart.id,
-                expected: redeem.args,
-                provided: cart.args,
-            };
-            sendToLogger(logContext).then();
-            res.status(409).send("Invalid arguments");
-            return;
-        }
-
-        let token: string;
+        let order: Order;
         try {
-            token = await registerPrepurchase(idCart);
+            order = await createOrder(userId, { cart, state: -1 }); // OrderState.Rejected
         } catch (e: any) {
             logContext.important = true;
             logMessage.header = "Failed to register prepurchase";
-            logMessage.content = { cart: idCart, error: e };
+            logMessage.content = { cart, userId, error: e };
             sendToLogger(logContext).then();
+            throw e;
+        }
+        
+        logMessage.header = "Created prepurchase";
+        logMessage.content = { order };
+        sendToLogger(logContext).then();
+
+        let validationError: string | null;
+        try {
+            validationError = await validatePrepurchase(order);
+        } catch (e: any) {
             res.status(500).send("Failed to register prepurchase");
             return;
         }
+        if (typeof validationError === "string") {
+            res.status(409).send(validationError);
+            return;
+        }
 
-        logMessage.header = "Created prepurchase";
-        logMessage.content = { cart: idCart };
-        sendToLogger(logContext).then();
-
-        res.status(200).send(token);
+        order.state = 0;// OrderState.Prepurchase
+        await saveOrder(order);
+        res.status(200).send(order.id);
     })
 );
 
@@ -125,7 +106,35 @@ app.post(
 
         const payload = parseJWT(transaction.receipt) as BitsTransactionPayload;
 
-        if (await isReceiptUsed(payload.data.transactionId)) {
+        if (!payload.data.transactionId) {
+            logMessage.header = "Missing transaction ID";
+            logMessage.content = transaction;
+            sendToLogger(logContext).then();
+            res.status(400).send("Missing transaction ID");
+            return;
+        }
+        let order: Order | null;
+        try {
+            order = await getOrder(transaction.token);
+        } catch (e: any) {
+            logContext.important = true;
+            logMessage.header = "Failed to get order";
+            logMessage.content = {
+                transaction: transaction,
+                error: e,
+            };
+            sendToLogger(logContext).then();
+            res.status(500).send("Failed to get transaction");
+            return;
+        }
+        if (!order) {
+            logMessage.header = "Transaction not found";
+            logMessage.content = transaction;
+            sendToLogger(logContext).then();
+            res.status(404).send("Transaction not found");
+            return;
+        }
+        if (order.state > 0) { // OrderState.Prepurchase
             logMessage.header = "Transaction already processed";
             logMessage.content = transaction;
             sendToLogger(logContext).then();
@@ -133,9 +142,7 @@ app.post(
             return;
         }
 
-        const cart = await getPrepurchase(transaction.token);
-
-        if (!cart) {
+        if (!order.cart) {
             logMessage.header = "Invalid transaction token";
             logMessage.content = transaction;
             sendToLogger(logContext).then();
@@ -143,42 +150,44 @@ app.post(
             return;
         }
 
-        await addFulfilledTransaction(transaction.receipt, transaction.token, req.user.id!);
+        order.state = 2; // OrderState.Paid
+        order.receipt = transaction.receipt;
+        await saveOrder(order);
 
-        if (cart.userId != req.user.id) {
+        if (order.userId != req.user.id) {
+            // paying for somebody else, how generous
             logContext.important = true;
             logMessage.header = "Mismatched user ID";
             logMessage.content = {
                 user: req.user,
-                cart,
+                order,
                 transaction,
             };
             sendToLogger(logContext).then();
         }
 
         const currentConfig = await getConfig();
-        if (cart.version != currentConfig.version) {
+        if (order.cart.version != currentConfig.version) {
             logContext.important = true;
             logMessage.header = "Mismatched config version";
             logMessage.content = {
                 config: currentConfig.version,
-                cart: cart,
+                order,
                 transaction: transaction,
             };
             sendToLogger(logContext).then();
         }
 
         console.log(transaction);
-        console.log(cart);
+        console.log(order.cart);
 
-        const redeem = currentConfig.redeems?.[cart.id];
+        const redeem = currentConfig.redeems?.[order.cart.id];
         if (!redeem) {
             logContext.important = true;
             logMessage.header = "Redeem not found";
             logMessage.content = {
-                config: currentConfig.version,
-                cart: cart,
-                transaction: transaction,
+                configVersion: currentConfig.version,
+                order,
             };
             sendToLogger(logContext).then();
             res.status(500).send("Redeem could not be found");
@@ -187,30 +196,33 @@ app.post(
 
         let userInfo: TwitchUser | null;
         try {
-            userInfo = await getTwitchUser(cart.userId);
-        } catch {
+            userInfo = await getTwitchUser(order.userId);
+        } catch (error) {
             userInfo = null;
+            console.log(`Error while trying to get Twitch user info: ${error}`);
         }
         if (!userInfo) {
             logContext.important = true;
             logMessage.header = "Could not get Twitch user info";
             logMessage.content = {
-                config: currentConfig.version,
-                cart: cart,
-                transaction: transaction,
-                error: userInfo,
+                configVersion: currentConfig.version,
+                order,
             };
             sendToLogger(logContext).then();
             // very much not ideal but they've already paid... so...
             userInfo = {
-                id: cart.userId,
-                login: cart.userId,
-                displayName: cart.userId,
+                id: order.userId,
+                login: order.userId,
+                displayName: order.userId,
             };
         }
         try {
             if (redeem.id == "redeem_pishock") {
                 const success = await sendShock(50, 100);
+                order.state = success
+                    ? 4 // OrderState.Succeeded
+                    : 3; // OrderState.Failed
+                await saveOrder(order);
                 if (success) {
                     res.status(200).send("Your transaction was successful!");
                 } else {
@@ -219,7 +231,12 @@ app.post(
                 return;
             }
 
-            const resMsg = await connection.redeem(redeem, cart, userInfo, transaction.token);
+            const resMsg = await connection.redeem(redeem, order, userInfo);
+            order.state = resMsg.success
+                ? 4 // OrderState.Succeeded
+                : 3; // OrderState.Failed
+            order.result = resMsg.message;
+            await saveOrder(order);
             if (resMsg?.success) {
                 console.log(`[${resMsg.guid}] Redeem succeeded: ${JSON.stringify(resMsg)}`);
                 let msg = "Your transaction was successful! Your redeem will appear on stream soon.";
@@ -239,9 +256,8 @@ app.post(
             logMessage.header = "Failed to send redeem";
             logMessage.content = {
                 config: currentConfig.version,
-                cart: cart,
-                transaction: transaction,
-                error: error,
+                order,
+                error,
             };
             sendToLogger(logContext).then();
             res.status(500).send(`Failed to process redeem - ${error}`);
@@ -252,115 +268,53 @@ app.post(
 app.post(
     "/public/transaction/cancel",
     asyncCatch(async (req, res) => {
-        const token = req.body.token as string;
+        const guid = req.body.token as string;
+        const logContext: LogMessage = {
+            transactionToken: guid,
+            userIdInsecure: req.user.id,
+            important: true,
+            fields: [
+                {
+                    header: "",
+                    content: "",
+                }
+            ]
+        };
+        const logMessage = logContext.fields[0];
 
-        // remove transaction from db
         try {
-            await deletePrepurchase(token);
+            const order = await getOrder(guid);
 
+            if (!order) {
+                res.status(404).send("Transaction not found");
+                return;
+            }
+
+            if (order.userId != req.user.id) {
+                logMessage.header = "Unauthorized transaction cancel";
+                logMessage.content = {
+                    order,
+                    user: req.user,
+                };
+                sendToLogger(logContext);
+                res.status(403).send("This transaction doesn't belong to you");
+                return;
+            }
+
+            if (order.state > 0) { // OrderState.Prepurchase
+                res.status(409).send("Cannot cancel this transaction");
+                return;
+            }
+
+            order.state = 1; // OrderState.Cancelled
+            await saveOrder(order);
             res.sendStatus(200);
         } catch (error) {
-            sendToLogger({
-                transactionToken: token,
-                userIdInsecure: req.user.id,
-                important: false,
-                fields: [
-                    {
-                        header: "Error deleting transaction",
-                        content: {
-                            error: error,
-                        },
-                    },
-                ],
-            }).then();
+            logMessage.header = "Failed to cancel order";
+            logMessage.content = error;
+            sendToLogger(logContext).then();
 
-            res.sendStatus(404);
+            res.sendStatus(500);
         }
     })
 );
-
-function validateArgs(config: Config, cart: Cart, logContext: LogMessage): string | undefined {
-    const redeem = config.redeems![cart.id];
-
-    for (const arg of redeem.args) {
-        const value = cart.args[arg.name];
-        if (!value) {
-            if (!arg.required) continue;
-
-            // LiteralTypes.Boolean
-            if (arg.type === 3) {
-                // HTML form conventions - false is not transmitted, true is "on" (to save 2 bytes i'm guessing)
-                continue;
-            }
-
-            return `Missing required argument ${arg.name}`;
-        }
-        let parsed: number;
-        switch (arg.type) {
-            // esbuild dies if you use enums
-            // so we have to use their pure values instead
-            case 0: // LiteralTypes.String
-                if (typeof value !== "string") {
-                    return `Argument ${arg.name} not a string`;
-                }
-                const minLength = arg.minLength ?? 0;
-                const maxLength = arg.maxLength ?? 255;
-                if (value.length < minLength || value.length > maxLength) {
-                    return `Text length out of range for ${arg.name}`;
-                }
-                break;
-            case 1: // LiteralTypes.Integer
-            case 2: // LiteralTypes.Float
-                parsed = parseInt(value);
-                if (Number.isNaN(parsed)) {
-                    return `Argument ${arg.name} is not a number`;
-                }
-                // LiteralTypes.Integer
-                if (arg.type === 1 && parseFloat(value) != parsed) {
-                    return `Argument ${arg.name} is not an integer`;
-                }
-                if ((arg.min !== undefined && parsed < arg.min) || (arg.max !== undefined && parsed > arg.max)) {
-                    return `Number ${arg.name} out of range`;
-                }
-                break;
-            case 3: // LiteralTypes.Boolean
-                if (typeof value !== "boolean" && value !== "true" && value !== "false" && value !== "on") {
-                    return `Argument ${arg.name} not a boolean`;
-                }
-                if (value === "on") {
-                    cart.args[arg.name] = true;
-                }
-                break;
-            case 4: // LiteralTypes.Vector
-                if (!Array.isArray(value) || value.length < 3) {
-                    return `Vector3 ${arg.name} not a 3-elem array`;
-                }
-                // workaround for #49
-                const lastThree = value.slice(value.length - 3);
-                for (const v of lastThree) {
-                    parsed = parseFloat(v);
-                    if (Number.isNaN(parsed)) {
-                        return `Vector3 ${arg.name} components not all floats`;
-                    }
-                }
-                cart!.args[arg.name] = lastThree;
-                break;
-            default:
-                const argEnum = config.enums?.[arg.type];
-                if (!argEnum) {
-                    return `No such enum ${arg.type}`;
-                }
-                parsed = parseInt(value);
-                if (Number.isNaN(parsed) || parsed != parseFloat(value)) {
-                    return `Enum value ${value} (for enum ${arg.type}) not an integer`;
-                }
-                if (parsed < 0 || parsed >= argEnum.length) {
-                    return `Enum value ${value} (for enum ${arg.type}) out of range`;
-                }
-                if (argEnum[parsed].startsWith("[DISABLED]")) {
-                    return `Enum value ${value} (for enum ${arg.type}) is disabled`;
-                }
-                break;
-        }
-    }
-}

@@ -3,7 +3,7 @@ import { ResultMessage, GameMessage } from "./messages.game";
 import * as ServerWS from "ws";
 import { v4 as uuid } from "uuid";
 import { CommandInvocationSource, RedeemMessage, ServerMessage } from "./messages.server";
-import { Cart, Redeem } from "common/types";
+import { Order, Redeem } from "common/types";
 import { setIngame } from "../config";
 
 const VERSION = "0.1.0";
@@ -129,23 +129,18 @@ export class GameConnection {
             timestamp: Date.now()
         }
     }
-    public redeem(redeem: Redeem, cart: Cart, user: TwitchUser, transactionId: string) : Promise<ResultMessage> {
+    public redeem(redeem: Redeem, order: Order, user: TwitchUser) : Promise<ResultMessage> {
         return Promise.race([
             new Promise<any>((_, reject) => setTimeout(() => reject(`Timed out waiting for result. The redeem may still go through later, contact Alexejhero if it doesn't.`), GameConnection.resultWaitTimeout)),
             new Promise<ResultMessage>((resolve, reject) => {
-                if (!transactionId) {
-                    reject(`Tried to redeem without transaction ID`);
-                    return;
-                }
-    
                 const msg: RedeemMessage = {
                     ...this.makeMessage(MessageType.Redeem),
-                    guid: transactionId,
+                    guid: order.id,
                     source: CommandInvocationSource.Swarm,
                     command: redeem.id,
                     title: redeem.title,
                     announce: redeem.announce ?? true,
-                    args: cart.args,
+                    args: order.cart!.args,
                     user
                 } as RedeemMessage;
                 if (this.outstandingRedeems.has(msg.guid)) {

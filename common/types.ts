@@ -111,3 +111,31 @@ export type LogMessage = {
     important: boolean;
     fields: { header: string; content: any }[];
 };
+
+export type User = {
+    id: string,
+    login?: string,
+    displayName?: string,
+    credit: number,
+    banned: boolean,
+}
+
+export enum OrderState {
+    Rejected = -1,
+    Prepurchase,
+    Cancelled,
+    Paid, // waiting for game
+    Failed, // game failed
+    Succeeded,
+}
+
+export type Order = {
+    id: string,
+    userId: string,
+    state: OrderState,
+    cart?: Cart,
+    receipt?: string,
+    result?: string,
+    createdAt: number,
+    updatedAt: number,
+}
