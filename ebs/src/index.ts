@@ -3,7 +3,7 @@ import cors from "cors";
 import express from "express";
 import expressWs from "express-ws";
 import bodyParser from "body-parser";
-import { privateApiAuth, publicApiAuth } from "./util/middleware";
+import { asyncCatch, privateApiAuth, publicApiAuth } from "./util/middleware";
 import { initDb } from "./util/db";
 import { sendToLogger } from "./util/logger";
 
@@ -14,7 +14,7 @@ const port = 3000;
 export const { app } = expressWs(express());
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
-app.use("/public/*", publicApiAuth);
+app.use("/public/*", asyncCatch(publicApiAuth));
 app.use("/private/*", privateApiAuth);
 
 app.get("/", (_, res) => {

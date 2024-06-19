@@ -2,8 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { parseJWT, verifyJWT } from "./jwt";
 import { AuthorizationPayload } from "../types";
 import { sendToLogger } from "./logger";
+import { User } from "../modules/transactions/user";
+import { getUser } from "./db";
 
-export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
+export async function publicApiAuth(req: Request, res: Response, next: NextFunction) {
     const auth = req.header("Authorization");
 
     if (!auth || !auth.startsWith("Bearer ")) {
@@ -17,9 +19,9 @@ export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
         return;
     }
 
-    req.twitchAuthorization = parseJWT(token) as AuthorizationPayload;
+    const twitchAuthorization = parseJWT(token) as AuthorizationPayload;
 
-    if (!req.twitchAuthorization.user_id) {
+    if (!twitchAuthorization.user_id) {
         sendToLogger({
             transactionToken: null,
             userIdInsecure: null,
@@ -27,11 +29,18 @@ export function publicApiAuth(req: Request, res: Response, next: NextFunction) {
             fields: [
                 {
                     header: "Missing user ID in JWT",
-                    content: req.twitchAuthorization,
+                    content: twitchAuthorization,
                 },
             ],
         }).then();
         res.status(500).send("Missing required data in JWT");
+        return;
+    }
+
+    req.user = await getUser(twitchAuthorization.user_id);
+
+    if (req.user.banned) {
+        res.status(403).send("You are banned from using this extension");
         return;
     }
 
@@ -51,7 +60,7 @@ export function privateApiAuth(req: Request, res: Response, next: NextFunction) 
 declare global {
     namespace Express {
         export interface Request {
-            twitchAuthorization?: AuthorizationPayload;
+            user: User;
         }
     }
 }

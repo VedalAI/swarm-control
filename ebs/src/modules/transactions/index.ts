@@ -1,31 +1,23 @@
 import { Cart, Config, LogMessage, Transaction } from "common/types";
-import { app } from "..";
-import { parseJWT, verifyJWT } from "../util/jwt";
-import { BitsTransactionPayload } from "../types";
-import { getConfig } from "./config";
-import { addFulfilledTransaction, deletePrepurchase, getPrepurchase, isReceiptUsed, isUserBanned, registerPrepurchase } from "../util/db";
-import { sendToLogger } from "../util/logger";
-import { connection } from "./game";
-import { TwitchUser } from "./game/messages";
-import { asyncCatch } from "../util/middleware";
-import { sendShock } from "../util/pishock";
-import { getTwitchUser } from "./twitch";
+import { app } from "../..";
+import { parseJWT, verifyJWT } from "../../util/jwt";
+import { BitsTransactionPayload } from "../../types";
+import { getConfig } from "../config";
+import { addFulfilledTransaction, deletePrepurchase, getPrepurchase, isReceiptUsed, registerPrepurchase } from "../../util/db";
+import { sendToLogger } from "../../util/logger";
+import { connection } from "../game";
+import { TwitchUser } from "../game/messages";
+import { asyncCatch } from "../../util/middleware";
+import { sendShock } from "../../util/pishock";
+import { getTwitchUser } from "../twitch";
+
+require('./user');
 
 app.post(
     "/public/prepurchase",
     asyncCatch(async (req, res) => {
         const cart = req.body as Cart;
-        const idCart = { ...cart, userId: req.twitchAuthorization!.user_id! };
-
-        if (await isUserBanned(req.twitchAuthorization!.user_id!)) {
-            res.status(403).send("You are banned from using this extension.");
-            return;
-        }
-
-        if (await isUserBanned(req.twitchAuthorization!.opaque_user_id!)) {
-            res.status(403).send("You are banned from using this extension.");
-            return;
-        }
+        const idCart = { ...cart, userId: req.user.id };
 
         if (!connection.isConnected()) {
             res.status(502).send("Game connection is not available");
@@ -104,7 +96,7 @@ app.post(
 
         const logContext: LogMessage = {
             transactionToken: transaction.token,
-            userIdInsecure: req.twitchAuthorization!.user_id!,
+            userIdInsecure: req.user.id,
             important: true,
             fields: [
                 {
@@ -151,13 +143,13 @@ app.post(
             return;
         }
 
-        await addFulfilledTransaction(transaction.receipt, transaction.token, req.twitchAuthorization!.user_id!);
+        await addFulfilledTransaction(transaction.receipt, transaction.token, req.user.id!);
 
-        if (cart.userId != req.twitchAuthorization!.user_id!) {
+        if (cart.userId != req.user.id) {
             logContext.important = true;
             logMessage.header = "Mismatched user ID";
             logMessage.content = {
-                auth: req.twitchAuthorization,
+                user: req.user,
                 cart,
                 transaction,
             };
@@ -270,7 +262,7 @@ app.post(
         } catch (error) {
             sendToLogger({
                 transactionToken: token,
-                userIdInsecure: req.twitchAuthorization!.user_id!,
+                userIdInsecure: req.user.id,
                 important: false,
                 fields: [
                     {

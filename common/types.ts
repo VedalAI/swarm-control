@@ -68,7 +68,6 @@ export type Config = {
     version: number;
     enums?: { [name: string]: string[] };
     redeems?: { [id: string]: Redeem };
-    banned?: string[];
     message?: string;
 };
 
@@ -88,10 +87,23 @@ export type Transaction = {
     token: string;
 };
 
-export type PubSubMessage = {
-    type: string;
+export type PubSubMessage = ConfigRefreshed | Banned;
+export type PubSubMessageBase = {
+    type: "config_refreshed" | "banned";
     data: string;
 };
+export type ConfigRefreshed = PubSubMessageBase & {
+    type: "config_refreshed";
+    data: string;
+}
+export type Banned = PubSubMessageBase & {
+    type: "banned";
+    data: string;
+}
+export type BannedData = {
+    id: string;
+    banned: boolean;
+}
 
 export type LogMessage = {
     transactionToken: string | null;

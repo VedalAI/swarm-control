@@ -2,6 +2,7 @@ import { RowDataPacket } from "mysql2";
 import mysql from "mysql2/promise";
 import { IdentifiableCart } from "common/types";
 import { v4 as uuid } from "uuid";
+import { User } from "../modules/transactions/user";
 
 export let db: mysql.Connection;
 
@@ -17,6 +18,7 @@ export async function initDb() {
                 user: process.env.MYSQL_USER,
                 password: process.env.MYSQL_PASSWORD,
                 database: process.env.MYSQL_DATABASE,
+                namedPlaceholders: true,
             });
         } catch {
             console.log("Failed to connect to database. Retrying in 5 seconds...");
@@ -28,6 +30,15 @@ export async function initDb() {
 }
 
 export async function setupDb() {
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS users (
+            id VARCHAR(255) PRIMARY KEY,
+            login VARCHAR(255),
+            displayName VARCHAR(255),
+            credit INT,
+            banned BOOLEAN
+        );
+    `);
     await db.query(`
         CREATE TABLE IF NOT EXISTS transactions (
             receipt VARCHAR(1024) PRIMARY KEY,
@@ -41,12 +52,6 @@ export async function setupDb() {
             token VARCHAR(255) PRIMARY KEY,
             cart JSON NOT NULL,
             userId VARCHAR(255) NOT NULL
-        );
-    `);
-
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS bans (
-            userId VARCHAR(255) PRIMARY KEY
         );
     `);
 
@@ -118,23 +123,43 @@ export async function deletePrepurchase(token: string) {
     }
 }
 
-export async function isUserBanned(userId: string): Promise<boolean> {
+const emptyUser: User = {
+    id: "",
+    credit: 0,
+    banned: false
+};
+
+export async function getUser(id: string): Promise<User> {
     try {
-        const [rows] = (await db.query("SELECT COUNT(*) FROM bans WHERE userId = ?", [userId])) as [RowDataPacket[], any];
-        return rows[0]["COUNT(*)"] != 0;
+        const [rows] = (await db.query("SELECT * FROM users WHERE id = ?", [id])) as [RowDataPacket[], any];
+        if (rows.length === 0) {
+            return await createUser(id);
+        }
+        return rows[0] as User;
     } catch (e: any) {
-        console.error("Database query failed (isBanned)");
+        console.error("Database query failed (getUser)");
         console.error(e);
         throw e;
     }
 }
 
-export async function getBannedUsers(): Promise<string[]> {
+async function createUser(id: string): Promise<User> {
+    const user = {
+        ...emptyUser,
+        id
+    };
+    await saveUser(user);
+    return user;
+}
+
+export async function saveUser(user: User) {
     try {
-        const [rows] = (await db.query("SELECT userId FROM bans")) as [RowDataPacket[], any];
-        return rows.map((row) => row.userId);
+        await db.query("INSERT INTO users (id, login, displayName, credit, banned)"
+            + " VALUES (:id, :login, :displayName, :credit, :banned)"
+            + " ON DUPLICATE KEY UPDATE login=:login, displayName=:displayName, credit=:credit, banned=:banned",
+            {...user});
     } catch (e: any) {
-        console.error("Database query failed (getBannedUsers)");
+        console.error("Database query failed (saveUser)");
         console.error(e);
         throw e;
     }

@@ -2,7 +2,6 @@ import { Config } from "common/types";
 import { app } from "..";
 import { sendPubSubMessage } from "../util/pubsub";
 import { compressSync, strFromU8, strToU8 } from "fflate";
-import { getBannedUsers } from "../util/db";
 import { asyncCatch } from "../util/middleware";
 import { Webhooks } from "@octokit/webhooks";
 import { sendToLogger } from "../util/logger";
@@ -21,10 +20,6 @@ async function fetchConfig(): Promise<Config> {
         const responseData = await response.json();
 
         const data: Config = JSON.parse(atob(responseData.content))
-
-        console.log(data);
-
-        data.banned = await getBannedUsers();
 
         return data;
     } catch (e: any) {
@@ -47,10 +42,6 @@ async function fetchConfig(): Promise<Config> {
             url = `${rawURL}?${Date.now()}`;
             const response = await fetch(url);
             const data: Config = await response.json();
-    
-            console.log(data)
-    
-            data.banned = await getBannedUsers();
     
             return data;
         } catch (e: any) {
