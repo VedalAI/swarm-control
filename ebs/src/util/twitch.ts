@@ -1,5 +1,8 @@
 import { ApiClient, HelixUser } from "@twurple/api";
 import { RefreshingAuthProvider } from "@twurple/auth";
+import { config as dotenv } from "dotenv";
+
+dotenv();
 
 const authProvider = new RefreshingAuthProvider({
     clientId: process.env.TWITCH_API_CLIENT_ID!,

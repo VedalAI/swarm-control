@@ -99,11 +99,11 @@ export async function saveOrder(order: Order) {
 
 export async function getOrAddUser(id: string): Promise<User> {
     try {
-        let user = await getUser(id);
-        if (!user) {
-            user = await createUser(id);
+        const [rows] = (await db.query("SELECT * FROM users WHERE id = ?", [id])) as [RowDataPacket[], any];
+        if (!rows.length) {
+            return await createUser(id);
         }
-        return user;
+        return rows[0] as User;
     } catch (e: any) {
         console.error("Database query failed (getOrAddUser)");
         console.error(e);
@@ -111,9 +111,9 @@ export async function getOrAddUser(id: string): Promise<User> {
     }
 }
 
-export async function getUser(id: string) : Promise<User | null> {
+export async function lookupUser(idOrName: string) : Promise<User | null> {
     try {
-        const [rows] = (await db.query("SELECT * FROM users WHERE id = ?", [id])) as [RowDataPacket[], any];
+        const [rows] = (await db.query("SELECT * FROM users WHERE id = :idOrName OR login LIKE :idOrName OR displayName LIKE :idOrName", {idOrName})) as [RowDataPacket[], any];
         if (!rows.length) {
             return null;
         }

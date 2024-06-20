@@ -1,15 +1,15 @@
+import { User } from "common/types";
 import { app } from "../..";
-import { getOrAddUser, saveUser, updateUserTwitchInfo } from "../../util/db";
+import { lookupUser, saveUser, updateUserTwitchInfo } from "../../util/db";
 import { asyncCatch } from "../../util/middleware";
 import { sendPubSubMessage } from "../../util/pubsub";
 
-export async function setUserBanned(id: string, banned: boolean) {
-    const user = await getOrAddUser(id);
+export async function setUserBanned(user: User, banned: boolean) {
     user.banned = banned;
     await saveUser(user);
     await sendPubSubMessage({
         type: "banned",
-        data: JSON.stringify({ id, banned }),
+        data: JSON.stringify({ id: user.id, banned }),
     });
 }
 
@@ -21,33 +21,34 @@ app.post(
     })
 );
 
-app.get("/private/user/:id", asyncCatch(async (req, res) => {
-    res.json(await getOrAddUser(req.params["id"]));
+app.get("/private/user/:idOrName", asyncCatch(async (req, res) => {
+    res.json(await lookupUser(req.params["idOrName"]));
 }));
 
-app.get(
-    "/private/user/:id/ban",
-    asyncCatch(async (req, res) => {
-        const id = req.params["id"];
-        const user = await getOrAddUser(id);
-        res.send({ banned: user.banned });
-    })
-);
-
 app.post(
-    "/private/user/:id/ban",
+    "/private/user/:idOrName/ban",
     asyncCatch(async (req, res) => {
-        const id = req.params["id"];
-        await setUserBanned(id, true);
+        const user = await lookupUser(req.params["idOrName"]);
+        if (!user) {
+            res.sendStatus(404);
+            return;
+        }
+
+        await setUserBanned(user, true);
         res.sendStatus(200);
     })
 );
 
 app.delete(
-    "/private/user/:id/ban",
+    "/private/user/:idOrName/ban",
     asyncCatch(async (req, res) => {
-        const id = req.params["id"];
-        await setUserBanned(id, false);
+        const user = await lookupUser(req.params["idOrName"]);
+        if (!user) {
+            res.sendStatus(404);
+            return;
+        }
+
+        await setUserBanned(user, false);
         res.sendStatus(200);
     })
 );
