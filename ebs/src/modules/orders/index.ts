@@ -1,16 +1,17 @@
-import { Cart, LogMessage, Order, Transaction } from "common/types";
+import { Cart, LogMessage, Transaction } from "common/types";
 import { app } from "../..";
 import { parseJWT, verifyJWT } from "../../util/jwt";
 import { BitsTransactionPayload } from "../../types";
 import { getConfig } from "../config";
-import { createOrder, getOrder, saveOrder } from "../../util/db";
+import { createOrder, getOrder, saveOrder, updateUserTwitchInfo } from "../../util/db";
 import { sendToLogger } from "../../util/logger";
 import { connection } from "../game";
 import { TwitchUser } from "../game/messages";
 import { asyncCatch } from "../../util/middleware";
 import { sendShock } from "../../util/pishock";
-import { getTwitchUser } from "../twitch";
-import { validatePrepurchase } from "./order";
+import { validatePrepurchase } from "./prepurchase";
+import { setUserBanned } from "./user";
+import { Order } from "./order";
 
 require('./user');
 
@@ -39,7 +40,7 @@ app.post(
         }
         let order: Order;
         try {
-            order = await createOrder(userId, { cart, state: -1 }); // OrderState.Rejected
+            order = await createOrder(userId, { cart });
         } catch (e: any) {
             logContext.important = true;
             logMessage.header = "Failed to register prepurchase";
@@ -64,7 +65,7 @@ app.post(
             return;
         }
 
-        order.state = 0;// OrderState.Prepurchase
+        order.state = "prepurchase";
         await saveOrder(order);
         res.status(200).send(order.id);
     })
@@ -82,7 +83,7 @@ app.post(
             fields: [
                 {
                     header: "",
-                    content: "",
+                    content: transaction,
                 },
             ],
         };
@@ -90,7 +91,6 @@ app.post(
 
         if (!transaction.receipt) {
             logMessage.header = "Missing receipt";
-            logMessage.content = transaction;
             sendToLogger(logContext).then();
             res.status(400).send("Missing receipt");
             return;
@@ -98,8 +98,8 @@ app.post(
 
         if (!verifyJWT(transaction.receipt)) {
             logMessage.header = "Invalid receipt";
-            logMessage.content = transaction;
             sendToLogger(logContext).then();
+            setUserBanned(req.user.id, true);
             res.status(403).send("Invalid receipt.");
             return;
         }
@@ -108,7 +108,6 @@ app.post(
 
         if (!payload.data.transactionId) {
             logMessage.header = "Missing transaction ID";
-            logMessage.content = transaction;
             sendToLogger(logContext).then();
             res.status(400).send("Missing transaction ID");
             return;
@@ -129,28 +128,25 @@ app.post(
         }
         if (!order) {
             logMessage.header = "Transaction not found";
-            logMessage.content = transaction;
             sendToLogger(logContext).then();
             res.status(404).send("Transaction not found");
             return;
         }
-        if (order.state > 0) { // OrderState.Prepurchase
+        if (order.state != "prepurchase") {
             logMessage.header = "Transaction already processed";
-            logMessage.content = transaction;
             sendToLogger(logContext).then();
             res.status(409).send("Transaction already processed");
             return;
         }
 
         if (!order.cart) {
-            logMessage.header = "Invalid transaction token";
-            logMessage.content = transaction;
+            logMessage.header = "Invalid transaction";
             sendToLogger(logContext).then();
-            res.status(404).send("Invalid transaction token");
+            res.status(500).send("Invalid transaction");
             return;
         }
 
-        order.state = 2; // OrderState.Paid
+        order.state = "paid";
         order.receipt = transaction.receipt;
         await saveOrder(order);
 
@@ -173,7 +169,7 @@ app.post(
             logMessage.content = {
                 config: currentConfig.version,
                 order,
-                transaction: transaction,
+                transaction,
             };
             sendToLogger(logContext).then();
         }
@@ -194,47 +190,41 @@ app.post(
             return;
         }
 
-        let userInfo: TwitchUser | null;
-        try {
-            userInfo = await getTwitchUser(order.userId);
-        } catch (error) {
-            userInfo = null;
-            console.log(`Error while trying to get Twitch user info: ${error}`);
-        }
-        if (!userInfo) {
-            logContext.important = true;
-            logMessage.header = "Could not get Twitch user info";
-            logMessage.content = {
-                configVersion: currentConfig.version,
-                order,
-            };
-            sendToLogger(logContext).then();
-            // very much not ideal but they've already paid... so...
-            userInfo = {
-                id: order.userId,
-                login: order.userId,
-                displayName: order.userId,
-            };
-        }
-        try {
-            if (redeem.id == "redeem_pishock") {
-                const success = await sendShock(50, 100);
-                order.state = success
-                    ? 4 // OrderState.Succeeded
-                    : 3; // OrderState.Failed
-                await saveOrder(order);
-                if (success) {
-                    res.status(200).send("Your transaction was successful!");
-                } else {
-                    res.status(500).send("Redeem failed");
-                }
-                return;
+        let userInfo: TwitchUser = {
+            id: req.user.id,
+            login: req.user.login ?? req.user.id,
+            displayName: req.user.displayName ?? req.user.id,
+        };
+        if (!req.user.login || !req.user.displayName) {
+            try {
+                await updateUserTwitchInfo(req.user);
+            } catch (error) {
+                logContext.important = true;
+                logMessage.header = "Could not get Twitch user info";
+                logMessage.content = {
+                    configVersion: currentConfig.version,
+                    order,
+                };
+                sendToLogger(logContext).then();
+                // very much not ideal but they've already paid... so...
+                console.log(`Error while trying to get Twitch user info: ${error}`);
             }
-
+        }
+        
+        if (redeem.id == "redeem_pishock") {
+            const success = await sendShock(50, 100);
+            order.state = success ? "succeeded" : "failed";
+            await saveOrder(order);
+            if (success) {
+                res.status(200).send("Your transaction was successful!");
+            } else {
+                res.status(500).send("Redeem failed");
+            }
+            return;
+        }
+        try {
             const resMsg = await connection.redeem(redeem, order, userInfo);
-            order.state = resMsg.success
-                ? 4 // OrderState.Succeeded
-                : 3; // OrderState.Failed
+            order.state = resMsg.success ? "succeeded" : "failed";
             order.result = resMsg.message;
             await saveOrder(order);
             if (resMsg?.success) {
@@ -260,6 +250,12 @@ app.post(
                 error,
             };
             sendToLogger(logContext).then();
+            connection.onResult(order.id, (res) => {
+                console.log(`Got late result (from re-send?) for ${order.id}`);
+                order.state = res.success ? "succeeded" : "failed";
+                order.result = res.message;
+                saveOrder(order).then();
+            });
             res.status(500).send(`Failed to process redeem - ${error}`);
         }
     })
@@ -301,12 +297,12 @@ app.post(
                 return;
             }
 
-            if (order.state > 0) { // OrderState.Prepurchase
+            if (order.state !== "prepurchase") {
                 res.status(409).send("Cannot cancel this transaction");
                 return;
             }
 
-            order.state = 1; // OrderState.Cancelled
+            order.state = "cancelled";
             await saveOrder(order);
             res.sendStatus(200);
         } catch (error) {

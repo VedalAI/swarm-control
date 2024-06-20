@@ -131,7 +131,7 @@ export class GameConnection {
     }
     public redeem(redeem: Redeem, order: Order, user: TwitchUser) : Promise<ResultMessage> {
         return Promise.race([
-            new Promise<any>((_, reject) => setTimeout(() => reject(`Timed out waiting for result. The redeem may still go through later, contact Alexejhero if it doesn't.`), GameConnection.resultWaitTimeout)),
+            new Promise<any>((_, reject) => setTimeout(() => reject(`Timed out waiting for result. The redeem may still go through later, contact AlexejheroDev if it doesn't.`), GameConnection.resultWaitTimeout)),
             new Promise<ResultMessage>((resolve, reject) => {
                 const msg: RedeemMessage = {
                     ...this.makeMessage(MessageType.Redeem),
@@ -184,5 +184,17 @@ export class GameConnection {
     }
     public getOutstanding() {
         return Array.from(this.outstandingRedeems.values());
+    }
+
+    public onResult(guid: string, resolve: (result: ResultMessage) => void) {
+        const existing = this.resultHandlers.get(guid);
+        if (existing) {
+            this.resultHandlers.set(guid, (result: ResultMessage) => {
+                existing(result);
+                resolve(result);
+            })
+        } else {
+            this.resultHandlers.set(guid, resolve);
+        }
     }
 }

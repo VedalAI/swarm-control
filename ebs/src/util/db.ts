@@ -1,8 +1,9 @@
 import { RowDataPacket } from "mysql2";
 import mysql from "mysql2/promise";
 import { v4 as uuid } from "uuid";
-import { Order } from "common/types";
+import { Order } from "../modules/orders/order";
 import { User } from "common/types";
+import { getTwitchUser } from "../modules/twitch";
 
 export let db: mysql.Connection;
 
@@ -31,7 +32,6 @@ async function setupDb() {
             id VARCHAR(255) PRIMARY KEY,
             login VARCHAR(255),
             displayName VARCHAR(255),
-            credit INT,
             banned BOOLEAN
         );
     `);
@@ -39,7 +39,7 @@ async function setupDb() {
         CREATE TABLE IF NOT EXISTS orders (
             id VARCHAR(36) PRIMARY KEY,
             userId VARCHAR(255) NOT NULL,
-            state INT NOT NULL DEFAULT 0,
+            state ENUM('rejected', 'prepurchase', 'cancelled', 'paid', 'failed', 'succeeded'),
             cart JSON,
             receipt VARCHAR(1024),
             result TEXT,
@@ -65,7 +65,7 @@ export async function getOrder(guid: string) {
 
 export async function createOrder(userId: string, initialState?: Omit<Partial<Order>, "id" | "userId" | "createdAt" | "updatedAt">) {
     const order: Order = {
-        state: 0,
+        state: "rejected",
         ...initialState,
         id: uuid(),
         userId,
@@ -99,9 +99,23 @@ export async function saveOrder(order: Order) {
 
 export async function getOrAddUser(id: string): Promise<User> {
     try {
+        let user = await getUser(id);
+        if (!user) {
+            user = await createUser(id);
+        }
+        return user;
+    } catch (e: any) {
+        console.error("Database query failed (getOrAddUser)");
+        console.error(e);
+        throw e;
+    }
+}
+
+export async function getUser(id: string) : Promise<User | null> {
+    try {
         const [rows] = (await db.query("SELECT * FROM users WHERE id = ?", [id])) as [RowDataPacket[], any];
-        if (rows.length === 0) {
-            return await createUser(id);
+        if (!rows.length) {
+            return null;
         }
         return rows[0] as User;
     } catch (e: any) {
@@ -112,16 +126,15 @@ export async function getOrAddUser(id: string): Promise<User> {
 }
 
 async function createUser(id: string): Promise<User> {
-    const user = {
+    const user: User = {
         id,
-        credit: 0,
         banned: false,
     };
     try {
         await db.query(
             `
-            INSERT INTO users (id, login, displayName, credit, banned)
-            VALUES (:id, :login, :displayName, :credit, :banned)`,
+            INSERT INTO users (id, login, displayName, banned)
+            VALUES (:id, :login, :displayName, :banned)`,
             user
         );
     } catch (e: any) {
@@ -137,12 +150,38 @@ export async function saveUser(user: User) {
         await db.query(
             `
             UPDATE users
-            SET login = :login, displayName = :displayName, credit = :credit, banned = :banned
+            SET login = :login, displayName = :displayName, banned = :banned
             WHERE id = :id`,
             { ...user }
         );
     } catch (e: any) {
         console.error("Database query failed (saveUser)");
+        console.error(e);
+        throw e;
+    }
+}
+
+export async function updateUserTwitchInfo(user: User) {
+    try {
+        user = {
+            ...user,
+            ...await getTwitchUser(user.id),
+        };
+    } catch (e: any) {
+        console.error("Twitch API GetUsers call failed (updateUserTwitchInfo)");
+        console.error(e);
+        throw e;
+    }
+    try {
+        await db.query(
+            `
+            UPDATE users
+            SET login = :login, displayName = :displayName
+            WHERE id = :id`,
+            { ...user }
+        );
+    } catch (e: any) {
+        console.error("Database query failed (updateUserTwitchInfo)");
         console.error(e);
         throw e;
     }

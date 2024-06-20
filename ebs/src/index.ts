@@ -28,7 +28,7 @@ async function main() {
         console.log("Listening on port " + port);
 
         require("./modules/config");
-        require("./modules/transactions");
+        require("./modules/orders");
         require("./modules/game");
         require("./modules/twitch");
 
