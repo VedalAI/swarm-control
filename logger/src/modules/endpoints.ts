@@ -24,24 +24,6 @@ app.post("/log", async (req, res) => {
                 res.status(403).send("User is banned.");
                 return;
             }
-
-            /*if (userId != logMessage.userIdInsecure) {
-                const warningMessage: LogMessage = {
-                    transactionToken: logMessage.transactionToken,
-                    userIdInsecure: userId,
-                    important: true,
-                    fields: [
-                        {
-                            header: "Someone tried to bamboozle the logger user id check",
-                            content: "Received user id: " + logMessage.userIdInsecure,
-                        },
-                    ],
-                };
-                logToDiscord(warningMessage, true);
-                logToDatabase(warningMessage, true).then();
-                res.status(403).send("Invalid user id.");
-                return;
-            }*/
         }
 
         await logToDatabase(logMessage, isBackendRequest);
