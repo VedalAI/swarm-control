@@ -1,10 +1,8 @@
-import { config as dotenv } from "dotenv";
+import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
 import { initDb } from "./util/db";
-
-dotenv();
 
 const port = 3000;
 

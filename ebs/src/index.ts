@@ -1,4 +1,4 @@
-import { config as dotenv } from "dotenv";
+import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import expressWs from "express-ws";
@@ -6,8 +6,6 @@ import bodyParser from "body-parser";
 import { asyncCatch, privateApiAuth, publicApiAuth } from "./util/middleware";
 import { initDb } from "./util/db";
 import { sendToLogger } from "./util/logger";
-
-dotenv();
 
 const port = 3000;
 

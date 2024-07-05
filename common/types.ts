@@ -3,7 +3,7 @@ export const enum LiteralTypes {
     Integer,
     Float,
     Boolean,
-    Vector
+    Vector,
 }
 
 type EnumTypeName = string;
@@ -56,7 +56,7 @@ export type Redeem = {
     args: Parameter[];
     announce?: boolean;
     moderated?: boolean;
-    
+
     image: string;
     price: number;
     sku: string;
@@ -87,23 +87,15 @@ export type Transaction = {
     token: string;
 };
 
-export type PubSubMessage = ConfigRefreshed | Banned;
-export type PubSubMessageBase = {
+export type PubSubMessage = {
     type: "config_refreshed" | "banned";
     data: string;
 };
-export type ConfigRefreshed = PubSubMessageBase & {
-    type: "config_refreshed";
-    data: string;
-}
-export type Banned = PubSubMessageBase & {
-    type: "banned";
-    data: string;
-}
+
 export type BannedData = {
     id: string;
     banned: boolean;
-}
+};
 
 export type LogMessage = {
     transactionToken: string | null;
@@ -113,8 +105,8 @@ export type LogMessage = {
 };
 
 export type User = {
-    id: string,
-    login?: string,
-    displayName?: string,
-    banned: boolean,
-}
+    id: string;
+    login?: string;
+    displayName?: string;
+    banned: boolean;
+};
