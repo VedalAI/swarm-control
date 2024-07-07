@@ -1,4 +1,4 @@
-import { Cart, LogMessage, Transaction } from "common/types";
+import { Cart, LogMessage, Transaction, Order } from "common/types";
 import { app } from "../..";
 import { parseJWT, verifyJWT } from "../../util/jwt";
 import { BitsTransactionPayload } from "../../types";
@@ -11,7 +11,6 @@ import { asyncCatch } from "../../util/middleware";
 import { sendShock } from "../../util/pishock";
 import { validatePrepurchase } from "./prepurchase";
 import { setUserBanned } from "./user";
-import { Order } from "./order";
 
 require('./user');
 
@@ -99,7 +98,7 @@ app.post(
         if (!verifyJWT(transaction.receipt)) {
             logMessage.header = "Invalid receipt";
             sendToLogger(logContext).then();
-            setUserBanned(req.user.id, true);
+            setUserBanned(req.user, true);
             res.status(403).send("Invalid receipt.");
             return;
         }

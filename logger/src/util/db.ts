@@ -1,5 +1,5 @@
 import { RowDataPacket } from "mysql2";
-import { LogMessage, Order } from "common/types";
+import { LogMessage, Order, User } from "common/types";
 import { stringify } from "./stringify";
 import { logToDiscord } from "./discord";
 import mysql from "mysql2/promise";
@@ -38,41 +38,24 @@ async function setupDb() {
     `);
 }
 
-export async function canLog(token: string | null): Promise<boolean> {
+async function getById<T>(table: string, id: string | null): Promise<T | null> {
     try {
-        if (!token) return false;
-
-        const [rows] = (await db.query("SELECT * FROM orders WHERE id = ?", [token])) as any;
-        const order = rows[0] as Order | undefined;
-
-        return order?.state === 0; // OrderState.Prepurchase
+        if (!id) return null;
+        const [rows] = (await db.query(`SELECT * FROM ${table} WHERE id = ?`, [id])) as [RowDataPacket[], any];
+        return (rows[0] as T) || null;
     } catch (e: any) {
-        console.error("Database query failed (canLog)");
-        console.error(e);
-        return true;
-    }
-}
-
-export async function getUserIdFromTransactionToken(token: string): Promise<string | null> {
-    try {
-        const [rows] = (await db.query("SELECT userId FROM orders WHERE id = ?", [token])) as [RowDataPacket[], any];
-        return rows[0].userId;
-    } catch (e: any) {
-        console.error("Database query failed (getUserIdFromTransactionToken)");
+        console.error(`Database query failed (getById from ${table})`);
         console.error(e);
         return null;
     }
 }
 
-export async function isUserBanned(userId: string): Promise<boolean> {
-    try {
-        const [rows] = (await db.query("SELECT banned FROM users WHERE id = ?", [userId])) as [RowDataPacket[], any];
-        return rows[0]?.banned;
-    } catch (e: any) {
-        console.error("Database query failed (isBanned)");
-        console.error(e);
-        return false;
-    }
+export async function getOrderById(orderId: string | null): Promise<Order | null> {
+    return getById("orders", orderId);
+}
+
+export async function getUserById(userId: string | null): Promise<User | null> {
+    return getById("users", userId);
 }
 
 export async function logToDatabase(logMessage: LogMessage, isFromBackend: boolean) {

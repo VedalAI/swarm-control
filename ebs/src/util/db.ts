@@ -1,8 +1,7 @@
 import { RowDataPacket } from "mysql2";
 import mysql from "mysql2/promise";
 import { v4 as uuid } from "uuid";
-import { Order } from "../modules/orders/order";
-import { User } from "common/types";
+import { User, Order } from "common/types";
 import { getTwitchUser } from "../modules/twitch";
 
 export let db: mysql.Connection;
