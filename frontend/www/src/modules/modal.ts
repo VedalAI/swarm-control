@@ -340,7 +340,8 @@ async function addDropdown(modal: HTMLElement, param: EnumParam) {
     for (let i = 0; i < options.length; i++) {
         const option = document.createElement("option");
         option.value = i.toString();
-        option.textContent = options[i];
+        option.disabled = options[i].startsWith('[DISABLED] ');
+        option.textContent = options[i].replace(/\[DISABLED\] /g, '');
         select.appendChild(option);
     }
 
