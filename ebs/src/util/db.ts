@@ -67,7 +67,7 @@ export async function saveOrder(order: Order) {
         SET state = ?, cart = ?, receipt = ?, result = ?, updatedAt = ?
         WHERE id = ?
     `,
-        [order.state, JSON.stringify(order.cart), order.receipt, order.receipt, order.updatedAt, order.id]
+        [order.state, JSON.stringify(order.cart), order.receipt, order.result, order.updatedAt, order.id]
     );
 }
 
@@ -135,7 +135,7 @@ export async function saveUser(user: User) {
     }
 }
 
-export async function updateUserTwitchInfo(user: User) {
+export async function updateUserTwitchInfo(user: User): Promise<User> {
     try {
         user = {
             ...user,
@@ -159,4 +159,5 @@ export async function updateUserTwitchInfo(user: User) {
         console.error(e);
         throw e;
     }
+    return user;
 }

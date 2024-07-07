@@ -197,6 +197,8 @@ app.post(
         if (!req.user.login || !req.user.displayName) {
             try {
                 await updateUserTwitchInfo(req.user);
+                userInfo.login = req.user.login!;
+                userInfo.displayName = req.user.displayName!;
             } catch (error) {
                 logContext.important = true;
                 logMessage.header = "Could not get Twitch user info";
