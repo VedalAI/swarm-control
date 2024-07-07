@@ -21,21 +21,6 @@ export async function initDb() {
             await new Promise((resolve) => setTimeout(resolve, 5000));
         }
     }
-
-    await setupDb();
-}
-
-async function setupDb() {
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS logs (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            userId VARCHAR(255),
-            transactionToken VARCHAR(255),
-            data TEXT NOT NULL,
-            fromBackend BOOLEAN NOT NULL,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    `);
 }
 
 async function getById<T>(table: string, id: string | null): Promise<T | null> {

@@ -21,31 +21,6 @@ export async function initDb() {
             await new Promise((resolve) => setTimeout(resolve, 5000));
         }
     }
-
-    await setupDb();
-}
-
-async function setupDb() {
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS users (
-            id VARCHAR(255) PRIMARY KEY,
-            login VARCHAR(255),
-            displayName VARCHAR(255),
-            banned BOOLEAN
-        );
-    `);
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS orders (
-            id VARCHAR(36) PRIMARY KEY,
-            userId VARCHAR(255) NOT NULL,
-            state ENUM('rejected', 'prepurchase', 'cancelled', 'paid', 'failed', 'succeeded'),
-            cart JSON,
-            receipt VARCHAR(1024),
-            result TEXT,
-            createdAt BIGINT,
-            updatedAt BIGINT
-        );
-    `);
 }
 
 export async function getOrder(guid: string) {
