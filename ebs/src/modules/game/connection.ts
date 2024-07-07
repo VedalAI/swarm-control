@@ -1,11 +1,10 @@
 import { Message, MessageType, TwitchUser } from "./messages";
 import { GameMessage, ResultMessage } from "./messages.game";
-import { WebSocket as ServerWS } from "ws";
+import * as ServerWS from "ws";
 import { v4 as uuid } from "uuid";
 import { CommandInvocationSource, RedeemMessage, ServerMessage } from "./messages.server";
-import { Redeem } from "common/types";
+import { Redeem, Order } from "common/types";
 import { setIngame } from "../config";
-import { Order } from "../orders/order";
 
 const VERSION = "0.1.0";
 
