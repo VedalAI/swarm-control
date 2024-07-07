@@ -339,16 +339,23 @@ async function addDropdown(modal: HTMLElement, param: EnumParam) {
     setupField(field, select, param);
     for (let i = 0; i < options.length; i++) {
         const option = document.createElement("option");
+        const name = options[i];
         option.value = i.toString();
-        option.disabled = options[i].startsWith('[DISABLED] ');
-        option.textContent = options[i].replace(/\[DISABLED\] /g, '');
+        option.disabled = name.startsWith('[DISABLED] ');
+        option.textContent = name.substring(option.disabled ? 11 : 0);
         select.appendChild(option);
+    }
+    const firstEnabled = Array.from(select.options).findIndex(op => !op.disabled);
+    if (firstEnabled < 0 || firstEnabled >= select.options.length) {
+        console.error(`No enabled options in enum ${param.type}`);
+        showErrorModal("Config error", `This redeem is misconfigured, please message AlexejheroDev\nError: ${param.type} has no enabled options`);
+        return;
     }
 
     if (param.defaultValue !== undefined) {
         select.value = param.defaultValue;
     } else {
-        select.value = select.options[0].value;
+        select.value = select.options[firstEnabled].value;
     }
     modal.appendChild(field);
 }
