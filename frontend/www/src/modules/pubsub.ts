@@ -1,19 +1,28 @@
-import { Config, PubSubMessage } from "common/types";
-import { postProcessConfig, setConfig } from "../util/config";
+import { BannedData, Config, PubSubMessage } from "common/types";
+import { setConfig } from "../util/config";
 import { renderRedeemButtons } from "./redeems";
 import { strToU8, decompressSync, strFromU8 } from "fflate";
+import { getBanned, setBanned } from "./auth";
 
 Twitch.ext.listen("global", async (_t, _c, message) => {
-    const pubSubMessage = JSON.parse(message) as PubSubMessage;
+    const fullMessage = JSON.parse(message) as PubSubMessage;
 
-    console.log(pubSubMessage);
+    console.log(fullMessage);
 
-    switch (pubSubMessage.type) {
+    switch (fullMessage.type) {
         case "config_refreshed":
-            const config = JSON.parse(strFromU8(decompressSync(strToU8(pubSubMessage.data, true)))) as Config;
-            // console.log(config);
-            await setConfig(postProcessConfig(config));
-            await renderRedeemButtons();
+            const config = JSON.parse(strFromU8(decompressSync(strToU8(fullMessage.data, true)))) as Config;
+            setConfig(config);
+            if (!getBanned()) {
+                await renderRedeemButtons();
+            }
+            break;
+        case "banned":
+            const data = JSON.parse(fullMessage.data) as BannedData;
+            const bannedId = data.id;
+            if (bannedId === Twitch.ext.viewer.id) {
+                setBanned(data.banned);
+            }
             break;
     }
 });

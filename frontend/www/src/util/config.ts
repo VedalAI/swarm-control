@@ -3,36 +3,29 @@ import { Config } from "common/types";
 
 let config: Config;
 
-export function postProcessConfig(config: Config): Config {
-    if (config.banned && config.banned.includes(Twitch.ext.viewer.id!)) {
-        return {
-            version: -1,
-            redeems: {},
-            enums: {},
-            banned: [Twitch.ext.viewer.id!],
-            message: "You are banned from using this extension",
-        } satisfies Config;
-    }
-
-    return config;
-}
+const emptyConfig: Config = {
+    version: -1,
+    redeems: {},
+    enums: {},
+};
 
 async function fetchConfig() {
     const response = await ebsFetch("/public/config");
 
     if (!response.ok) {
         return {
-            version: -1,
-            redeems: {},
-            enums: {},
-            banned: [],
+            ...emptyConfig,
             message: `An error occurred while fetching the config\n${response.status} ${response.statusText} - ${await response.text()}`,
         } satisfies Config;
     }
 
     const config: Config = await response.json();
 
-    return postProcessConfig(config);
+    return config;
+}
+
+export async function refreshConfig() {
+    config = await fetchConfig();
 }
 
 export async function getConfig(): Promise<Config> {
@@ -43,6 +36,6 @@ export async function getConfig(): Promise<Config> {
     return config;
 }
 
-export async function setConfig(newConfig: Config) {
+export function setConfig(newConfig: Config) {
     config = newConfig;
 }

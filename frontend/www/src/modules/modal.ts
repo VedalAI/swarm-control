@@ -2,6 +2,7 @@ import { BooleanParam, Cart, EnumParam, LiteralTypes, NumericParam, Parameter, R
 import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
 import { logToDiscord } from "../util/logger";
+import { setBanned } from "./auth";
 
 document.body.addEventListener("dblclick", (e) => {
     e.stopPropagation();
@@ -247,6 +248,7 @@ async function prePurchase() {
     if (!response.ok) {
         hideProcessingModal();
         if (response.status == 403) {
+            setBanned(true);
             showErrorModal("You are banned from using this extension.", `${response.status} ${response.statusText} - ${await response.text()}\n`);
         } else {
             showErrorModal(

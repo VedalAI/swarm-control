@@ -15,12 +15,12 @@ export async function logToDiscord(data: LogMessage) {
         });
 
         if (!result.ok) {
-            console.error("Failed to log to Discord");
+            console.error("Failed to log to backend");
             console.error(await result.text());
             console.log(data);
         }
     } catch (e: any) {
-        console.error("Error when logging to Discord");
+        console.error("Error when logging to backend");
         console.error(e);
         console.log(data);
     }

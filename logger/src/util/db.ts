@@ -1,52 +1,46 @@
-import { db } from "..";
 import { RowDataPacket } from "mysql2";
-import { LogMessage } from "common/types";
+import { LogMessage, Order, User } from "common/types";
 import { stringify } from "./stringify";
 import { logToDiscord } from "./discord";
+import mysql from "mysql2/promise";
 
-export async function canLog(token: string | null): Promise<boolean> {
-    try {
-        if (!token) return false;
+export let db: mysql.Connection;
 
-        const [rows] = (await db.query("SELECT COUNT(*) FROM prepurchases WHERE token = ?", [token])) as any;
-        if (rows[0]["COUNT(*)"] != 0) return true;
-
-        const [rows2] = (await db.query("SELECT COUNT(*) FROM transactions WHERE token = ?", [token])) as any;
-        if (rows2[0]["COUNT(*)"] != 0) return true;
-
-        return false;
-    } catch (e: any) {
-        console.error("Database query failed (canLog)");
-        console.error(e);
-        return true;
+export async function initDb() {
+    while (!db) {
+        try {
+            db = await mysql.createConnection({
+                host: process.env.MYSQL_HOST,
+                user: process.env.MYSQL_USER,
+                password: process.env.MYSQL_PASSWORD,
+                database: process.env.MYSQL_DATABASE,
+                namedPlaceholders: true,
+            });
+        } catch {
+            console.log("Failed to connect to database. Retrying in 5 seconds...");
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+        }
     }
 }
 
-export async function getUserIdFromTransactionToken(token: string): Promise<string | null> {
+async function getById<T>(table: string, id: string | null): Promise<T | null> {
     try {
-        try {
-            const [rows] = (await db.query("SELECT userId FROM prepurchases WHERE token = ?", [token])) as [RowDataPacket[], any];
-            return rows[0].userId;
-        } catch (e: any) {
-            const [rows] = (await db.query("SELECT userId FROM transactions WHERE token = ?", [token])) as [RowDataPacket[], any];
-            return rows[0].userId;
-        }
+        if (!id) return null;
+        const [rows] = (await db.query(`SELECT * FROM ${table} WHERE id = ?`, [id])) as [RowDataPacket[], any];
+        return (rows[0] as T) || null;
     } catch (e: any) {
-        console.error("Database query failed (getUserIdFromTransactionToken)");
+        console.error(`Database query failed (getById from ${table})`);
         console.error(e);
         return null;
     }
 }
 
-export async function isUserBanned(userId: string): Promise<boolean> {
-    try {
-        const [rows] = (await db.query("SELECT COUNT(*) FROM bans WHERE userId = ?", [userId])) as [RowDataPacket[], any];
-        return rows[0]["COUNT(*)"] != 0;
-    } catch (e: any) {
-        console.error("Database query failed (isBanned)");
-        console.error(e);
-        return false;
-    }
+export async function getOrderById(orderId: string | null): Promise<Order | null> {
+    return getById("orders", orderId);
+}
+
+export async function getUserById(userId: string | null): Promise<User | null> {
+    return getById("users", userId);
 }
 
 export async function logToDatabase(logMessage: LogMessage, isFromBackend: boolean) {

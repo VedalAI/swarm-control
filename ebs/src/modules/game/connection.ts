@@ -1,9 +1,9 @@
 import { Message, MessageType, TwitchUser } from "./messages";
-import { ResultMessage, GameMessage } from "./messages.game";
+import { GameMessage, ResultMessage } from "./messages.game";
 import * as ServerWS from "ws";
 import { v4 as uuid } from "uuid";
 import { CommandInvocationSource, RedeemMessage, ServerMessage } from "./messages.server";
-import { Cart, Redeem } from "common/types";
+import { Redeem, Order } from "common/types";
 import { setIngame } from "../config";
 
 const VERSION = "0.1.0";
@@ -34,7 +34,7 @@ export class GameConnection {
         console.log("Connected to game");
         this.handshake = false;
         this.resendIntervalHandle = +setInterval(() => this.tryResendFromQueue(), this.resendInterval);
-        ws.on('message', async (message) => {
+        ws.on("message", async (message) => {
             const msgText = message.toString();
             let msg: GameMessage;
             try {
@@ -43,21 +43,20 @@ export class GameConnection {
                 console.error("Could not parse message" + msgText);
                 return;
             }
-            if (msg.messageType !== MessageType.Ping)
-                console.log(`Got message ${JSON.stringify(msg)}`);
+            if (msg.messageType !== MessageType.Ping) console.log(`Got message ${JSON.stringify(msg)}`);
             this.processMessage(msg);
         });
         ws.on("close", (code, reason) => {
-            const reasonStr = reason ? `reason '${reason}'` : "no reason"
+            const reasonStr = reason ? `reason '${reason}'` : "no reason";
             console.log(`Game socket closed with code ${code} and ${reasonStr}`);
             setIngame(false);
             if (this.resendIntervalHandle) {
                 clearInterval(this.resendIntervalHandle);
             }
-        })
+        });
         ws.on("error", (error) => {
             console.log(`Game socket error\n${error}`);
-        })
+        });
     }
     public processMessage(msg: GameMessage) {
         switch (msg.messageType) {
@@ -66,11 +65,15 @@ export class GameConnection {
                 const reply = {
                     ...this.makeMessage(MessageType.HelloBack),
                     allowed: msg.version == VERSION,
-                }
-                this.sendMessage(reply).then().catch(e => e);
+                };
+                this.sendMessage(reply)
+                    .then()
+                    .catch((e) => e);
                 break;
             case MessageType.Ping:
-                this.sendMessage(this.makeMessage(MessageType.Pong)).then().catch(e => e);
+                this.sendMessage(this.makeMessage(MessageType.Pong))
+                    .then()
+                    .catch((e) => e);
                 break;
             case MessageType.Result:
                 if (!this.outstandingRedeems.has(msg.guid)) {
@@ -116,8 +119,7 @@ export class GameConnection {
                     reject(err);
                     return;
                 }
-                if (msg.messageType !== MessageType.Pong)
-                    console.debug(`Sent message ${JSON.stringify(msg)}`);
+                if (msg.messageType !== MessageType.Pong) console.debug(`Sent message ${JSON.stringify(msg)}`);
                 resolve();
             });
         });
@@ -126,27 +128,27 @@ export class GameConnection {
         return {
             messageType: type,
             guid: guid ?? uuid(),
-            timestamp: Date.now()
-        }
+            timestamp: Date.now(),
+        };
     }
-    public redeem(redeem: Redeem, cart: Cart, user: TwitchUser, transactionId: string) : Promise<ResultMessage> {
+    public redeem(redeem: Redeem, order: Order, user: TwitchUser): Promise<ResultMessage> {
         return Promise.race([
-            new Promise<any>((_, reject) => setTimeout(() => reject(`Timed out waiting for result. The redeem may still go through later, contact Alexejhero if it doesn't.`), GameConnection.resultWaitTimeout)),
+            new Promise<any>((_, reject) =>
+                setTimeout(
+                    () => reject(`Timed out waiting for result. The redeem may still go through later, contact AlexejheroDev if it doesn't.`),
+                    GameConnection.resultWaitTimeout
+                )
+            ),
             new Promise<ResultMessage>((resolve, reject) => {
-                if (!transactionId) {
-                    reject(`Tried to redeem without transaction ID`);
-                    return;
-                }
-    
                 const msg: RedeemMessage = {
                     ...this.makeMessage(MessageType.Redeem),
-                    guid: transactionId,
+                    guid: order.id,
                     source: CommandInvocationSource.Swarm,
                     command: redeem.id,
                     title: redeem.title,
                     announce: redeem.announce ?? true,
-                    args: cart.args,
-                    user
+                    args: order.cart!.args,
+                    user,
                 } as RedeemMessage;
                 if (this.outstandingRedeems.has(msg.guid)) {
                     reject(`Redeeming ${msg.guid} more than once`);
@@ -154,9 +156,11 @@ export class GameConnection {
                 }
                 this.outstandingRedeems.set(msg.guid, msg);
                 this.resultHandlers.set(msg.guid, resolve);
-    
-                this.sendMessage(msg).then().catch(e => e); // will get queued to re-send later
-            })
+
+                this.sendMessage(msg)
+                    .then()
+                    .catch((e) => e); // will get queued to re-send later
+            }),
         ]);
     }
 
@@ -178,7 +182,9 @@ export class GameConnection {
         }
 
         console.log(`Re-sending message ${JSON.stringify(msg)}`);
-        this.sendMessage(msg).then().catch(e => e);
+        this.sendMessage(msg)
+            .then()
+            .catch((e) => e);
     }
     public stressTestSetHandshake(handshake: boolean) {
         this.handshake = handshake;
@@ -189,5 +195,17 @@ export class GameConnection {
     }
     public getOutstanding() {
         return Array.from(this.outstandingRedeems.values());
+    }
+
+    public onResult(guid: string, resolve: (result: ResultMessage) => void) {
+        const existing = this.resultHandlers.get(guid);
+        if (existing) {
+            this.resultHandlers.set(guid, (result: ResultMessage) => {
+                existing(result);
+                resolve(result);
+            });
+        } else {
+            this.resultHandlers.set(guid, resolve);
+        }
     }
 }

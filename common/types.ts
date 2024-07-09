@@ -3,7 +3,7 @@ export const enum LiteralTypes {
     Integer,
     Float,
     Boolean,
-    Vector
+    Vector,
 }
 
 type EnumTypeName = string;
@@ -56,7 +56,7 @@ export type Redeem = {
     args: Parameter[];
     announce?: boolean;
     moderated?: boolean;
-    
+
     image: string;
     price: number;
     sku: string;
@@ -68,7 +68,6 @@ export type Config = {
     version: number;
     enums?: { [name: string]: string[] };
     redeems?: { [id: string]: Redeem };
-    banned?: string[];
     message?: string;
 };
 
@@ -89,8 +88,13 @@ export type Transaction = {
 };
 
 export type PubSubMessage = {
-    type: string;
+    type: "config_refreshed" | "banned";
     data: string;
+};
+
+export type BannedData = {
+    id: string;
+    banned: boolean;
 };
 
 export type LogMessage = {
@@ -98,4 +102,30 @@ export type LogMessage = {
     userIdInsecure: string | null;
     important: boolean;
     fields: { header: string; content: any }[];
+};
+
+export type User = {
+    id: string;
+    login?: string;
+    displayName?: string;
+    banned: boolean;
+};
+
+export type OrderState =
+    | "rejected"
+    | "prepurchase"
+    | "cancelled"
+    | "paid" // waiting for game
+    | "failed" // game failed/timed out
+    | "succeeded";
+
+export type Order = {
+    id: string;
+    userId: string;
+    state: OrderState;
+    cart?: Cart;
+    receipt?: string;
+    result?: string;
+    createdAt: number;
+    updatedAt: number;
 };

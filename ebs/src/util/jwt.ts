@@ -22,8 +22,7 @@ export function parseJWT(token: string) {
 }
 
 function getJwtSecretBuffer() {
-    if (cachedBuffer) return cachedBuffer;
-    return cachedBuffer = Buffer.from(process.env.JWT_SECRET!, "base64");
+    return cachedBuffer ??= Buffer.from(process.env.JWT_SECRET!, "base64");
 }
 
 export function signJWT(payload: object, buffer: Buffer = getJwtSecretBuffer()) {

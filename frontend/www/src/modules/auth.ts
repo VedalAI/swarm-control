@@ -3,16 +3,43 @@ import { ebsFetch } from "../util/ebs";
 import { hideProcessingModal, openModal, showErrorModal, showSuccessModal, transactionToken } from "./modal";
 import { logToDiscord } from "../util/logger";
 import { renderRedeemButtons } from "./redeems";
+import { refreshConfig, setConfig } from "../util/config";
 
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
 
 document.addEventListener("DOMContentLoaded", () => ($loginButton.onclick = Twitch.ext.actions.requestIdShare));
 
+let _banned = false;
+export function getBanned() {
+    return _banned;
+}
+
+export async function setBanned(banned: boolean) {
+    if (_banned === banned) return;
+
+    _banned = banned;
+    if (banned) {
+        setConfig({ version: -1, message: "You have been banned from using this extension." });
+        renderRedeemButtons().then();
+    } else {
+        await refreshConfig();
+        renderRedeemButtons().then();
+    }
+}
+
 Twitch.ext.onAuthorized(() => {
     $loginPopup.style.display = Twitch.ext.viewer.id ? "none" : "";
     if (Twitch.ext.viewer.id) {
-        renderRedeemButtons().then();
+        ebsFetch("public/authorized", {
+            method: "POST",
+            body: JSON.stringify({ userId: Twitch.ext.viewer.id }),
+        }).then((res) => {
+            if (res.status === 403) {
+                setBanned(true);
+            }
+            renderRedeemButtons().then();
+        });
     }
 });
 
@@ -108,10 +135,10 @@ Twitch.ext.bits.onTransactionCancelled(async () => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ "token": transactionToken }),
+            body: JSON.stringify({ token: transactionToken }),
         });
     }
-    
+
     hideProcessingModal();
     showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken}`);
 });

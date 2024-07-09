@@ -1,15 +1,12 @@
 import { RowDataPacket } from "mysql2";
 import mysql from "mysql2/promise";
-import { IdentifiableCart } from "common/types";
 import { v4 as uuid } from "uuid";
+import { User, Order } from "common/types";
+import { getTwitchUser } from "../modules/twitch";
 
 export let db: mysql.Connection;
 
 export async function initDb() {
-    if (!process.env.MYSQL_HOST) {
-        console.warn("No MYSQL_HOST specified (assuming local testing/development), skipping database setup");
-        return;
-    }
     while (!db) {
         try {
             db = await mysql.createConnection({
@@ -17,125 +14,150 @@ export async function initDb() {
                 user: process.env.MYSQL_USER,
                 password: process.env.MYSQL_PASSWORD,
                 database: process.env.MYSQL_DATABASE,
+                namedPlaceholders: true,
             });
         } catch {
             console.log("Failed to connect to database. Retrying in 5 seconds...");
             await new Promise((resolve) => setTimeout(resolve, 5000));
         }
     }
-
-    await setupDb();
 }
 
-export async function setupDb() {
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS transactions (
-            receipt VARCHAR(1024) PRIMARY KEY,
-            token VARCHAR(255) NOT NULL,
-            userId VARCHAR(255) NOT NULL
+export async function getOrder(guid: string) {
+    try {
+        const [rows] = (await db.query("SELECT * FROM orders WHERE id = ?", [guid])) as [RowDataPacket[], any];
+        if (!rows.length) {
+            return null;
+        }
+        return rows[0] as Order;
+    } catch (e: any) {
+        console.error("Database query failed (getOrder)");
+        console.error(e);
+        throw e;
+    }
+}
+
+export async function createOrder(userId: string, initialState?: Omit<Partial<Order>, "id" | "userId" | "createdAt" | "updatedAt">) {
+    const order: Order = {
+        state: "rejected",
+        ...initialState,
+        id: uuid(),
+        userId,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    };
+    try {
+        await db.query(`
+            INSERT INTO orders (id, userId, state, cart, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [order.id, order.userId, order.state, JSON.stringify(order.cart), order.createdAt, order.updatedAt]);
+        return order;
+    } catch (e: any) {
+        console.error("Database query failed (createOrder)");
+        console.error(e);
+        throw e;
+    }
+}
+
+export async function saveOrder(order: Order) {
+    order.updatedAt = Date.now();
+    await db.query(
+        `
+        UPDATE orders
+        SET state = ?, cart = ?, receipt = ?, result = ?, updatedAt = ?
+        WHERE id = ?
+    `,
+        [order.state, JSON.stringify(order.cart), order.receipt, order.result, order.updatedAt, order.id]
+    );
+}
+
+export async function getOrAddUser(id: string): Promise<User> {
+    try {
+        const [rows] = (await db.query("SELECT * FROM users WHERE id = ?", [id])) as [RowDataPacket[], any];
+        if (!rows.length) {
+            return await createUser(id);
+        }
+        return rows[0] as User;
+    } catch (e: any) {
+        console.error("Database query failed (getOrAddUser)");
+        console.error(e);
+        throw e;
+    }
+}
+
+export async function lookupUser(idOrName: string) : Promise<User | null> {
+    try {
+        const [rows] = (await db.query("SELECT * FROM users WHERE id = :idOrName OR login LIKE :idOrName OR displayName LIKE :idOrName", {idOrName})) as [RowDataPacket[], any];
+        if (!rows.length) {
+            return null;
+        }
+        return rows[0] as User;
+    } catch (e: any) {
+        console.error("Database query failed (getUser)");
+        console.error(e);
+        throw e;
+    }
+}
+
+async function createUser(id: string): Promise<User> {
+    const user: User = {
+        id,
+        banned: false,
+    };
+    try {
+        await db.query(
+            `
+            INSERT INTO users (id, login, displayName, banned)
+            VALUES (:id, :login, :displayName, :banned)`,
+            user
         );
-    `);
+    } catch (e: any) {
+        console.error("Database query failed (createUser)");
+        console.error(e);
+        throw e;
+    }
+    return user;
+}
 
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS prepurchases (
-            token VARCHAR(255) PRIMARY KEY,
-            cart JSON NOT NULL,
-            userId VARCHAR(255) NOT NULL
+export async function saveUser(user: User) {
+    try {
+        await db.query(
+            `
+            UPDATE users
+            SET login = :login, displayName = :displayName, banned = :banned
+            WHERE id = :id`,
+            { ...user }
         );
-    `);
+    } catch (e: any) {
+        console.error("Database query failed (saveUser)");
+        console.error(e);
+        throw e;
+    }
+}
 
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS bans (
-            userId VARCHAR(255) PRIMARY KEY
+export async function updateUserTwitchInfo(user: User): Promise<User> {
+    try {
+        user = {
+            ...user,
+            ...await getTwitchUser(user.id),
+        };
+    } catch (e: any) {
+        console.error("Twitch API GetUsers call failed (updateUserTwitchInfo)");
+        console.error(e);
+        throw e;
+    }
+    try {
+        await db.query(
+            `
+            UPDATE users
+            SET login = :login, displayName = :displayName
+            WHERE id = :id`,
+            { ...user }
         );
-    `);
-
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS logs (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            userId VARCHAR(255),
-            transactionToken VARCHAR(255),
-            data TEXT NOT NULL,
-            fromBackend BOOLEAN NOT NULL,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    `);
-}
-
-export async function isReceiptUsed(receipt: string): Promise<boolean> {
-    try {
-        const [rows] = (await db.query("SELECT COUNT(*) FROM transactions WHERE receipt = ?", [receipt])) as [RowDataPacket[], any];
-        return rows[0]["COUNT(*)"] != 0;
     } catch (e: any) {
-        console.error("Database query failed (isReceiptUsed)");
+        console.error("Database query failed (updateUserTwitchInfo)");
         console.error(e);
         throw e;
     }
-}
-
-export async function addFulfilledTransaction(receipt: string, token: string, userId: string) {
-    try {
-        await db.query("INSERT INTO transactions (receipt, token, userId) VALUES (?, ?, ?)", [receipt, token, userId]);
-        await db.query("DELETE FROM prepurchases WHERE token = ?", [token]);
-    } catch (e: any) {
-        console.error("Database query failed (addFulfilledTransaction)");
-        console.error(e);
-        throw e;
-    }
-}
-
-export async function registerPrepurchase(cart: IdentifiableCart): Promise<string> {
-    try {
-        const token = uuid();
-        await db.query("INSERT INTO prepurchases (token, cart, userId) VALUES (?, ?, ?)", [token, JSON.stringify(cart), cart.userId]);
-        return token;
-    } catch (e: any) {
-        console.error("Database query failed (registerPrepurchase)");
-        console.error(e);
-        throw e;
-    }
-}
-
-export async function getPrepurchase(token: string): Promise<IdentifiableCart | undefined> {
-    try {
-        const [rows] = (await db.query("SELECT cart FROM prepurchases WHERE token = ?", [token])) as [RowDataPacket[], any];
-        if (rows.length === 0) return undefined;
-        return rows[0].cart as IdentifiableCart;
-    } catch (e: any) {
-        console.error("Database query failed (isPrepurchaseValid)");
-        console.error(e);
-        throw e;
-    }
-}
-
-export async function deletePrepurchase(token: string) {
-    try {
-        await db.query("DELETE FROM prepurchases WHERE token = ?", [token]);
-    } catch (e: any) {
-        console.error("Database query failed (deletePrepurchase)");
-        console.error(e);
-        throw e;
-    }
-}
-
-export async function isUserBanned(userId: string): Promise<boolean> {
-    try {
-        const [rows] = (await db.query("SELECT COUNT(*) FROM bans WHERE userId = ?", [userId])) as [RowDataPacket[], any];
-        return rows[0]["COUNT(*)"] != 0;
-    } catch (e: any) {
-        console.error("Database query failed (isBanned)");
-        console.error(e);
-        throw e;
-    }
-}
-
-export async function getBannedUsers(): Promise<string[]> {
-    try {
-        const [rows] = (await db.query("SELECT userId FROM bans")) as [RowDataPacket[], any];
-        return rows.map((row) => row.userId);
-    } catch (e: any) {
-        console.error("Database query failed (getBannedUsers)");
-        console.error(e);
-        throw e;
-    }
+    return user;
 }

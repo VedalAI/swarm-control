@@ -1,29 +1,28 @@
 import { app } from "..";
 import { logToDiscord } from "../util/discord";
-import { LogMessage } from "common/types";
-import { canLog, getUserIdFromTransactionToken, isUserBanned, logToDatabase } from "../util/db";
+import { LogMessage, OrderState } from "common/types";
+import { getOrderById, getUserById, logToDatabase } from "../util/db";
+
+// prevent replaying completed transactions
+const orderStatesCanLog: { [key in OrderState]: boolean } = {
+    rejected: false, // completed
+    prepurchase: true, // idk some js errors or something
+    cancelled: false, // completed
+    paid: true, // log timeout response
+    failed: true, // log error
+    succeeded: false, // completed
+};
+const rejectLogsWithNoToken = true;
 
 app.post("/log", async (req, res) => {
     try {
         const logMessage = req.body as LogMessage & { backendToken?: string };
         const isBackendRequest = process.env.PRIVATE_LOGGER_TOKEN == logMessage.backendToken;
 
-        if (!isBackendRequest) {
-            const validTransactionToken = await canLog(logMessage.transactionToken);
-            if (!validTransactionToken) {
-                res.status(403).send("Invalid transaction token.");
-                return;
-            }
-
-            // Even if the transaction token is valid, this might be a malicious request using a previously created token.
-            // In the eventuality that this happens, we also check for extension bans here.
-
-            const userId = await getUserIdFromTransactionToken(logMessage.transactionToken!);
-
-            if (userId && (await isUserBanned(userId))) {
-                res.status(403).send("User is banned.");
-                return;
-            }
+        const logDenied = await canLog(logMessage, isBackendRequest);
+        if (logDenied) {
+            res.status(logDenied.status).send(logDenied.reason);
+            return;
         }
 
         await logToDatabase(logMessage, isBackendRequest);
@@ -39,3 +38,65 @@ app.post("/log", async (req, res) => {
         res.status(500).send("Failed to log");
     }
 });
+
+type LogDenied = {
+    status: number;
+    reason: string;
+};
+async function canLog(logMessage: LogMessage, isBackendRequest: boolean): Promise<LogDenied | null> {
+    if (isBackendRequest) return null;
+
+    if (!logMessage.transactionToken && rejectLogsWithNoToken) return { status: 400, reason: "Invalid transaction token." };
+
+    const claimedUser = await getUserById(logMessage.userIdInsecure);
+    if (!claimedUser) {
+        return { status: 403, reason: "Invalid user id." };
+    }
+    if (claimedUser.banned) {
+        return { status: 403, reason: "User is banned." };
+    }
+
+    const order = await getOrderById(logMessage.transactionToken);
+    if (!order || !orderStatesCanLog[order.state]) {
+        return { status: 400, reason: "Invalid transaction token." };
+    }
+
+    const errorContext: LogMessage = {
+        transactionToken: logMessage.transactionToken,
+        userIdInsecure: logMessage.userIdInsecure,
+        important: true,
+        fields: [{ header: "", content: {} }],
+    };
+    const errorMessage = errorContext.fields[0];
+
+    const user = await getUserById(order.userId);
+    if (!user) {
+        errorMessage.header = "Tried to log for order whose userId is not in users table";
+        errorMessage.content = {
+            orderUser: order.userId,
+            order: order.id,
+            logMessage,
+        };
+        logToDiscord(errorContext, false);
+        logToDatabase(errorContext, false).then();
+        return { status: 500, reason: "Invalid user id in transaction." };
+    }
+    if (user.id != logMessage.userIdInsecure) {
+        errorMessage.header = "Someone tried to bamboozle the logger user id check";
+        errorMessage.content = {
+            claimedUser: logMessage.userIdInsecure,
+            orderUser: user.id,
+            order: order.id,
+            logMessage,
+        };
+        logToDiscord(errorContext, false);
+        logToDatabase(errorContext, false).then();
+        return { status: 403, reason: "Invalid user id." };
+    }
+
+    if (user.banned) {
+        return { status: 403, reason: "User is banned." };
+    }
+
+    return null;
+}
