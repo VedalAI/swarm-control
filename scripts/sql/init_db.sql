@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(255) PRIMARY KEY,
     login VARCHAR(255),
     displayName VARCHAR(255),
-    banned BOOLEAN
+    banned BOOLEAN NOT NULL DEFAULT 0,
+    credit INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS orders (

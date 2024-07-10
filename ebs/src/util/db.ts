@@ -1,7 +1,7 @@
 import { RowDataPacket } from "mysql2";
 import mysql from "mysql2/promise";
 import { v4 as uuid } from "uuid";
-import { User, Order } from "common/types";
+import { User, Order, Cart } from "common/types";
 import { getTwitchUser } from "../modules/twitch";
 
 export let db: mysql.Connection;
@@ -37,20 +37,21 @@ export async function getOrder(guid: string) {
     }
 }
 
-export async function createOrder(userId: string, initialState?: Omit<Partial<Order>, "id" | "userId" | "createdAt" | "updatedAt">) {
+export async function createOrder(userId: string, cart: Cart) {
     const order: Order = {
         state: "rejected",
-        ...initialState,
+        cart,
         id: uuid(),
         userId,
         createdAt: Date.now(),
         updatedAt: Date.now(),
     };
     try {
-        await db.query(`
-            INSERT INTO orders (id, userId, state, cart, createdAt, updatedAt)
+        await db.query(
+            `INSERT INTO orders (id, userId, state, cart, createdAt, updatedAt)
             VALUES (?, ?, ?, ?, ?, ?)`,
-            [order.id, order.userId, order.state, JSON.stringify(order.cart), order.createdAt, order.updatedAt]);
+            [order.id, order.userId, order.state, JSON.stringify(order.cart), order.createdAt, order.updatedAt]
+        );
         return order;
     } catch (e: any) {
         console.error("Database query failed (createOrder)");
@@ -62,11 +63,9 @@ export async function createOrder(userId: string, initialState?: Omit<Partial<Or
 export async function saveOrder(order: Order) {
     order.updatedAt = Date.now();
     await db.query(
-        `
-        UPDATE orders
+        `UPDATE orders
         SET state = ?, cart = ?, receipt = ?, result = ?, updatedAt = ?
-        WHERE id = ?
-    `,
+        WHERE id = ?`,
         [order.state, JSON.stringify(order.cart), order.receipt, order.result, order.updatedAt, order.id]
     );
 }
@@ -85,9 +84,16 @@ export async function getOrAddUser(id: string): Promise<User> {
     }
 }
 
-export async function lookupUser(idOrName: string) : Promise<User | null> {
+export async function lookupUser(idOrName: string): Promise<User | null> {
     try {
-        const [rows] = (await db.query("SELECT * FROM users WHERE id = :idOrName OR login LIKE :idOrName OR displayName LIKE :idOrName", {idOrName})) as [RowDataPacket[], any];
+        const lookupStr = `%${idOrName}%`;
+        const [rows] = (await db.query(
+            `SELECT * FROM users
+            WHERE id = :idOrName
+            OR login LIKE :lookupStr
+            OR displayName LIKE :lookupStr`,
+            { idOrName, lookupStr }
+        )) as [RowDataPacket[], any];
         if (!rows.length) {
             return null;
         }
@@ -103,12 +109,13 @@ async function createUser(id: string): Promise<User> {
     const user: User = {
         id,
         banned: false,
+        credit: 0,
     };
     try {
         await db.query(
             `
-            INSERT INTO users (id, login, displayName, banned)
-            VALUES (:id, :login, :displayName, :banned)`,
+            INSERT INTO users (id, login, displayName, banned, credit)
+            VALUES (:id, :login, :displayName, :banned, :credit)`,
             user
         );
     } catch (e: any) {
@@ -124,7 +131,10 @@ export async function saveUser(user: User) {
         await db.query(
             `
             UPDATE users
-            SET login = :login, displayName = :displayName, banned = :banned
+            SET login = :login,
+                displayName = :displayName,
+                banned = :banned,
+                credit = :credit
             WHERE id = :id`,
             { ...user }
         );
@@ -139,7 +149,7 @@ export async function updateUserTwitchInfo(user: User): Promise<User> {
     try {
         user = {
             ...user,
-            ...await getTwitchUser(user.id),
+            ...(await getTwitchUser(user.id)),
         };
     } catch (e: any) {
         console.error("Twitch API GetUsers call failed (updateUserTwitchInfo)");

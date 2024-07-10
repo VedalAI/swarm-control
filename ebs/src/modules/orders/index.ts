@@ -39,7 +39,7 @@ app.post(
         }
         let order: Order;
         try {
-            order = await createOrder(userId, { cart });
+            order = await createOrder(userId, cart);
         } catch (e: any) {
             logContext.important = true;
             logMessage.header = "Failed to register prepurchase";

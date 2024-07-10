@@ -109,6 +109,7 @@ export type User = {
     login?: string;
     displayName?: string;
     banned: boolean;
+    credit: number;
 };
 
 export type OrderState =
