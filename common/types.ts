@@ -130,3 +130,5 @@ export type Order = {
     createdAt: number;
     updatedAt: number;
 };
+
+export type Callback<T> = (data: T) => void;

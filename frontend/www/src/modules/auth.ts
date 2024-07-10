@@ -9,10 +9,6 @@ const $loginButton = document.getElementById("twitch-login")!;
 document.addEventListener("DOMContentLoaded", () => {
     $loginButton.onclick = async () => {
         const res = await twitchAuth();
-        if (res === "revoked") {
-            $loginPopup.style.display = "";
-            return;
-        }
         $loginPopup.style.display = "none";
         ebsFetch("public/authorized", {
             method: "POST",
@@ -23,10 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             renderRedeemButtons().then();
         });
-    }
+    };
 });
 
 let _banned = false;
+const callbacks: (() => void)[] = [];
 export function getBanned() {
     return _banned;
 }
@@ -36,6 +33,7 @@ export async function setBanned(banned: boolean) {
 
     _banned = banned;
     if (banned) {
+        callbacks.forEach((c) => c());
         setConfig({ version: -1, message: "You have been banned from using this extension." });
         renderRedeemButtons().then();
     } else {
