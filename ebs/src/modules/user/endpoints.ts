@@ -11,9 +11,12 @@ app.post(
     })
 );
 
-app.get("/private/user/:idOrName", asyncCatch(async (req, res) => {
-    res.json(await lookupUser(req.params["idOrName"]));
-}));
+app.get(
+    "/private/user/:idOrName",
+    asyncCatch(async (req, res) => {
+        res.json(await lookupUser(req.params["idOrName"]));
+    })
+);
 
 app.post(
     "/private/user/:idOrName/ban",

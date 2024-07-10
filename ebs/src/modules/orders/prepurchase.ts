@@ -2,7 +2,7 @@ import { Cart, Config, LogMessage, Order } from "common/types";
 import { sendToLogger } from "../../util/logger";
 import { getConfig } from "../config";
 
-export async function validatePrepurchase(order: Order) : Promise<string | null> {
+export async function validatePrepurchase(order: Order): Promise<string | null> {
     const logContext: LogMessage = {
         transactionToken: null,
         userIdInsecure: order.userId,
@@ -46,7 +46,7 @@ export async function validatePrepurchase(order: Order) : Promise<string | null>
         await sendToLogger(logContext);
         return "Invalid arguments";
     }
-    
+
     return null;
 }
 

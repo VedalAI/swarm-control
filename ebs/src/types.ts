@@ -9,7 +9,7 @@ export type AuthorizationPayload = {
         listen: string[];
         send: string[];
     };
-}
+};
 
 export type BitsTransactionPayload = {
     topic: string;
@@ -25,7 +25,7 @@ export type BitsTransactionPayload = {
             cost: {
                 amount: number;
                 type: "bits";
-            }
+            };
         };
-    }
+    };
 };

@@ -25,7 +25,7 @@ export function isStressTesting(): boolean {
 let activeInterval: number;
 
 export async function startStressTest(type: StressTestType, duration: number, interval: number) {
-    console.log(`Starting stress test ${StressTestType[type]} for ${duration}ms`)
+    console.log(`Starting stress test ${StressTestType[type]} for ${duration}ms`);
     switch (type) {
         case StressTestType.GameSpawnQueue:
             activeInterval = +setInterval(() => sendSpawnRedeem().then(), interval);
