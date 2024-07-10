@@ -3,6 +3,8 @@ import { ebsFetch } from "../util/ebs";
 import { getConfig } from "../util/config";
 import { logToDiscord } from "../util/logger";
 import { setBanned } from "./auth";
+import { twitchUseBits } from "../util/twitch";
+import { transactionCancelled, transactionComplete } from "./transaction";
 
 document.body.addEventListener("dblclick", (e) => {
     e.stopPropagation();
@@ -233,7 +235,12 @@ async function confirmPurchase() {
         ],
     }).then();
 
-    Twitch.ext.bits.useBits(cart!.sku);
+    const res = await twitchUseBits(cart!.sku);
+    if (res === "cancelled") {
+        await transactionCancelled();
+    } else {
+        await transactionComplete(res);
+    }
 }
 
 async function prePurchase() {
