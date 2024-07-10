@@ -1,17 +1,7 @@
-import { User } from "common/types";
 import { app } from "../..";
-import { lookupUser, saveUser, updateUserTwitchInfo } from "../../util/db";
+import { updateUserTwitchInfo, lookupUser } from "../../util/db";
 import { asyncCatch } from "../../util/middleware";
-import { sendPubSubMessage } from "../../util/pubsub";
-
-export async function setUserBanned(user: User, banned: boolean) {
-    user.banned = banned;
-    await saveUser(user);
-    await sendPubSubMessage({
-        type: "banned",
-        data: JSON.stringify({ id: user.id, banned }),
-    });
-}
+import { setUserBanned } from ".";
 
 app.post(
     "/public/authorized",

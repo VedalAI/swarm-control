@@ -25,10 +25,12 @@ async function main() {
     app.listen(port, () => {
         console.log("Listening on port " + port);
 
+        // add endpoints
         require("./modules/config");
-        require("./modules/orders");
         require("./modules/game");
+        require("./modules/orders");
         require("./modules/twitch");
+        require("./modules/user");
 
         const { setIngame } = require("./modules/config");
 
