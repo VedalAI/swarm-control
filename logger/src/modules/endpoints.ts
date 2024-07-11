@@ -12,6 +12,9 @@ const orderStatesCanLog: { [key in OrderState]: boolean } = {
     failed: true, // log error
     succeeded: false, // completed
 };
+// allow frontend to send logs for orders that were just completed
+// since frontend always finds out about errors after the ebs
+const completedOrderLogGracePeriod = 5 * 1000;
 const rejectLogsWithNoToken = true;
 
 app.post("/log", async (req, res) => {
@@ -57,7 +60,7 @@ async function canLog(logMessage: LogMessage, isBackendRequest: boolean): Promis
     }
 
     const order = await getOrderById(logMessage.transactionToken);
-    if (!order || !orderStatesCanLog[order.state]) {
+    if (!order || (!orderStatesCanLog[order.state] && Date.now() - order.updatedAt > completedOrderLogGracePeriod)) {
         return { status: 400, reason: "Invalid transaction token." };
     }
 
