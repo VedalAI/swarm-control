@@ -83,12 +83,15 @@ export type IdentifiableCart = Cart & {
 };
 
 export type Transaction = {
-    receipt: string;
     token: string;
-};
+    type: "bits" | "credit";
+    // for type:"bits", this is a BitsTransactionPayload (JWT signed by Twitch)
+    // for type:"credit", this should be null/not present since verification will be done serverside
+    receipt?: string;
+}
 
 export type PubSubMessage = {
-    type: "config_refreshed" | "banned";
+    type: "config_refreshed" | "banned" | "balance_update";
     data: string;
 };
 
@@ -124,7 +127,7 @@ export type Order = {
     id: string;
     userId: string;
     state: OrderState;
-    cart?: Cart;
+    cart: Cart;
     receipt?: string;
     result?: string;
     createdAt: number;

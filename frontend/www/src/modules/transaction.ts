@@ -2,6 +2,22 @@ import { Transaction } from "common/types";
 import { hideProcessingModal, openModal, showErrorModal, showSuccessModal, transactionToken } from "./modal";
 import { logToDiscord } from "../util/logger";
 import { ebsFetch } from "../util/ebs";
+import { twitchUseBits } from "../util/twitch";
+
+type TransactionResponse = Twitch.ext.BitsTransaction | "usedCredit" | "cancelled";
+
+let myCredit = 0;
+
+export async function promptTransaction(sku: string): Promise<TransactionResponse> {
+    // highly advanced technology (sku names are all "bitsXXX")
+    const bitsPrice = parseInt(sku.substring(4));
+    if (myCredit > bitsPrice) {
+        // TODO: "use credit?" confirmation modal
+        return "usedCredit";
+    } else {
+        return await twitchUseBits(sku);
+    }
+}
 
 export async function transactionComplete(transaction: Twitch.ext.BitsTransaction) {
     if (!transactionToken) {
@@ -38,6 +54,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
     }).then();
 
     const transactionObject: Transaction = {
+        type: "bits",
         token: transactionToken,
         receipt: transaction.transactionReceipt,
     };
@@ -102,3 +119,8 @@ export async function transactionCancelled() {
     hideProcessingModal();
     showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken}`);
 };
+
+export async function updateClientsideBalance(credit: number) {
+    myCredit = credit;
+    // TODO: update UI (when there is UI)
+}

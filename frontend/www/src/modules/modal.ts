@@ -227,12 +227,7 @@ async function confirmPurchase() {
         transactionToken: transactionToken!,
         userIdInsecure: Twitch.ext.viewer.id!,
         important: false,
-        fields: [
-            {
-                header: "Transaction started",
-                content: cart,
-            },
-        ],
+        fields: [{ header: "Transaction started", content: cart }],
     }).then();
 
     const res = await twitchUseBits(cart!.sku);

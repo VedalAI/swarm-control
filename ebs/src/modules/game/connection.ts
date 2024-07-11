@@ -8,6 +8,7 @@ import { setIngame } from "../config";
 
 const VERSION = "0.1.0";
 
+type RedeemHandler = (redeem: Redeem, order: Order, user: TwitchUser) => Promise<ResultMessage | null>;
 type ResultHandler = (result: ResultMessage) => any;
 
 export class GameConnection {
@@ -19,6 +20,7 @@ export class GameConnection {
     static resultWaitTimeout: number = 10000;
     private resendIntervalHandle?: number;
     private resendInterval = 500;
+    private redeemHandlers: RedeemHandler[] = [this.sendRedeemToGame];
 
     public isConnected() {
         return this.socket?.readyState == ServerWS.OPEN;
@@ -140,28 +142,42 @@ export class GameConnection {
                 )
             ),
             new Promise<ResultMessage>((resolve, reject) => {
-                const msg: RedeemMessage = {
-                    ...this.makeMessage(MessageType.Redeem),
-                    guid: order.id,
-                    source: CommandInvocationSource.Swarm,
-                    command: redeem.id,
-                    title: redeem.title,
-                    announce: redeem.announce ?? true,
-                    args: order.cart!.args,
-                    user,
-                } as RedeemMessage;
-                if (this.outstandingRedeems.has(msg.guid)) {
-                    reject(`Redeeming ${msg.guid} more than once`);
-                    return;
-                }
-                this.outstandingRedeems.set(msg.guid, msg);
-                this.resultHandlers.set(msg.guid, resolve);
-
-                this.sendMessage(msg)
-                    .then()
-                    .catch((e) => e); // will get queued to re-send later
+                this.runRedeemHandlers(redeem, order, user)
+                    .then(handlersResult => {
+                        if (handlersResult) {
+                            resolve(handlersResult);
+                        } else {
+                            reject("Unhandled redeem");
+                        }
+                    })
+                    .catch(e => reject(e));
             }),
         ]);
+    }
+
+    private sendRedeemToGame(redeem: Redeem, order: Order, user: TwitchUser): Promise<ResultMessage> {
+        return new Promise((resolve, reject) => {
+            const msg: RedeemMessage = {
+                ...this.makeMessage(MessageType.Redeem),
+                guid: order.id,
+                source: CommandInvocationSource.Swarm,
+                command: redeem.id,
+                title: redeem.title,
+                announce: redeem.announce ?? true,
+                args: order.cart!.args,
+                user,
+            } as RedeemMessage;
+            if (this.outstandingRedeems.has(msg.guid)) {
+                reject(`Redeeming ${msg.guid} more than once`);
+                return;
+            }
+            this.outstandingRedeems.set(msg.guid, msg);
+            this.resultHandlers.set(msg.guid, resolve);
+    
+            this.sendMessage(msg)
+                .then()
+                .catch((e) => e); // will get queued to re-send later
+        });
     }
 
     private logMessage(msg: Message, message: string) {
@@ -176,7 +192,7 @@ export class GameConnection {
 
     private tryResendFromQueue() {
         const msg = this.unsentQueue.shift();
-        if (msg === undefined) {
+        if (!msg) {
             //console.log("Nothing to re-send");
             return;
         }
@@ -197,15 +213,30 @@ export class GameConnection {
         return Array.from(this.outstandingRedeems.values());
     }
 
-    public onResult(guid: string, resolve: (result: ResultMessage) => void) {
+    public onResult(guid: string, callback: ResultHandler) {
         const existing = this.resultHandlers.get(guid);
         if (existing) {
             this.resultHandlers.set(guid, (result: ResultMessage) => {
                 existing(result);
-                resolve(result);
+                callback(result);
             });
         } else {
-            this.resultHandlers.set(guid, resolve);
+            this.resultHandlers.set(guid, callback);
         }
+    }
+
+    public addRedeemHandler(handler: RedeemHandler) {
+        this.redeemHandlers.push(handler);
+    }
+
+    private async runRedeemHandlers(redeem: Redeem, order: Order, user: TwitchUser) {
+        for (let i = this.redeemHandlers.length - 1; i >= 0; i--) {
+            const handler = this.redeemHandlers[i];
+            const res = await handler(redeem, order, user);
+            if (!res) continue;
+    
+            return res;
+        }
+        return null;
     }
 }

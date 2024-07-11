@@ -22,9 +22,11 @@ export type LogMessage = GameMessageBase & {
     message: string;
 };
 
+export type ResultKind = "success" | "error" | "deny";
+
 export type ResultMessage = GameMessageBase & {
     messageType: MessageType.Result;
-    success: boolean;
+    status: ResultKind;
     message?: string;
 };
 

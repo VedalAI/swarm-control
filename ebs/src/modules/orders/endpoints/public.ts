@@ -1,16 +1,14 @@
 import { Cart, LogMessage, Transaction, Order } from "common/types";
 import { app } from "../../..";
-import { parseJWT, verifyJWT } from "../../../util/jwt";
-import { BitsTransactionPayload } from "../../../types";
 import { getConfig } from "../../config";
 import { createOrder, getOrder, saveOrder, updateUserTwitchInfo } from "../../../util/db";
 import { sendToLogger } from "../../../util/logger";
 import { connection } from "../../game";
 import { TwitchUser } from "../../game/messages";
 import { asyncCatch } from "../../../util/middleware";
-import { sendShock } from "../../../util/pishock";
 import { validatePrepurchase } from "../prepurchase";
 import { setUserBanned } from "../../user";
+import { checkBitsTransaction, getAndCheckOrder, processRedeemResult } from "../transaction";
 
 app.post(
     "/public/prepurchase",
@@ -22,12 +20,7 @@ app.post(
             transactionToken: null,
             userIdInsecure: userId,
             important: false,
-            fields: [
-                {
-                    header: "",
-                    content: "",
-                },
-            ],
+            fields: [{ header: "", content: "" }],
         };
         const logMessage = logContext.fields[0];
 
@@ -81,41 +74,35 @@ app.post(
             transactionToken: transaction.token,
             userIdInsecure: req.user.id,
             important: true,
-            fields: [
-                {
-                    header: "",
-                    content: transaction,
-                },
-            ],
+            fields: [{ header: "", content: "" }],
         };
         const logMessage = logContext.fields[0];
 
-        if (!transaction.receipt) {
-            logMessage.header = "Missing receipt";
-            sendToLogger(logContext).then();
-            res.status(400).send("Missing receipt");
-            return;
+        if (transaction.type === "bits") {
+            const validationResult = checkBitsTransaction(transaction);
+            if (validationResult) {
+                logMessage.header = validationResult.logHeaderOverride ?? validationResult.message;
+                logMessage.content = validationResult.logContents ?? { transaction };
+                if (validationResult.status === 403) {
+                    setUserBanned(req.user, true);
+                }
+                res.status(validationResult.status).send(validationResult.message);
+                return;
+            }
         }
 
-        if (!verifyJWT(transaction.receipt)) {
-            logMessage.header = "Invalid receipt";
-            sendToLogger(logContext).then();
-            setUserBanned(req.user, true);
-            res.status(403).send("Invalid receipt.");
-            return;
-        }
-
-        const payload = parseJWT(transaction.receipt) as BitsTransactionPayload;
-
-        if (!payload.data.transactionId) {
-            logMessage.header = "Missing transaction ID";
-            sendToLogger(logContext).then();
-            res.status(400).send("Missing transaction ID");
-            return;
-        }
-        let order: Order | null;
+        let order: Order;
         try {
-            order = await getOrder(transaction.token);
+            const orderMaybe = await getAndCheckOrder(transaction, req.user);
+            if ("status" in orderMaybe) {
+                const checkRes = orderMaybe;
+                logMessage.header = checkRes.logHeaderOverride ?? checkRes.message;
+                logMessage.content = checkRes.logContents ?? { transaction };
+                res.status(orderMaybe.status).send(orderMaybe.message);
+                return;
+            } else {
+                order = orderMaybe;
+            }
         } catch (e: any) {
             logContext.important = true;
             logMessage.header = "Failed to get order";
@@ -127,29 +114,6 @@ app.post(
             res.status(500).send("Failed to get transaction");
             return;
         }
-        if (!order) {
-            logMessage.header = "Transaction not found";
-            sendToLogger(logContext).then();
-            res.status(404).send("Transaction not found");
-            return;
-        }
-        if (order.state != "prepurchase") {
-            logMessage.header = "Transaction already processed";
-            sendToLogger(logContext).then();
-            res.status(409).send("Transaction already processed");
-            return;
-        }
-
-        if (!order.cart) {
-            logMessage.header = "Invalid transaction";
-            sendToLogger(logContext).then();
-            res.status(500).send("Invalid transaction");
-            return;
-        }
-
-        order.state = "paid";
-        order.receipt = transaction.receipt;
-        await saveOrder(order);
 
         if (order.userId != req.user.id) {
             // paying for somebody else, how generous
@@ -157,7 +121,7 @@ app.post(
             logMessage.header = "Mismatched user ID";
             logMessage.content = {
                 user: req.user,
-                order,
+                order: order.id,
                 transaction,
             };
             sendToLogger(logContext).then();
@@ -214,52 +178,26 @@ app.post(
             }
         }
 
-        if (redeem.id == "redeem_pishock") {
-            const success = await sendShock(50, 100);
-            order.state = success ? "succeeded" : "failed";
-            await saveOrder(order);
-            if (success) {
-                res.status(200).send("Your transaction was successful!");
-            } else {
-                res.status(500).send("Redeem failed");
-            }
-            return;
-        }
         try {
-            const resMsg = await connection.redeem(redeem, order, userInfo);
-            order.state = resMsg.success ? "succeeded" : "failed";
-            order.result = resMsg.message;
-            await saveOrder(order);
-            if (resMsg?.success) {
-                console.log(`[${resMsg.guid}] Redeem succeeded: ${JSON.stringify(resMsg)}`);
-                let msg = "Your transaction was successful! Your redeem will appear on stream soon.";
-                if (resMsg.message) {
-                    msg += "\n\n" + resMsg.message;
-                }
-                res.status(200).send(msg);
-            } else {
-                logContext.important = true;
-                logMessage.header = "Redeem did not succeed";
-                logMessage.content = resMsg;
-                sendToLogger(logContext).then();
-                res.status(500).send(resMsg?.message ?? "Redeem failed");
-            }
+            const result = await connection.redeem(redeem, order, userInfo);
+            const processedResult = await processRedeemResult(order, result);
+            logContext.important = processedResult.status !== 200;
+            logMessage.header = processedResult.logHeaderOverride ?? processedResult.message;
+            logMessage.content = processedResult.logContents ?? { transaction };
+            sendToLogger(logContext).then();
+            res.status(processedResult.status).send(processedResult.message);
+            return;
         } catch (error) {
             logContext.important = true;
             logMessage.header = "Failed to send redeem";
-            logMessage.content = {
-                config: currentConfig.version,
-                order,
-                error,
-            };
+            logMessage.content = { config: currentConfig.version, order, error };
             sendToLogger(logContext).then();
             connection.onResult(order.id, (res) => {
                 console.log(`Got late result (from re-send?) for ${order.id}`);
-                order.state = res.success ? "succeeded" : "failed";
-                order.result = res.message;
-                saveOrder(order).then();
+                processRedeemResult(order, res).then();
             });
             res.status(500).send(`Failed to process redeem - ${error}`);
+            return;
         }
     })
 );
