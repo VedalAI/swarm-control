@@ -72,7 +72,6 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
     setTimeout(() => hideProcessingModal(), 250);
 
     const text = await result.text();
-    // Transaction token can no longer be used to log
     if (result.ok) {
         showSuccessModal("Purchase completed", `${text}\nTransaction ID: ${transactionToken}`);
     } else {

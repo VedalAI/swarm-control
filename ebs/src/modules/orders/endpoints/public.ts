@@ -61,7 +61,9 @@ app.post(
         logMessage.content = { orderId: order.id };
         sendToLogger(logContext).then();
 
-        res.status(200).send(order.id);
+        // TODO: maybe send a signed JWT w/ credit and cost?
+        // would allow some leniency in terms of config changing
+        res.status(200).json({ transactionToken: order.id, credit: req.user.credit });
     })
 );
 

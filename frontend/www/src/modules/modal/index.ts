@@ -3,7 +3,7 @@ import { ebsFetch } from "../../util/ebs";
 import { getConfig } from "../../util/config";
 import { logToDiscord } from "../../util/logger";
 import { setBanned } from "../auth";
-import { promptTransaction, transactionCancelled, transactionComplete } from "../transaction";
+import { promptTransaction, transactionCancelled, transactionComplete, updateClientsideBalance } from "../transaction";
 import { $modalOptionsForm, checkForm, setCartArgsFromForm, setupForm } from "./form";
 
 document.body.addEventListener("dblclick", (e) => {
@@ -193,6 +193,11 @@ async function confirmPurchase() {
     }
 }
 
+type PrepurchaseResponse = {
+    transactionToken: string;
+    credit: number;
+}
+
 async function prePurchase() {
     const response = await ebsFetch("/public/prepurchase", {
         method: "POST",
@@ -216,7 +221,9 @@ async function prePurchase() {
         return false;
     }
 
-    transactionToken = await response.text();
+    const resp = await response.json() as PrepurchaseResponse;
+    transactionToken = resp.transactionToken;
+    updateClientsideBalance(resp.credit);
 
     return true;
 }

@@ -91,7 +91,7 @@ export type Transaction = {
 }
 
 export type PubSubMessage = {
-    type: "config_refreshed" | "banned" | "balance_update";
+    type: "config_refreshed" | "banned";
     data: string;
 };
 
