@@ -2,21 +2,28 @@ import { ebsFetch } from "../util/ebs";
 import { renderRedeemButtons } from "./redeems";
 import { refreshConfig, setConfig } from "../util/config";
 import { twitchAuth } from "../util/twitch";
+import { updateClientsideBalance } from "./transaction";
 
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
 
 document.addEventListener("DOMContentLoaded", () => {
     $loginButton.onclick = async () => {
-        const res = await twitchAuth();
+        const auth = await twitchAuth();
         $loginPopup.style.display = "none";
         ebsFetch("public/authorized", {
             method: "POST",
-            body: JSON.stringify({ channelId: res.channelId, userId: res.userId }),
+            body: JSON.stringify({ channelId: auth.channelId, userId: Twitch.ext.viewer.id! }),
         }).then((res) => {
             if (res.status === 403) {
                 setBanned(true);
             }
+            res.json().then(
+                (resp: {credit: number}) => {
+                    console.log(`Balance: ${resp.credit}`);
+                    updateClientsideBalance(resp.credit);
+                }
+            );
             renderRedeemButtons().then();
         });
     };

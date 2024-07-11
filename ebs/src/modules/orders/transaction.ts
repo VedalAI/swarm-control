@@ -86,16 +86,29 @@ export async function processRedeemResult(order: Order, result: ResultMessage): 
     order.state = orderStateMap[result.status];
     order.result = result.message;
     await saveOrder(order);
+    let msg = result.message;
+    const res = { logContents: { order: order.id, cart: order.cart } };
     if (result.status === "success") {
         console.log(`[${result.guid}] Redeem succeeded: ${JSON.stringify(result)}`);
-        let msg = "Your transaction was successful! Your redeem will appear on stream soon.";
+        msg = "Your transaction was successful! Your redeem will appear on stream soon.";
         if (result.message) {
             msg += "\n\n" + result.message;
         }
-        return { status: 200, message: msg, logHeaderOverride: "Redeem succeeded", logContents: { order: order.id } };
+        return { status: 200, message: msg, logHeaderOverride: "Redeem succeeded", ...res };
     } else {
         await refund(order);
-        return { status: 500, message: result.message ?? "Redeem failed", logHeaderOverride: "Redeem failed", logContents: { order: order.id } };
+        let status: number;
+        let header: string;
+        if (result.status === "deny") {
+            status = 400;
+            msg ??= "The redeem could not complete.";
+            header = "Redeem denied";
+        } else {
+            status = 500;
+            msg ??= "Redeem failed.";
+            header = "Redeem failed";
+        }
+        return { status: status, message: msg, logHeaderOverride: header, ...res };
     }
 }
 

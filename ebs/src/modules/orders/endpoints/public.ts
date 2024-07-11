@@ -181,7 +181,7 @@ app.post(
         try {
             const result = await connection.redeem(redeem, order, userInfo);
             const processedResult = await processRedeemResult(order, result);
-            logContext.important = processedResult.status !== 200;
+            logContext.important = processedResult.status === 500;
             logMessage.header = processedResult.logHeaderOverride ?? processedResult.message;
             logMessage.content = processedResult.logContents ?? { transaction };
             sendToLogger(logContext).then();

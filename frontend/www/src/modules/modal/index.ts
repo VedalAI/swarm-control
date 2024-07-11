@@ -3,8 +3,7 @@ import { ebsFetch } from "../../util/ebs";
 import { getConfig } from "../../util/config";
 import { logToDiscord } from "../../util/logger";
 import { setBanned } from "../auth";
-import { twitchUseBits } from "../../util/twitch";
-import { transactionCancelled, transactionComplete } from "../transaction";
+import { promptTransaction, transactionCancelled, transactionComplete } from "../transaction";
 import { $modalOptionsForm, checkForm, setCartArgsFromForm, setupForm } from "./form";
 
 document.body.addEventListener("dblclick", (e) => {
@@ -186,7 +185,7 @@ async function confirmPurchase() {
         fields: [{ header: "Transaction started", content: cart }],
     }).then();
 
-    const res = await twitchUseBits(cart!.sku);
+    const res = await promptTransaction(cart!.sku);
     if (res === "cancelled") {
         await transactionCancelled();
     } else {

@@ -77,10 +77,10 @@ export function isIngame() {
     return ingameState;
 }
 
-export function setIngame(newIngame: boolean) {
+export async function setIngame(newIngame: boolean) {
     if (ingameState == newIngame) return;
     ingameState = newIngame;
-    setActiveConfig(configData!).then();
+    await setActiveConfig(await getRawConfigData());
 }
 
 function processConfig(data: Config) {

@@ -4,18 +4,18 @@ type AuthResponse = Twitch.ext.Authorized;
 type TransactionResponse = Twitch.ext.BitsTransaction | "cancelled";
 
 class Callbacks<T> {
-    persistent: Callback<T>[] = [];
-    transient: Callback<T>[] = [];
+    private persistent: Callback<T>[] = [];
+    private transient: Callback<T>[] = [];
 
-    addPersistent(callback: Callback<T>) {
+    public addPersistent(callback: Callback<T>) {
         this.persistent.push(callback);
     }
 
-    addTransient(callback: Callback<T>) {
+    public addTransient(callback: Callback<T>) {
         this.transient.push(callback);
     }
 
-    call(data: T) {
+    public call(data: T) {
         this.persistent.forEach((cb) => cb(data));
         this.transient.forEach((cb) => cb(data));
         this.transient.splice(0, this.transient.length);
@@ -42,12 +42,12 @@ export async function twitchAuth(requestIdShare = true): Promise<AuthResponse> {
     if (!Twitch.ext.viewer.id && requestIdShare) {
         Twitch.ext.actions.requestIdShare();
     }
-    return new Promise(authCallbacks.addTransient);
+    return new Promise(Callbacks.prototype.addTransient.bind(authCallbacks));
 }
 
 export async function twitchUseBits(sku: string): Promise<TransactionResponse> {
     Twitch.ext.bits.useBits(sku);
-    return new Promise(transactionCallbacks.addTransient);
+    return new Promise(Callbacks.prototype.addTransient.bind(transactionCallbacks));
 }
 
 export function onTwitchAuth(callback: Callback<AuthResponse>) {

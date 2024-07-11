@@ -6,8 +6,10 @@ import { setUserBanned } from ".";
 app.post(
     "/public/authorized",
     asyncCatch(async (req, res) => {
-        res.sendStatus(200);
-        updateUserTwitchInfo(req.user).then().catch(console.error);
+        const user = await updateUserTwitchInfo(req.user);
+        //console.log(`${user.displayName} has ${user.credit}`);
+        res.status(200).send({ credit: user.credit });
+        return;
     })
 );
 

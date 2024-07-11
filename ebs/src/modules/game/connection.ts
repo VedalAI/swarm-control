@@ -20,7 +20,7 @@ export class GameConnection {
     static resultWaitTimeout: number = 10000;
     private resendIntervalHandle?: number;
     private resendInterval = 500;
-    private redeemHandlers: RedeemHandler[] = [this.sendRedeemToGame];
+    private redeemHandlers: RedeemHandler[] = [GameConnection.prototype.sendRedeemToGame.bind(this)];
 
     public isConnected() {
         return this.socket?.readyState == ServerWS.OPEN;
@@ -51,7 +51,7 @@ export class GameConnection {
         ws.on("close", (code, reason) => {
             const reasonStr = reason ? `reason '${reason}'` : "no reason";
             console.log(`Game socket closed with code ${code} and ${reasonStr}`);
-            setIngame(false);
+            setIngame(false).then();
             if (this.resendIntervalHandle) {
                 clearInterval(this.resendIntervalHandle);
             }
@@ -92,7 +92,7 @@ export class GameConnection {
                 this.resultHandlers.delete(msg.guid);
                 break;
             case MessageType.IngameStateChanged:
-                setIngame(msg.ingame);
+                setIngame(msg.ingame).then();
                 break;
             default:
                 this.logMessage(msg, `Unknown message type ${msg.messageType}`);

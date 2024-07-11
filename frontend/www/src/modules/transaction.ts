@@ -11,6 +11,7 @@ let myCredit = 0;
 export async function promptTransaction(sku: string): Promise<TransactionResponse> {
     // highly advanced technology (sku names are all "bitsXXX")
     const bitsPrice = parseInt(sku.substring(4));
+    console.log(`Purchasing ${sku} for ${bitsPrice} bits (have ${myCredit})`);
     if (myCredit > bitsPrice) {
         // TODO: "use credit?" confirmation modal
         return "usedCredit";
@@ -19,7 +20,7 @@ export async function promptTransaction(sku: string): Promise<TransactionRespons
     }
 }
 
-export async function transactionComplete(transaction: Twitch.ext.BitsTransaction) {
+export async function transactionComplete(transaction: Twitch.ext.BitsTransaction | "usedCredit") {
     if (!transactionToken) {
         logToDiscord({
             transactionToken: null,
@@ -40,6 +41,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
         );
         return;
     }
+    const isCredit = transaction === "usedCredit";
 
     logToDiscord({
         transactionToken: transactionToken,
@@ -48,15 +50,15 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
         fields: [
             {
                 header: "Transaction complete",
-                content: transaction,
+                content: isCredit ? { creditLeft: myCredit } : transaction,
             },
         ],
     }).then();
 
     const transactionObject: Transaction = {
-        type: "bits",
+        type: isCredit ? "credit" : "bits",
         token: transactionToken,
-        receipt: transaction.transactionReceipt,
+        receipt: isCredit ? undefined : transaction.transactionReceipt,
     };
 
     const result = await ebsFetch("/public/transaction", {
@@ -70,28 +72,42 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
     setTimeout(() => hideProcessingModal(), 250);
 
     const text = await result.text();
+    // Transaction token can no longer be used to log
     if (result.ok) {
-        // Transaction token can no longer be used to log
         showSuccessModal("Purchase completed", `${text}\nTransaction ID: ${transactionToken}`);
     } else {
-        const errorText = `${result.status} ${result.statusText} - ${text}`;
-        logToDiscord({
-            transactionToken: transactionToken,
-            userIdInsecure: Twitch.ext.viewer.id!,
-            important: true,
-            fields: [
-                {
-                    header: "Transaction failed (frontend)",
-                    content: errorText,
-                },
-            ],
-        }).then();
-        showErrorModal(
-            "An error occurred.",
-            `${errorText}\nPlease contact a moderator (preferably AlexejheroDev) about this!\nTransaction ID: ${transactionToken}`
-        );
+        if (result.status === 400) {
+            logToDiscord({
+                transactionToken: transactionToken,
+                userIdInsecure: Twitch.ext.viewer.id!,
+                important: true,
+                fields: [{ header: "Redeem denied", content: text }],
+            }).then();
+            showErrorModal(
+                "Redeem not available",
+                `${text}
+                You have been credited the redeem cost, so you may try again later.
+                Transaction ID: ${transactionToken}`
+            );
+        } else if (result.status === 500) {
+            const errorText = `${result.status} ${result.statusText} - ${text}`;
+            logToDiscord({
+                transactionToken: transactionToken,
+                userIdInsecure: Twitch.ext.viewer.id!,
+                important: true,
+                fields: [{ header: "Redeem failed", content: errorText }],
+            }).then();
+            showErrorModal(
+                "An error occurred.",
+                `${errorText}
+                Please contact a moderator (preferably AlexejheroDev) about the error!
+                You have been credited the redeem cost, so you may try again later.
+                Transaction ID: ${transactionToken}
+                `
+            );
+        }
     }
-};
+}
 
 export async function transactionCancelled() {
     if (transactionToken) {
@@ -118,7 +134,7 @@ export async function transactionCancelled() {
 
     hideProcessingModal();
     showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken}`);
-};
+}
 
 export async function updateClientsideBalance(credit: number) {
     myCredit = credit;
