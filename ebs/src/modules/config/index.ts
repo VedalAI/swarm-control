@@ -24,30 +24,30 @@ async function fetchConfig(): Promise<Config> {
         const response = await fetch(url);
         const responseData = await response.json();
 
-        const data: Config = JSON.parse(atob(responseData.content))
+        const data: Config = JSON.parse(atob(responseData.content));
 
         return data;
     } catch (e: any) {
         console.error("Error when fetching config from api URL, falling back to raw URL");
         console.error(e);
 
-            sendToLogger({
-                transactionToken: null,
-                userIdInsecure: null,
-                important: true,
-                fields: [
-                    {
-                        header: "Error when fetching config from api URL, falling back to raw URL",
-                        content: e.toString(),
-                    },
-                ],
-            }).then();
+        sendToLogger({
+            transactionToken: null,
+            userIdInsecure: null,
+            important: true,
+            fields: [
+                {
+                    header: "Error when fetching config from api URL, falling back to raw URL",
+                    content: e.toString(),
+                },
+            ],
+        }).then();
 
         try {
             url = `${rawURL}?${Date.now()}`;
             const response = await fetch(url);
             const data: Config = await response.json();
-    
+
             return data;
         } catch (e: any) {
             console.error("Error when fetching config from raw URL, panic");
@@ -64,7 +64,7 @@ async function fetchConfig(): Promise<Config> {
                     },
                 ],
             }).then();
-    
+
             return {
                 version: -1,
                 message: "Error when fetching config from raw URL, panic",

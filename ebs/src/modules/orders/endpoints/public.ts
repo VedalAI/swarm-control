@@ -1,4 +1,4 @@
-import { Cart, LogMessage, Transaction, Order } from "common/types";
+import { Cart, LogMessage, Transaction, Order, TransactionToken, TransactionTokenPayload } from "common/types";
 import { app } from "../../..";
 import { getConfig } from "../../config";
 import { createOrder, getOrder, saveOrder, updateUserTwitchInfo } from "../../../util/db";
@@ -8,8 +8,8 @@ import { TwitchUser } from "../../game/messages";
 import { asyncCatch } from "../../../util/middleware";
 import { validatePrepurchase } from "../prepurchase";
 import { setUserBanned } from "../../user";
-import { getAndCheckOrder, jwtExpirySeconds, makeTransactionToken, processRedeemResult } from "../transaction";
-import { signJWT } from "../../../util/jwt";
+import { decodeJWTPayloads, getAndCheckOrder, jwtExpirySeconds, makeTransactionToken, processRedeemResult } from "../transaction";
+import { parseJWT, signJWT, verifyJWT } from "../../../util/jwt";
 
 app.post(
     "/public/prepurchase",
@@ -59,7 +59,7 @@ app.post(
         await saveOrder(order);
 
         const transactionToken = makeTransactionToken(order, req.user);
-        const transactionTokenJWT = signJWT(transactionToken, { expiresIn: jwtExpirySeconds });
+        const transactionTokenJWT = signJWT({ data: transactionToken }, { expiresIn: jwtExpirySeconds });
 
         logMessage.header = "Created prepurchase";
         logMessage.content = { orderId: order.id, token: transactionTokenJWT };
@@ -75,16 +75,29 @@ app.post(
         const transaction = req.body as Transaction;
 
         const logContext: LogMessage = {
-            transactionToken: transaction.token,
+            transactionToken: null,
             userIdInsecure: req.user.id,
             important: true,
-            fields: [{ header: "", content: "" }],
+            fields: [{ header: "", content: transaction }],
         };
         const logMessage = logContext.fields[0];
 
+        const decoded = decodeJWTPayloads(transaction);
+        if ("status" in decoded) {
+            logMessage.header = decoded.logHeaderOverride ?? decoded.message;
+            logMessage.content = decoded.logContents ?? { transaction };
+            if (decoded.status === 403) {
+                setUserBanned(req.user, true);
+            }
+            sendToLogger(logContext).then();
+            res.status(decoded.status).send(decoded.message);
+            return;
+        }
+        logContext.transactionToken = decoded.token.data.id;
+
         let order: Order;
         try {
-            const orderMaybe = await getAndCheckOrder(transaction, req.user);
+            const orderMaybe = await getAndCheckOrder(transaction, decoded, req.user);
             if ("status" in orderMaybe) {
                 const checkRes = orderMaybe;
                 logMessage.header = checkRes.logHeaderOverride ?? checkRes.message;
@@ -92,6 +105,7 @@ app.post(
                 if (checkRes.status === 403) {
                     setUserBanned(req.user, true);
                 }
+                sendToLogger(logContext).then();
                 res.status(orderMaybe.status).send(orderMaybe.message);
                 return;
             } else {
@@ -134,6 +148,7 @@ app.post(
         }
 
         console.log(transaction);
+        console.log(decoded);
         console.log(order.cart);
 
         const redeem = currentConfig.redeems?.[order.cart.id];
@@ -199,22 +214,22 @@ app.post(
 app.post(
     "/public/transaction/cancel",
     asyncCatch(async (req, res) => {
-        const guid = req.body.token as string;
+        const jwt = req.body.jwt as string;
+        if (!verifyJWT(jwt)) {
+            res.sendStatus(403);
+            return;
+        }
+        const token = parseJWT(jwt) as TransactionTokenPayload;
         const logContext: LogMessage = {
-            transactionToken: guid,
+            transactionToken: token.data.id,
             userIdInsecure: req.user.id,
             important: true,
-            fields: [
-                {
-                    header: "",
-                    content: "",
-                },
-            ],
+            fields: [{ header: "", content: "" }],
         };
         const logMessage = logContext.fields[0];
 
         try {
-            const order = await getOrder(guid);
+            const order = await getOrder(token.data.id);
 
             if (!order) {
                 res.status(404).send("Transaction not found");
@@ -227,7 +242,7 @@ app.post(
                     order,
                     user: req.user,
                 };
-                sendToLogger(logContext);
+                sendToLogger(logContext).then();
                 res.status(403).send("This transaction doesn't belong to you");
                 return;
             }

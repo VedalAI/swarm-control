@@ -1,5 +1,5 @@
 import { app } from "../..";
-import { updateUserTwitchInfo, lookupUser } from "../../util/db";
+import { updateUserTwitchInfo, lookupUser, saveUser } from "../../util/db";
 import { asyncCatch } from "../../util/middleware";
 import { setUserBanned } from ".";
 
@@ -30,7 +30,7 @@ app.post(
         }
 
         await setUserBanned(user, true);
-        res.sendStatus(200);
+        res.status(200).json(user);
     })
 );
 
@@ -44,6 +44,28 @@ app.delete(
         }
 
         await setUserBanned(user, false);
-        res.sendStatus(200);
+        res.status(200).json(user);
+    })
+);
+
+app.post(
+    "/private/user/:idOrName/addCredit",
+    asyncCatch(async (req, res) => {
+        const user = await lookupUser(req.params["idOrName"]);
+        if (!user) {
+            res.sendStatus(404);
+            return;
+        }
+        
+        const amt = parseInt(req.query["amount"] as string);
+        if (!isFinite(amt)) {
+            res.sendStatus(400);
+            return;
+        }
+
+        user.credit += amt;
+        await saveUser(user);
+        res.status(200).json(user);
+        return;
     })
 );

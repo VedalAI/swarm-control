@@ -1,4 +1,4 @@
-import { Cart, Redeem, TransactionToken } from "common/types";
+import { Cart, Redeem, TransactionToken, TransactionTokenPayload } from "common/types";
 import { ebsFetch } from "../../util/ebs";
 import { getConfig } from "../../util/config";
 import { logToDiscord } from "../../util/logger";
@@ -176,28 +176,24 @@ async function confirmPurchase() {
     }
     showProcessingModal();
 
-    if (!(await prePurchase())) {
+    if (!(await prePurchase()) || !transactionToken) {
         return;
     }
 
     logToDiscord({
-        transactionToken: transactionToken!.id,
+        transactionToken: transactionToken.id,
         userIdInsecure: Twitch.ext.viewer.id!,
         important: false,
         fields: [{ header: "Transaction started", content: cart }],
     }).then();
 
-    const res = await promptTransaction(cart!.sku);
+    const product = transactionToken.product;
+    const res = await promptTransaction(product.sku, product.cost);
     if (res === "cancelled") {
         await transactionCancelled();
     } else {
         await transactionComplete(res);
     }
-}
-
-type PrepurchaseResponse = {
-    transactionToken: string;
-    credit: number;
 }
 
 async function prePurchase() {
@@ -223,10 +219,21 @@ async function prePurchase() {
         return false;
     }
 
-    const resp = await response.json() as PrepurchaseResponse;
-    transactionTokenJwt = resp.transactionToken;
-    transactionToken = decodeJWT(resp.transactionToken) as TransactionToken;
-    updateClientsideBalance(resp.credit);
+    transactionTokenJwt = await response.text();
+    const decodedJWT = decodeJWT(transactionTokenJwt) as TransactionTokenPayload;
+    console.log(decodedJWT);
+    transactionToken = decodedJWT.data;
+    if (transactionToken.user.id !== Twitch.ext.viewer.id) {
+        logToDiscord({
+            transactionToken: transactionToken.id,
+            userIdInsecure: Twitch.ext.viewer.id!,
+            important: true,
+            fields: [{ header: "Transaction token was not for me", content: { transactionTokenJwt } }],
+        }).then();
+        showErrorModal("Server Error", "Server returned invalid transaction token. The developers have been notified, please try again later.");
+        return false;
+    }
+    updateClientsideBalance(transactionToken.user.credit);
 
     return true;
 }

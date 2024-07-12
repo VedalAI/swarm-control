@@ -8,12 +8,10 @@ type TransactionResponse = Twitch.ext.BitsTransaction | "useCredit" | "cancelled
 
 let myCredit = 0;
 
-export async function promptTransaction(sku: string): Promise<TransactionResponse> {
-    // highly advanced technology (sku names are all "bitsXXX")
-    const bitsPrice = parseInt(sku.substring(4));
-    console.log(`Purchasing ${sku} for ${bitsPrice} bits (have ${myCredit})`);
-    if (myCredit > bitsPrice) {
-        return (await confirmCreditTransaction(bitsPrice)) ? "useCredit" : "cancelled";
+export async function promptTransaction(sku: string, cost: number): Promise<TransactionResponse> {
+    console.log(`Purchasing ${sku} for ${cost} bits (have ${myCredit})`);
+    if (myCredit >= cost) {
+        return (await confirmCreditTransaction(cost)) ? "useCredit" : "cancelled";
     } else {
         return await twitchUseBits(sku);
     }
@@ -69,20 +67,20 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
 
     const text = await result.text();
     if (result.ok) {
-        showSuccessModal("Purchase completed", `${text}\nTransaction ID: ${transactionToken}`);
+        showSuccessModal("Purchase completed", `${text}\nTransaction ID: ${transactionToken.id}`);
     } else {
         if (result.status === 400) {
             logToDiscord({
                 transactionToken: transactionToken.id,
                 userIdInsecure: Twitch.ext.viewer.id!,
-                important: true,
+                important: false,
                 fields: [{ header: "Redeem denied", content: text }],
             }).then();
             showErrorModal(
                 "Redeem not available",
                 `${text}
                 You have been credited the redeem cost, so you may try again later.
-                Transaction ID: ${transactionToken}`
+                Transaction ID: ${transactionToken.id}`
             );
         } else if (result.status === 500) {
             const errorText = `${result.status} ${result.statusText} - ${text}`;
@@ -97,7 +95,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
                 `${errorText}
                 Please contact a moderator (preferably AlexejheroDev) about the error!
                 You have been credited the redeem cost, so you may try again later.
-                Transaction ID: ${transactionToken}
+                Transaction ID: ${transactionToken.id}
                 `
             );
         }
@@ -123,12 +121,12 @@ export async function transactionCancelled() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ token: transactionToken }),
+            body: JSON.stringify({jwt: transactionTokenJwt}),
         });
     }
 
     hideProcessingModal();
-    showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken}`);
+    showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken?.id ?? "none"}`);
 }
 
 export async function updateClientsideBalance(credit: number) {
@@ -138,5 +136,7 @@ export async function updateClientsideBalance(credit: number) {
 
 export async function confirmCreditTransaction(price: number) {
     // temporary obviously
-    return confirm(`Use ${price} bits from your credit?`);
+    return true;
+    // no modal APIs in this iframe
+    //return confirm(`Use ${price} bits from your credit?`);
 }

@@ -3,7 +3,6 @@ import { verifyJWT, parseJWT } from "../../util/jwt";
 import { getOrAddUser, getOrder, saveOrder, saveUser } from "../../util/db";
 import { ResultKind, ResultMessage } from "../game/messages.game";
 import { sendToLogger } from "../../util/logger";
-import { JwtPayload } from "jsonwebtoken";
 
 type HttpResult = {
     status: number;
@@ -13,7 +12,7 @@ type HttpResult = {
 };
 
 export const jwtExpirySeconds = 60;
-const jwtExpiryToleranceMillis = 15 * 1000;
+const jwtExpiryToleranceSeconds = 15;
 const usedBitsTransactionIds: Set<string> = new Set();
 const defaultResult: HttpResult = { status: 403, message: "Invalid transaction" };
 
@@ -41,11 +40,7 @@ export function decodeJWTPayloads(transaction: Transaction): HttpResult | Decode
     };
 }
 
-export function verifyTransaction(transaction: Transaction): HttpResult | TransactionToken {
-    const decoded = decodeJWTPayloads(transaction);
-    if ("status" in decoded) {
-        return decoded;
-    }
+export function verifyTransaction(decoded: DecodedTransaction): HttpResult | TransactionToken {
     const token = decoded.token;
 
     if (decoded.type === "bits") {
@@ -60,13 +55,13 @@ export function verifyTransaction(transaction: Transaction): HttpResult | Transa
             return { ...defaultResult, logHeaderOverride: "Transaction replay" };
         }
         usedBitsTransactionIds.add(receipt.data.transactionId);
-        if (receipt.exp < Date.now() - jwtExpiryToleranceMillis) {
+        if (receipt.exp < Date.now() / 1000 - jwtExpiryToleranceSeconds) {
             // status 403 and not 400 because bits JWTs have an expiry of 1 hour
             // if you're sending a transaction 1 hour after it happened... you're sus
             return { ...defaultResult, logHeaderOverride: "Bits receipt expired" };
         }
     } else if (decoded.type === "credit") {
-        if (token.exp < Date.now() - jwtExpiryToleranceMillis) {
+        if (token.exp < Date.now() / 1000 - jwtExpiryToleranceSeconds) {
             return { ...defaultResult, status: 400, message: "Transaction expired, try again", logHeaderOverride: "Credit receipt expired" };
         }
     }
@@ -74,8 +69,8 @@ export function verifyTransaction(transaction: Transaction): HttpResult | Transa
     return token.data;
 }
 
-export async function getAndCheckOrder(transaction: Transaction, user: User): Promise<Order | HttpResult> {
-    const token = verifyTransaction(transaction);
+export async function getAndCheckOrder(transaction: Transaction, decoded: DecodedTransaction, user: User): Promise<Order | HttpResult> {
+    const token = verifyTransaction(decoded);
     if ("status" in token) {
         return token;
     }
@@ -103,7 +98,7 @@ export async function getAndCheckOrder(transaction: Transaction, user: User): Pr
 
     if (transaction.type === "credit") {
         const sku = order.cart.sku;
-        const cost = parseInt(sku.substring(4)); // bitsXXX
+        const cost = getBitsPrice(sku);
         if (!isFinite(cost) || cost <= 0) {
             return { status: 500, message: "Internal configuration error", logHeaderOverride: "Bad SKU", logContents: { order: order.id, sku } };
         }
@@ -111,7 +106,6 @@ export async function getAndCheckOrder(transaction: Transaction, user: User): Pr
             return {
                 status: 409,
                 message: "Insufficient credit",
-                logHeaderOverride: "Insufficient credit",
                 logContents: { user: user.id, order: order.id, cost, credit: user.credit },
             };
         }
@@ -119,7 +113,7 @@ export async function getAndCheckOrder(transaction: Transaction, user: User): Pr
         order.state = "paid";
         order.receipt = `credit (${user.credit + cost} - ${cost} = ${user.credit})`;
     } else {
-        // for bits transactions, verifying the receipt JWT verifies the fact the person paid
+        // for bits transactions, we verified the receipt JWT earlier (in verifyTransaction)
         order.state = "paid";
         order.receipt = transaction.receipt;
     }
@@ -200,4 +194,9 @@ export function makeTransactionToken(order: Order, user: User): TransactionToken
         },
         product: { sku, cost },
     };
+}
+
+function getBitsPrice(sku: string) {
+    // highly advanced pricing technology (all SKUs are in the form bitsXXX where XXX is the price)
+    return parseInt(sku.substring(4));
 }

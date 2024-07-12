@@ -17,8 +17,8 @@ export async function initDb() {
                 namedPlaceholders: true,
             });
         } catch {
-            console.log("Failed to connect to database. Retrying in 5 seconds...");
-            await new Promise((resolve) => setTimeout(resolve, 5000));
+            console.log("Failed to connect to database. Retrying in 1 second...");
+            await new Promise((resolve) => setTimeout(resolve, 1000));
         }
     }
 }
