@@ -10,22 +10,3 @@ export type AuthorizationPayload = {
         send: string[];
     };
 };
-
-export type BitsTransactionPayload = {
-    topic: string;
-    exp: number;
-    data: {
-        transactionId: string;
-        time: string;
-        userId: string;
-        product: {
-            domainId: string;
-            sku: string;
-            displayName: string;
-            cost: {
-                amount: number;
-                type: "bits";
-            };
-        };
-    };
-};

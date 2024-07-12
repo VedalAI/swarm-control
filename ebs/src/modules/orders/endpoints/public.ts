@@ -8,7 +8,8 @@ import { TwitchUser } from "../../game/messages";
 import { asyncCatch } from "../../../util/middleware";
 import { validatePrepurchase } from "../prepurchase";
 import { setUserBanned } from "../../user";
-import { checkBitsTransaction, getAndCheckOrder, processRedeemResult } from "../transaction";
+import { getAndCheckOrder, jwtExpirySeconds, makeTransactionToken, processRedeemResult } from "../transaction";
+import { signJWT } from "../../../util/jwt";
 
 app.post(
     "/public/prepurchase",
@@ -57,13 +58,14 @@ app.post(
         order.state = "prepurchase";
         await saveOrder(order);
 
+        const transactionToken = makeTransactionToken(order, req.user);
+        const transactionTokenJWT = signJWT(transactionToken, { expiresIn: jwtExpirySeconds });
+
         logMessage.header = "Created prepurchase";
-        logMessage.content = { orderId: order.id };
+        logMessage.content = { orderId: order.id, token: transactionTokenJWT };
         sendToLogger(logContext).then();
 
-        // TODO: maybe send a signed JWT w/ credit and cost?
-        // would allow some leniency in terms of config changing
-        res.status(200).json({ transactionToken: order.id, credit: req.user.credit });
+        res.status(200).send(transactionTokenJWT);
     })
 );
 
@@ -80,19 +82,6 @@ app.post(
         };
         const logMessage = logContext.fields[0];
 
-        if (transaction.type === "bits") {
-            const validationResult = checkBitsTransaction(transaction);
-            if (validationResult) {
-                logMessage.header = validationResult.logHeaderOverride ?? validationResult.message;
-                logMessage.content = validationResult.logContents ?? { transaction };
-                if (validationResult.status === 403) {
-                    setUserBanned(req.user, true);
-                }
-                res.status(validationResult.status).send(validationResult.message);
-                return;
-            }
-        }
-
         let order: Order;
         try {
             const orderMaybe = await getAndCheckOrder(transaction, req.user);
@@ -100,6 +89,9 @@ app.post(
                 const checkRes = orderMaybe;
                 logMessage.header = checkRes.logHeaderOverride ?? checkRes.message;
                 logMessage.content = checkRes.logContents ?? { transaction };
+                if (checkRes.status === 403) {
+                    setUserBanned(req.user, true);
+                }
                 res.status(orderMaybe.status).send(orderMaybe.message);
                 return;
             } else {

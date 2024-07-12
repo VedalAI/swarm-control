@@ -78,17 +78,59 @@ export type Cart = {
     args: { [name: string]: any };
 };
 
-export type IdentifiableCart = Cart & {
-    userId: string;
+export type IdentifiableCart = Cart & { userId: string };
+
+export type Transaction = BitsTransaction | CreditTransaction;
+
+export type TransactionBase = {
+    token: string; // JWT with TransactionToken (given by EBS on prepurchase)
+    type: "bits" | "credit";
+};
+export type BitsTransaction = TransactionBase & {
+    type: "bits";
+    receipt: string; // JWT with BitsTransactionPayload (coming from Twitch)
+};
+export type CreditTransaction = TransactionBase & { type: "credit" };
+
+export type DecodedTransaction = {
+    token: TransactionTokenPayload;
+} & ({ type: "credit" } | { type: "bits"; receipt: BitsTransactionPayload });
+
+export type TransactionToken = {
+    id: string;
+    time: number; // Unix millis
+    user: {
+        id: string; // user channel id
+        credit: number;
+    };
+    product: {
+        sku: string;
+        cost: number;
+    };
+};
+export type TransactionTokenPayload = {
+    exp: number;
+    data: TransactionToken;
 };
 
-export type Transaction = {
-    token: string;
-    type: "bits" | "credit";
-    // for type:"bits", this is a BitsTransactionPayload (JWT signed by Twitch)
-    // for type:"credit", this should be null/not present since verification will be done serverside
-    receipt?: string;
-}
+export type BitsTransactionPayload = {
+    topic: string;
+    exp: number;
+    data: {
+        transactionId: string;
+        time: string;
+        userId: string;
+        product: {
+            domainId: string;
+            sku: string;
+            displayName: string;
+            cost: {
+                amount: number;
+                type: "bits";
+            };
+        };
+    };
+};
 
 export type PubSubMessage = {
     type: "config_refreshed" | "banned";

@@ -1,9 +1,9 @@
-import { Order, Transaction, User, OrderState } from "common/types";
-import { BitsTransactionPayload } from "../../types";
+import { Order, Transaction, User, OrderState, TransactionToken, TransactionTokenPayload, DecodedTransaction, BitsTransactionPayload } from "common/types";
 import { verifyJWT, parseJWT } from "../../util/jwt";
 import { getOrAddUser, getOrder, saveOrder, saveUser } from "../../util/db";
 import { ResultKind, ResultMessage } from "../game/messages.game";
 import { sendToLogger } from "../../util/logger";
+import { JwtPayload } from "jsonwebtoken";
 
 type HttpResult = {
     status: number;
@@ -12,29 +12,75 @@ type HttpResult = {
     logContents?: any;
 };
 
-export function checkBitsTransaction(transaction: Transaction): HttpResult | null {
-    // bits transactions get verified earlier
-    if (transaction.type === "bits") {
-        if (!transaction.receipt) {
-            return { status: 400, message: "Missing receipt" };
-        }
-        if (!verifyJWT(transaction.receipt)) {
-            return { status: 403, message: "Invalid receipt" };
-        }
+export const jwtExpirySeconds = 60;
+const jwtExpiryToleranceMillis = 15 * 1000;
+const usedBitsTransactionIds: Set<string> = new Set();
+const defaultResult: HttpResult = { status: 403, message: "Invalid transaction" };
 
-        const payload = parseJWT(transaction.receipt) as BitsTransactionPayload;
-
-        if (!payload.data.transactionId) {
-            return { status: 400, message: "Missing transaction ID" };
-        }
-    } else if (transaction.type !== "credit" || transaction.receipt) {
-        return { status: 400, message: "Invalid transaction" };
+export function decodeJWTPayloads(transaction: Transaction): HttpResult | DecodedTransaction {
+    if (transaction.type !== "bits" && transaction.type !== "credit") {
+        return { ...defaultResult, logHeaderOverride: "Invalid type" };
     }
-    return null;
+    if (!transaction.token || !verifyJWT(transaction.token)) {
+        return { ...defaultResult, logHeaderOverride: "Invalid token" };
+    }
+    const token = parseJWT(transaction.token) as TransactionTokenPayload;
+    if (transaction.type === "bits") {
+        if (!transaction.receipt || !verifyJWT(transaction.receipt)) {
+            return { ...defaultResult, logHeaderOverride: "Invalid receipt" };
+        }
+        return {
+            type: "bits",
+            token,
+            receipt: parseJWT(transaction.receipt) as BitsTransactionPayload,
+        };
+    }
+    return {
+        type: "credit",
+        token,
+    };
+}
+
+export function verifyTransaction(transaction: Transaction): HttpResult | TransactionToken {
+    const decoded = decodeJWTPayloads(transaction);
+    if ("status" in decoded) {
+        return decoded;
+    }
+    const token = decoded.token;
+
+    if (decoded.type === "bits") {
+        // for bits purchases, we don't care if our token JWT expired
+        // because if the bits t/a is valid, the person already paid the money
+        const receipt = decoded.receipt;
+        if (receipt.topic != "bits_transaction_receipt") {
+            // e.g. someone trying to put a token JWT in the receipt field
+            return { ...defaultResult, logHeaderOverride: "Invalid receipt topic" };
+        }
+        if (usedBitsTransactionIds.has(receipt.data.transactionId)) {
+            return { ...defaultResult, logHeaderOverride: "Transaction replay" };
+        }
+        usedBitsTransactionIds.add(receipt.data.transactionId);
+        if (receipt.exp < Date.now() - jwtExpiryToleranceMillis) {
+            // status 403 and not 400 because bits JWTs have an expiry of 1 hour
+            // if you're sending a transaction 1 hour after it happened... you're sus
+            return { ...defaultResult, logHeaderOverride: "Bits receipt expired" };
+        }
+    } else if (decoded.type === "credit") {
+        if (token.exp < Date.now() - jwtExpiryToleranceMillis) {
+            return { ...defaultResult, status: 400, message: "Transaction expired, try again", logHeaderOverride: "Credit receipt expired" };
+        }
+    }
+
+    return token.data;
 }
 
 export async function getAndCheckOrder(transaction: Transaction, user: User): Promise<Order | HttpResult> {
-    const orderMaybe = await getOrder(transaction.token);
+    const token = verifyTransaction(transaction);
+    if ("status" in token) {
+        return token;
+    }
+
+    const orderMaybe = await getOrder(token.id);
     if (!orderMaybe) {
         return { status: 404, message: "Transaction not found" };
     }
@@ -44,14 +90,22 @@ export async function getAndCheckOrder(transaction: Transaction, user: User): Pr
     }
 
     if (!order.cart) {
-        return { status: 500, message: "Invalid transaction", logHeaderOverride: "Missing cart", logContents: { order: order.id } };
+        return { status: 500, message: "Internal error", logHeaderOverride: "Missing cart", logContents: { order: order.id } };
+    }
+    if (order.cart.sku != token.product.sku) {
+        return {
+            status: 400,
+            message: "Invalid transaction",
+            logHeaderOverride: "SKU mismatch",
+            logContents: { cartSku: order.cart.sku, tokenSku: token.product.sku },
+        };
     }
 
     if (transaction.type === "credit") {
         const sku = order.cart.sku;
         const cost = parseInt(sku.substring(4)); // bitsXXX
         if (!isFinite(cost) || cost <= 0) {
-            return { status: 500, message: "Invalid transaction", logHeaderOverride: "Bad SKU", logContents: { order: order.id, sku } };
+            return { status: 500, message: "Internal configuration error", logHeaderOverride: "Bad SKU", logContents: { order: order.id, sku } };
         }
         if (user.credit < cost) {
             return {
@@ -101,7 +155,7 @@ export async function processRedeemResult(order: Order, result: ResultMessage): 
         let header: string;
         if (result.status === "deny") {
             status = 400;
-            msg ??= "The redeem could not complete.";
+            msg ??= "The game is not ready to process this redeem.";
             header = "Redeem denied";
         } else {
             status = 500;
@@ -128,4 +182,22 @@ export async function refund(order: Order) {
             fields: [{ header: "Failed to refund", content: { order: order.id, error: e } }],
         });
     }
+}
+
+export function makeTransactionToken(order: Order, user: User): TransactionToken {
+    const sku = order.cart.sku;
+    const cost = parseInt(sku.substring(4));
+    if (!isFinite(cost) || cost <= 0) {
+        throw new Error(`Bad SKU ${sku}`);
+    }
+
+    return {
+        id: order.id,
+        time: Date.now(),
+        user: {
+            id: user.id,
+            credit: user.credit,
+        },
+        product: { sku, cost },
+    };
 }

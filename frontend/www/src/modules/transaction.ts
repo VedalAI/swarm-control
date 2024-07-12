@@ -1,10 +1,10 @@
 import { Transaction } from "common/types";
-import { hideProcessingModal, openModal, showErrorModal, showSuccessModal, transactionToken } from "./modal";
+import { hideProcessingModal, openModal, showErrorModal, showSuccessModal, transactionToken, transactionTokenJwt } from "./modal";
 import { logToDiscord } from "../util/logger";
 import { ebsFetch } from "../util/ebs";
 import { twitchUseBits } from "../util/twitch";
 
-type TransactionResponse = Twitch.ext.BitsTransaction | "usedCredit" | "cancelled";
+type TransactionResponse = Twitch.ext.BitsTransaction | "useCredit" | "cancelled";
 
 let myCredit = 0;
 
@@ -13,14 +13,13 @@ export async function promptTransaction(sku: string): Promise<TransactionRespons
     const bitsPrice = parseInt(sku.substring(4));
     console.log(`Purchasing ${sku} for ${bitsPrice} bits (have ${myCredit})`);
     if (myCredit > bitsPrice) {
-        // TODO: "use credit?" confirmation modal
-        return "usedCredit";
+        return (await confirmCreditTransaction(bitsPrice)) ? "useCredit" : "cancelled";
     } else {
         return await twitchUseBits(sku);
     }
 }
 
-export async function transactionComplete(transaction: Twitch.ext.BitsTransaction | "usedCredit") {
+export async function transactionComplete(transaction: Twitch.ext.BitsTransaction | "useCredit") {
     if (!transactionToken) {
         logToDiscord({
             transactionToken: null,
@@ -41,10 +40,10 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
         );
         return;
     }
-    const isCredit = transaction === "usedCredit";
+    const isCredit = transaction === "useCredit";
 
     logToDiscord({
-        transactionToken: transactionToken,
+        transactionToken: transactionToken.id,
         userIdInsecure: Twitch.ext.viewer.id!,
         important: false,
         fields: [
@@ -55,18 +54,15 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
         ],
     }).then();
 
-    const transactionObject: Transaction = {
-        type: isCredit ? "credit" : "bits",
-        token: transactionToken,
-        receipt: isCredit ? undefined : transaction.transactionReceipt,
-    };
-
     const result = await ebsFetch("/public/transaction", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(transactionObject),
+        body: JSON.stringify({
+            token: transactionTokenJwt!,
+            ...(isCredit ? { type: "credit" } : { type: "bits", receipt: transaction.transactionReceipt }),
+        } satisfies Transaction),
     });
 
     setTimeout(() => hideProcessingModal(), 250);
@@ -77,7 +73,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
     } else {
         if (result.status === 400) {
             logToDiscord({
-                transactionToken: transactionToken,
+                transactionToken: transactionToken.id,
                 userIdInsecure: Twitch.ext.viewer.id!,
                 important: true,
                 fields: [{ header: "Redeem denied", content: text }],
@@ -91,7 +87,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
         } else if (result.status === 500) {
             const errorText = `${result.status} ${result.statusText} - ${text}`;
             logToDiscord({
-                transactionToken: transactionToken,
+                transactionToken: transactionToken.id,
                 userIdInsecure: Twitch.ext.viewer.id!,
                 important: true,
                 fields: [{ header: "Redeem failed", content: errorText }],
@@ -111,7 +107,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
 export async function transactionCancelled() {
     if (transactionToken) {
         logToDiscord({
-            transactionToken: transactionToken,
+            transactionToken: transactionToken.id,
             userIdInsecure: Twitch.ext.viewer.id!,
             important: false,
             fields: [
@@ -138,4 +134,9 @@ export async function transactionCancelled() {
 export async function updateClientsideBalance(credit: number) {
     myCredit = credit;
     // TODO: update UI (when there is UI)
+}
+
+export async function confirmCreditTransaction(price: number) {
+    // temporary obviously
+    return confirm(`Use ${price} bits from your credit?`);
 }

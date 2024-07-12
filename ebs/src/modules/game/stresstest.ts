@@ -1,8 +1,8 @@
-import { Order } from "common/types";
+import { BitsTransactionPayload, Order } from "common/types";
 import { connection } from ".";
 import { getConfig } from "../config";
 import { signJWT } from "../../util/jwt";
-import { AuthorizationPayload, BitsTransactionPayload } from "../../types";
+import { AuthorizationPayload } from "../../types";
 
 export enum StressTestType {
     GameSpawnQueue,

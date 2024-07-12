@@ -1,10 +1,11 @@
-import { Cart, Redeem } from "common/types";
+import { Cart, Redeem, TransactionToken } from "common/types";
 import { ebsFetch } from "../../util/ebs";
 import { getConfig } from "../../util/config";
 import { logToDiscord } from "../../util/logger";
 import { setBanned } from "../auth";
 import { promptTransaction, transactionCancelled, transactionComplete, updateClientsideBalance } from "../transaction";
 import { $modalOptionsForm, checkForm, setCartArgsFromForm, setupForm } from "./form";
+import { getJWTPayload as decodeJWT } from "../../util/jwt";
 
 document.body.addEventListener("dblclick", (e) => {
     e.stopPropagation();
@@ -44,7 +45,8 @@ const $modalSuccessDescription = document.getElementById("modal-success-descript
 const $modalSuccessClose = document.getElementById("modal-success-close")!;
 
 export let cart: Cart | undefined;
-export let transactionToken: string | undefined;
+export let transactionToken: TransactionToken | undefined;
+export let transactionTokenJwt: string | undefined;
 
 let processingTimeout: number | undefined;
 
@@ -179,7 +181,7 @@ async function confirmPurchase() {
     }
 
     logToDiscord({
-        transactionToken: transactionToken!,
+        transactionToken: transactionToken!.id,
         userIdInsecure: Twitch.ext.viewer.id!,
         important: false,
         fields: [{ header: "Transaction started", content: cart }],
@@ -222,7 +224,8 @@ async function prePurchase() {
     }
 
     const resp = await response.json() as PrepurchaseResponse;
-    transactionToken = resp.transactionToken;
+    transactionTokenJwt = resp.transactionToken;
+    transactionToken = decodeJWT(resp.transactionToken) as TransactionToken;
     updateClientsideBalance(resp.credit);
 
     return true;
