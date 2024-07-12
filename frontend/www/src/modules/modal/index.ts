@@ -196,10 +196,10 @@ async function confirmPurchase() {
     }
 }
 
-async function prePurchase() {
+async function prePurchase(): Promise<boolean> {
     if (!cart) {
         console.error("Can't send prepurchase without cart");
-        return;
+        return false;
     }
     
     const response = await ebsFetch("/public/prepurchase", {
