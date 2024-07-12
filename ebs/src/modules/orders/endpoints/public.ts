@@ -1,4 +1,4 @@
-import { Cart, LogMessage, Transaction, Order, TransactionToken, TransactionTokenPayload } from "common/types";
+import { Cart, LogMessage, Transaction, Order, TransactionTokenPayload } from "common/types";
 import { app } from "../../..";
 import { getConfig } from "../../config";
 import { createOrder, getOrder, saveOrder, updateUserTwitchInfo } from "../../../util/db";
@@ -10,6 +10,8 @@ import { validatePrepurchase } from "../prepurchase";
 import { setUserBanned } from "../../user";
 import { decodeJWTPayloads, getAndCheckOrder, jwtExpirySeconds, makeTransactionToken, processRedeemResult } from "../transaction";
 import { parseJWT, signJWT, verifyJWT } from "../../../util/jwt";
+
+const usedBitsTransactionIds: Set<string> = new Set();
 
 app.post(
     "/public/prepurchase",
@@ -121,6 +123,30 @@ app.post(
             sendToLogger(logContext).then();
             res.status(500).send("Failed to get transaction");
             return;
+        }
+
+        
+        if (decoded.type === "bits") {
+            const bitsTransaction = decoded.receipt.data.transactionId;
+            if (usedBitsTransactionIds.has(bitsTransaction)) {
+                // happens if there are X extension tabs that are all open on the twitch bits modal
+                // twitch broadcasts onTransactionComplete to all of them and the client ends up
+                // sending X requests for each completed transaction (where all but 1 will obviously be duplicates)
+                // we don't want to auto-ban people just for having multiple tabs open
+                // but it's still obviously not ideal behaviour
+                if (order.cart.clientSession == transaction.clientSession) {
+                    logMessage.content = {
+                        order: order.id,
+                        bitsTransaction: decoded.receipt.data,
+                    }
+                    logMessage.header = "Transaction replay";
+                    sendToLogger(logContext).then();
+                }
+                // unfortunately, in this case the other tab(s) will still lose their purchase
+                res.status(401).send("Invalid transaction");
+                return;
+            }
+            usedBitsTransactionIds.add(bitsTransaction);
         }
 
         if (order.userId != req.user.id) {

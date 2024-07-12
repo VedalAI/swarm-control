@@ -13,7 +13,6 @@ type HttpResult = {
 
 export const jwtExpirySeconds = 60;
 const jwtExpiryToleranceSeconds = 15;
-const usedBitsTransactionIds: Set<string> = new Set();
 const defaultResult: HttpResult = { status: 403, message: "Invalid transaction" };
 
 export function decodeJWTPayloads(transaction: Transaction): HttpResult | DecodedTransaction {
@@ -51,10 +50,6 @@ export function verifyTransaction(decoded: DecodedTransaction): HttpResult | Tra
             // e.g. someone trying to put a token JWT in the receipt field
             return { ...defaultResult, logHeaderOverride: "Invalid receipt topic" };
         }
-        if (usedBitsTransactionIds.has(receipt.data.transactionId)) {
-            return { ...defaultResult, logHeaderOverride: "Transaction replay" };
-        }
-        usedBitsTransactionIds.add(receipt.data.transactionId);
         if (receipt.exp < Date.now() / 1000 - jwtExpiryToleranceSeconds) {
             // status 403 and not 400 because bits JWTs have an expiry of 1 hour
             // if you're sending a transaction 1 hour after it happened... you're sus

@@ -16,7 +16,7 @@ export function verifyJWT(token: string): boolean {
 export function parseJWT(token: string) {
     if (memo[token]) return memo[token];
 
-    const result = jwt.verify(token, getJwtSecretBuffer());
+    const result = jwt.verify(token, getJwtSecretBuffer(), { ignoreExpiration: true });
     memo[token] = result;
     return result;
 }

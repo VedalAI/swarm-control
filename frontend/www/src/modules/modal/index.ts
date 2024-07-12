@@ -3,7 +3,7 @@ import { ebsFetch } from "../../util/ebs";
 import { getConfig } from "../../util/config";
 import { logToDiscord } from "../../util/logger";
 import { setBanned } from "../auth";
-import { promptTransaction, transactionCancelled, transactionComplete, updateClientsideBalance } from "../transaction";
+import { clientSession, promptTransaction, transactionCancelled, transactionComplete, updateClientsideBalance } from "../transaction";
 import { $modalOptionsForm, checkForm, setCartArgsFromForm, setupForm } from "./form";
 import { getJWTPayload as decodeJWT } from "../../util/jwt";
 
@@ -73,7 +73,7 @@ export async function openModal(redeem: Redeem | null) {
 
     const config = await getConfig();
 
-    cart = { version: config.version, sku: redeem.sku, id: redeem.id, args: {} };
+    cart = { version: config.version, clientSession, sku: redeem.sku, id: redeem.id, args: {} };
 
     $modalWrapper.style.opacity = "1";
     $modalWrapper.style.pointerEvents = "unset";
@@ -197,6 +197,11 @@ async function confirmPurchase() {
 }
 
 async function prePurchase() {
+    if (!cart) {
+        console.error("Can't send prepurchase without cart");
+        return;
+    }
+    
     const response = await ebsFetch("/public/prepurchase", {
         method: "POST",
         headers: {

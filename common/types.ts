@@ -73,6 +73,7 @@ export type Config = {
 
 export type Cart = {
     version: number;
+    clientSession: string; // any string to disambiguate between multiple tabs
     id: string;
     sku: string;
     args: { [name: string]: any };
@@ -84,6 +85,7 @@ export type Transaction = BitsTransaction | CreditTransaction;
 
 export type TransactionBase = {
     token: string; // JWT with TransactionToken (given by EBS on prepurchase)
+    clientSession: string; // same session as in Cart
     type: "bits" | "credit";
 };
 export type BitsTransaction = TransactionBase & {

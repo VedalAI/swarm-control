@@ -7,6 +7,7 @@ import { twitchUseBits } from "../util/twitch";
 type TransactionResponse = Twitch.ext.BitsTransaction | "useCredit" | "cancelled";
 
 let myCredit = 0;
+export const clientSession = Math.random().toString(36).substring(2);
 
 export async function promptTransaction(sku: string, cost: number): Promise<TransactionResponse> {
     console.log(`Purchasing ${sku} for ${cost} bits (have ${myCredit})`);
@@ -59,6 +60,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
         },
         body: JSON.stringify({
             token: transactionTokenJwt!,
+            clientSession,
             ...(isCredit ? { type: "credit" } : { type: "bits", receipt: transaction.transactionReceipt }),
         } satisfies Transaction),
     });
