@@ -164,6 +164,7 @@ export type OrderState =
     | "prepurchase"
     | "cancelled"
     | "paid" // waiting for game
+    | "denied" // routine rejection e.g. precondition failed
     | "failed" // game failed/timed out
     | "succeeded";
 

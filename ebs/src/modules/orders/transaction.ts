@@ -122,7 +122,7 @@ export async function getAndCheckOrder(transaction: Transaction, decoded: Decode
 const orderStateMap: { [k in ResultKind]: OrderState } = {
     success: "succeeded",
     error: "failed",
-    deny: "rejected",
+    deny: "denied",
 };
 
 export async function processRedeemResult(order: Order, result: ResultMessage): Promise<HttpResult> {

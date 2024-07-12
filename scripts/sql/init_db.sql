@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS orders (
     id VARCHAR(36) PRIMARY KEY,
     userId VARCHAR(255) NOT NULL,
-    state ENUM('rejected', 'prepurchase', 'cancelled', 'paid', 'failed', 'succeeded'),
+    state ENUM('rejected', 'prepurchase', 'cancelled', 'paid', 'denied', 'failed', 'succeeded'),
     cart JSON,
     receipt VARCHAR(1024),
     result TEXT,
