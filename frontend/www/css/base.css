@@ -85,3 +85,7 @@ select {
     background-color: #333;
     color: #eee;
 }
+
+.sat-10 {
+    filter: saturate(10%);
+}

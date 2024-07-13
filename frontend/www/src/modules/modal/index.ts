@@ -3,7 +3,7 @@ import { ebsFetch } from "../../util/ebs";
 import { getConfig } from "../../util/config";
 import { logToDiscord } from "../../util/logger";
 import { setBanned } from "../auth";
-import { clientSession, promptTransaction, transactionCancelled, transactionComplete, updateClientsideBalance } from "../transaction";
+import { clientSession, promptTransaction, transactionCancelled, transactionComplete, setClientsideBalance, getClientsideBalance } from "../transaction";
 import { $modalOptionsForm, checkForm, setCartArgsFromForm, setupForm } from "./form";
 import { getJWTPayload as decodeJWT } from "../../util/jwt";
 
@@ -43,6 +43,13 @@ const $modalSuccess = document.getElementById("modal-success")!;
 const $modalSuccessTitle = document.getElementById("modal-success-title")!;
 const $modalSuccessDescription = document.getElementById("modal-success-description")!;
 const $modalSuccessClose = document.getElementById("modal-success-close")!;
+
+const $modalConfirmCredit = document.getElementById("modal-confirm-credit")!;
+const $modalConfirmCreditBalance = document.getElementById("modal-confirm-credit-balance")!;
+const $modalConfirmCreditCost = document.getElementById("modal-confirm-credit-cost")!;
+const $modalConfirmCreditRemainder = document.getElementById("modal-confirm-credit-remainder")!;
+const $modalConfirmCreditUseCredit = document.getElementById("modal-confirm-credit-useCredit")!;
+const $modalConfirmCreditUseBits = document.getElementById("modal-confirm-credit-useBits")!;
 
 export let cart: Cart | undefined;
 export let transactionToken: TransactionToken | undefined;
@@ -142,6 +149,26 @@ export function showSuccessModal(title: string, description: string, onClose?: (
     };
 }
 
+export function showCreditConfirmationModal(useCredit: () => void, useBits: () => void) {
+    if (!transactionToken) return;
+    const balance = getClientsideBalance();
+    const cost = transactionToken!.product.cost;
+
+    $modalConfirmCredit.style.opacity = "1";
+    $modalConfirmCredit.style.pointerEvents = "unset";
+    $modalConfirmCreditBalance.textContent = balance.toString();
+    $modalConfirmCreditCost.textContent = cost.toString();
+    $modalConfirmCreditRemainder.textContent = (balance - cost).toString();
+    $modalConfirmCreditUseCredit.onclick = () => {
+        hideCreditConfirmationModal();
+        useCredit();
+    }
+    $modalConfirmCreditUseBits.onclick = () => {
+        hideCreditConfirmationModal();
+        useBits();
+    }
+}
+
 function closeModal() {
     cart = undefined;
     transactionToken = undefined;
@@ -173,6 +200,11 @@ function hideSuccessModal(closeMainModal = false) {
     $modalSuccess.style.pointerEvents = "none";
 
     if (closeMainModal) closeModal();
+}
+
+function hideCreditConfirmationModal() {
+    $modalConfirmCredit.style.opacity = "0";
+    $modalConfirmCredit.style.pointerEvents = "none";
 }
 
 async function confirmPurchase() {
@@ -242,7 +274,7 @@ async function prePurchase(): Promise<boolean> {
         showErrorModal("Server Error", "Server returned invalid transaction token. The developers have been notified, please try again later.");
         return false;
     }
-    updateClientsideBalance(transactionToken.user.credit);
+    setClientsideBalance(transactionToken.user.credit);
 
     return true;
 }

@@ -167,10 +167,6 @@
     transition: all 0.2s;
 }
 
-.top-status-bar img {
-    filter: saturate(10%);
-}
-
 .top-status-bar .top-status-bar-left {
     padding-inline: 0.5rem;
     display: flex;

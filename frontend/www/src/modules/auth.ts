@@ -2,7 +2,7 @@ import { ebsFetch } from "../util/ebs";
 import { renderRedeemButtons } from "./redeems";
 import { refreshConfig, setConfig } from "../util/config";
 import { onTwitchAuth, twitchAuth } from "../util/twitch";
-import { clientSession, updateClientsideBalance } from "./transaction";
+import { clientSession, setClientsideBalance } from "./transaction";
 
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
@@ -31,7 +31,7 @@ function onAuth(auth: Twitch.ext.Authorized) {
         }
         res.json().then((resp: { credit: number; }) => {
             console.log(`Balance: ${resp.credit}`);
-            updateClientsideBalance(resp.credit);
+            setClientsideBalance(resp.credit);
         });
         renderRedeemButtons().then();
     });

@@ -90,14 +90,33 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Modal success overlay -->
+                        <div class="modal-overlay" id="modal-confirm-credit" style="opacity: 0; pointer-events: none;">
+                            <img src="img/bits.png" class="bits-image sat-10" style="width: 5rem; height: 5rem;">
+                            <div class="modal-descriptors">
+                                <h2 id="modal-confirm-credit-title">Use Credit?</h2>
+                                <div id="modal-confirm-credit-description">
+                                    <p>You have <img src="img/bits.png" class="bits-inline sat-10"><b><span id="modal-confirm-credit-balance"></span></b> credit. The redeem will cost <img src="img/bits.png" class="bits-inline sat-10"><b><span id="modal-confirm-credit-cost"></span></b>, leaving you with <img src="img/bits.png" class="bits-inline sat-10"><b><span id="modal-confirm-credit-remainder"></span></b>.</p>
+                                    <p>Please make sure you're able to fully use the remainder.</p>
+                                    <p>If you select "Use Bits", you'll have an opportunity to cancel.</p>
+                                </div>
+
+                                <!-- Close button -->
+                                <div class="modal-buttons">
+                                    <button id="modal-confirm-credit-useCredit" class="button btn-secondary">Use <img src="img/bits.png" class="bits-image sat-10"> Credit</button>
+                                    <button id="modal-confirm-credit-useBits" class="button btn-secondary">Use <img src="img/bits.png" class="bits-image">Bits</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="top-status-bar" id="top-status-bar" style="display: none;">
                     <div class="top-status-bar-left" title="Your current credit balance. You can choose to use this balance before purchasing bits.">
                         <!-- bits balance -->
-                        <img src="img/bits.png" class="bits-image">
-                        <p id="credit-balance">X</p>
+                        <img src="img/bits.png" class="bits-image sat-10">
+                        <p id="credit-balance">?</p>
                     </div>
                 </div>
                 <div id="items">

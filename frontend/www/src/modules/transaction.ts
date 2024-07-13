@@ -1,5 +1,5 @@
 import { Transaction } from "common/types";
-import { hideProcessingModal, openModal, showErrorModal, showSuccessModal, transactionToken, transactionTokenJwt } from "./modal";
+import { hideProcessingModal, openModal, showCreditConfirmationModal, showErrorModal, showSuccessModal, transactionToken, transactionTokenJwt } from "./modal";
 import { logToDiscord } from "../util/logger";
 import { ebsFetch } from "../util/ebs";
 import { twitchUseBits } from "../util/twitch";
@@ -12,7 +12,7 @@ export const clientSession = Math.random().toString(36).substring(2);
 
 export async function promptTransaction(sku: string, cost: number): Promise<TransactionResponse> {
     console.log(`Purchasing ${sku} for ${cost} bits (have ${myCredit})`);
-    if (myCredit >= cost && await confirmUseCredit(cost)) {
+    if (myCredit >= cost && await confirmUseCredit()) {
         return "useCredit";
     }
     return await twitchUseBits(sku);
@@ -58,11 +58,13 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
     const text = await result.text();
     const cost = transactionToken.product.cost;
     if (result.ok) {
-        updateClientsideBalance(myCredit - cost);
+        if (transaction === "useCredit") {
+            setClientsideBalance(myCredit - cost);
+        }
         showSuccessModal("Purchase completed", `${text}\nTransaction ID: ${transactionToken.id}`);
     } else {
         if (transaction !== "useCredit") {
-            updateClientsideBalance(myCredit + cost);
+            setClientsideBalance(myCredit + cost);
         }
         if (result.status === 400) {
             logToDiscord({
@@ -116,7 +118,11 @@ export async function transactionCancelled() {
     showErrorModal("Transaction cancelled.", `Transaction ID: ${transactionToken?.id ?? "none"}`);
 }
 
-export async function updateClientsideBalance(credit: number) {
+export function getClientsideBalance() {
+    return myCredit;
+}
+
+export async function setClientsideBalance(credit: number) {
     myCredit = credit;
     $balance.innerText = credit.toString();
     $statusBar.style.display = credit > 0 ? "flex" : "none";
@@ -125,12 +131,10 @@ export async function updateClientsideBalance(credit: number) {
 /**
  * Opens a modal asking the user if they want to use credit for the redeem
  *
- * @param price the price in bits
  * @returns whether the user wants to use credit; if not, they will be prompted to use bits instead
  */
-export async function confirmUseCredit(price: number): Promise<boolean> {
-    // temporary obviously
-    return true;
-    // no modal APIs in this iframe
-    //return confirm(`Use ${price} bits from your credit? You currently have ${myCredit}`);
+export async function confirmUseCredit(): Promise<boolean> {
+    return new Promise((resolve) => {
+        showCreditConfirmationModal(() => resolve(true), () => resolve(false));
+    });
 }
