@@ -54,6 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
     $modalConfirm.onclick = confirmPurchase;
     $modalCancel.onclick = closeModal;
 
+    // Twitch sets some parameters in the query string (https://dev.twitch.tv/docs/extensions/reference/#client-query-parameters)
+    const queryParams = new URLSearchParams(window.location.search);
+    if (queryParams.get("platform") === "mobile") {
+        document.body.classList.add("mobile");
+    }
+
     $modalWrapper.onclick = (e) => {
         if (e.target !== $modalWrapper) return;
         if ($modalProcessing.style.opacity == "1") return;

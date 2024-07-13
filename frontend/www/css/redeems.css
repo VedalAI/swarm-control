@@ -111,6 +111,7 @@
     text-shadow: 0 0 5px #000;
 
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 
@@ -139,6 +140,9 @@
 .redeemable-item:hover .redeemable-item-price-wrapper,
 .redeemable-item:focus .redeemable-item-price-wrapper {
     transform: translateY(0%);
+}
+.mobile .redeemable-item .redeemable-item-price-wrapper {
+    transform: translateY(0%) !important;
 }
 
 .redeemable-item-price-wrapper>img {

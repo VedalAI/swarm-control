@@ -7,13 +7,12 @@ app.post(
     "/public/authorized",
     asyncCatch(async (req, res) => {
         const {session} = req.body as {session: string};
-        const user = await updateUserTwitchInfo(req.user);
-        
         // console.log(`${req.auth.opaque_user_id} opened extension (session ${session})`);
+        setUserSession(req.user, session);
         
-        setUserSession(user, session);
-        res.status(200).send({ credit: user.credit });
-        return;
+        updateUserTwitchInfo(req.user).then();
+        
+        res.status(200).send({ credit: req.user.credit });
     })
 );
 
