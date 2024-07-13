@@ -1,4 +1,4 @@
-import { Cart, LogMessage, Transaction, Order, TransactionTokenPayload } from "common/types";
+import { Cart, LogMessage, Transaction, Order, TransactionTokenPayload, TransactionToken } from "common/types";
 import { app } from "../../..";
 import { getConfig } from "../../config";
 import { createOrder, getOrder, saveOrder, updateUserTwitchInfo } from "../../../util/db";
@@ -63,14 +63,24 @@ app.post(
         order.state = "prepurchase";
         await saveOrder(order);
 
-        const transactionToken = makeTransactionToken(order, req.user);
+        let transactionToken: TransactionToken;
+        try {
+            transactionToken = makeTransactionToken(order, req.user);
+        } catch (e: any) {
+            logContext.important = true;
+            logMessage.header = `Failed to create transaction token`;
+            logMessage.content = { cart, userId, error: e };
+            sendToLogger(logContext).then();
+            res.status(500).send("Internal configuration error");
+            return;
+        }
         const transactionTokenJWT = signJWT({ data: transactionToken }, { expiresIn: jwtExpirySeconds });
 
         logMessage.header = "Created prepurchase";
         logMessage.content = { orderId: order.id, token: transactionTokenJWT };
         sendToLogger(logContext).then();
-
         res.status(200).send(transactionTokenJWT);
+        return;
     })
 );
 

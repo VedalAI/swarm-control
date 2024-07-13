@@ -9,10 +9,10 @@ const sessions: Map<string, string> = new Map();
 export async function setUserBanned(user: User, banned: boolean) {
     user.banned = banned;
     await saveUser(user);
-    await sendPubSubMessage({
+    sendPubSubMessage({
         type: "banned",
         data: JSON.stringify({ id: user.id, banned }),
-    });
+    }).then();
 }
 
 export async function getUserSession(user: User): Promise<string | null> {

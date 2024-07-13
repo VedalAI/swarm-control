@@ -38,6 +38,7 @@ export async function publicApiAuth(req: Request, res: Response, next: NextFunct
     }
 
     req.user = await getOrAddUser(twitchAuthorization.user_id);
+    req.auth = twitchAuthorization;
 
     if (req.user.banned) {
         res.status(403).send("You are banned from using this extension");
@@ -61,6 +62,7 @@ declare global {
     namespace Express {
         export interface Request {
             user: User;
+            auth: AuthorizationPayload;
         }
     }
 }

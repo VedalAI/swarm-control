@@ -27,3 +27,27 @@ CREATE TABLE IF NOT EXISTS logs (
     fromBackend BOOLEAN NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS addCredit
+$$
+CREATE PROCEDURE addCredit(IN userId VARCHAR(255), IN delta INT, OUT result INT)
+BEGIN
+    UPDATE users
+    SET credit = credit + delta
+    WHERE id = userId;
+
+    SELECT credit INTO result FROM users WHERE id = userId;
+END
+$$
+DROP PROCEDURE IF EXISTS debug
+$$
+CREATE PROCEDURE debug()
+BEGIN
+    SET GLOBAL general_log = 'ON';
+    SET GLOBAL log_output = 'TABLE';
+    -- Then use:
+    -- SELECT * FROM mysql.general_log;
+END
+$$
+DELIMITER ;

@@ -1,10 +1,9 @@
 import { Order, Transaction, User, OrderState, TransactionToken, TransactionTokenPayload, DecodedTransaction, BitsTransactionPayload } from "common/types";
 import { verifyJWT, parseJWT } from "../../util/jwt";
-import { getOrAddUser, getOrder, saveOrder, saveUser } from "../../util/db";
+import { addCredit, getOrAddUser, getOrder, saveOrder } from "../../util/db";
 import { ResultKind, ResultMessage } from "../game/messages.game";
 import { sendToLogger } from "../../util/logger";
 import { HttpResult } from "../../types";
-import { getUserSession } from "../user";
 
 export const jwtExpirySeconds = 60;
 const jwtExpiryToleranceSeconds = 15;
@@ -99,17 +98,16 @@ export async function getAndCheckOrder(transaction: Transaction, decoded: Decode
                 logContents: { user: user.id, order: order.id, cost, credit: user.credit },
             };
         }
-        user.credit -= cost; // good thing node is single threaded :^)
-        order.state = "paid";
+        user = await addCredit(user, -cost);
+        console.log(`Debited ${user.login ?? user.id} (${user.credit + cost} - ${cost} = ${user.credit})`);
         order.receipt = `credit (${user.credit + cost} - ${cost} = ${user.credit})`;
     } else {
         // for bits transactions, we verified the receipt JWT earlier (in verifyTransaction)
-        order.state = "paid";
         order.receipt = transaction.receipt;
     }
 
+    order.state = "paid";
     await saveOrder(order);
-    await saveUser(user);
 
     return order;
 }
@@ -154,8 +152,8 @@ export async function refund(order: Order) {
     try {
         let user = await getOrAddUser(order.userId);
         const cost = parseInt(order.cart.sku.substring(4));
-        user.credit += cost;
-        await saveUser(user);
+        user = await addCredit(user, cost);
+        console.log(`Refunded ${user.login ?? user.id} (${user.credit - cost} + ${cost} = ${user.credit})`);
     } catch (e) {
         console.error(`Could not refund order ${order.id}`);
         console.error(e);

@@ -171,3 +171,16 @@ export async function updateUserTwitchInfo(user: User): Promise<User> {
     }
     return user;
 }
+
+export async function addCredit(user: User, amount: number): Promise<User> {
+    try {
+        await db.query(`CALL addCredit(:userId, :amount, @credit);`, { userId: user.id, amount });
+        const [rows] = (await db.query("SELECT @credit")) as [RowDataPacket[], any];
+        user.credit = rows[0]["@credit"];
+        return user;
+    } catch (e: any) {
+        console.error("Database query failed (addCredit)");
+        console.error(e);
+        throw e;
+    }
+}
