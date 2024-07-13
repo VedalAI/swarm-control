@@ -3,6 +3,7 @@ import { hideProcessingModal, openModal, showErrorModal, showSuccessModal, trans
 import { logToDiscord } from "../util/logger";
 import { ebsFetch } from "../util/ebs";
 import { twitchUseBits } from "../util/twitch";
+import { $balance, $statusBar } from "./redeems";
 
 type TransactionResponse = Twitch.ext.BitsTransaction | "useCredit" | "cancelled";
 
@@ -55,9 +56,14 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
     setTimeout(() => hideProcessingModal(), 250);
 
     const text = await result.text();
+    const cost = transactionToken.product.cost;
     if (result.ok) {
+        updateClientsideBalance(myCredit - cost);
         showSuccessModal("Purchase completed", `${text}\nTransaction ID: ${transactionToken.id}`);
     } else {
+        if (transaction !== "useCredit") {
+            updateClientsideBalance(myCredit + cost);
+        }
         if (result.status === 400) {
             logToDiscord({
                 transactionToken: transactionToken.id,
@@ -112,7 +118,8 @@ export async function transactionCancelled() {
 
 export async function updateClientsideBalance(credit: number) {
     myCredit = credit;
-    // TODO: update UI (when there is UI)
+    $balance.innerText = credit.toString();
+    $statusBar.style.display = credit > 0 ? "flex" : "none";
 }
 
 /**

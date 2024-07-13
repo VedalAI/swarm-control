@@ -4,6 +4,8 @@ import { getConfig } from "../util/config";
 const $mainContainer = document.getElementsByTagName("main")!;
 const $redeemContainer = document.getElementById("items")!;
 const $modalProcessing = document.getElementById("modal-processing")!;
+export const $balance = document.getElementById("credit-balance")!;
+export const $statusBar = document.getElementById("top-status-bar")!;
 
 export async function renderRedeemButtons() {
     $redeemContainer.innerHTML = `<div class="redeems-content-spinner"><div class="spinner"></div><p>Loading content...</p></div>`;
