@@ -11,11 +11,10 @@ export const clientSession = Math.random().toString(36).substring(2);
 
 export async function promptTransaction(sku: string, cost: number): Promise<TransactionResponse> {
     console.log(`Purchasing ${sku} for ${cost} bits (have ${myCredit})`);
-    if (myCredit >= cost) {
-        return (await confirmCreditTransaction(cost)) ? "useCredit" : "cancelled";
-    } else {
-        return await twitchUseBits(sku);
+    if (myCredit >= cost && await confirmUseCredit(cost)) {
+        return "useCredit";
     }
+    return await twitchUseBits(sku);
 }
 
 export async function transactionComplete(transaction: Twitch.ext.BitsTransaction | "useCredit") {
@@ -24,12 +23,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
             transactionToken: null,
             userIdInsecure: Twitch.ext.viewer.id!,
             important: true,
-            fields: [
-                {
-                    header: "Missing transaction token",
-                    content: transaction,
-                },
-            ],
+            fields: [{ header: "Missing transaction token", content: transaction }],
         }).then();
         await openModal(null);
         hideProcessingModal();
@@ -45,19 +39,12 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
         transactionToken: transactionToken.id,
         userIdInsecure: Twitch.ext.viewer.id!,
         important: false,
-        fields: [
-            {
-                header: "Transaction complete",
-                content: isCredit ? { creditLeft: myCredit } : transaction,
-            },
-        ],
+        fields: [{ header: "Transaction complete", content: isCredit ? { creditLeft: myCredit } : transaction }],
     }).then();
 
     const result = await ebsFetch("/public/transaction", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             token: transactionTokenJwt!,
             clientSession,
@@ -97,8 +84,7 @@ export async function transactionComplete(transaction: Twitch.ext.BitsTransactio
                 `${errorText}
                 Please contact a moderator (preferably AlexejheroDev) about the error!
                 You have been credited the redeem cost, so you may try again later.
-                Transaction ID: ${transactionToken.id}
-                `
+                Transaction ID: ${transactionToken.id}`
             );
         }
     }
@@ -110,20 +96,13 @@ export async function transactionCancelled() {
             transactionToken: transactionToken.id,
             userIdInsecure: Twitch.ext.viewer.id!,
             important: false,
-            fields: [
-                {
-                    header: "Transaction cancelled",
-                    content: "User cancelled the transaction.",
-                },
-            ],
+            fields: [{ header: "Transaction cancelled", content: "User cancelled the transaction." }],
         }).then();
 
         await ebsFetch("/public/transaction/cancel", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({jwt: transactionTokenJwt}),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jwt: transactionTokenJwt }),
         });
     }
 
@@ -136,9 +115,15 @@ export async function updateClientsideBalance(credit: number) {
     // TODO: update UI (when there is UI)
 }
 
-export async function confirmCreditTransaction(price: number) {
+/**
+ * Opens a modal asking the user if they want to use credit for the redeem
+ *
+ * @param price the price in bits
+ * @returns whether the user wants to use credit; if not, they will be prompted to use bits instead
+ */
+export async function confirmUseCredit(price: number): Promise<boolean> {
     // temporary obviously
     return true;
     // no modal APIs in this iframe
-    //return confirm(`Use ${price} bits from your credit?`);
+    //return confirm(`Use ${price} bits from your credit? You currently have ${myCredit}`);
 }

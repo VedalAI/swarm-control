@@ -1,36 +1,45 @@
 import { ebsFetch } from "../util/ebs";
 import { renderRedeemButtons } from "./redeems";
 import { refreshConfig, setConfig } from "../util/config";
-import { twitchAuth } from "../util/twitch";
-import { updateClientsideBalance } from "./transaction";
+import { onTwitchAuth, twitchAuth } from "../util/twitch";
+import { clientSession, updateClientsideBalance } from "./transaction";
 
 const $loginPopup = document.getElementById("onboarding")!;
 const $loginButton = document.getElementById("twitch-login")!;
 
+onTwitchAuth(onAuth);
+
 document.addEventListener("DOMContentLoaded", () => {
     $loginButton.onclick = async () => {
-        const auth = await twitchAuth();
-        $loginPopup.style.display = "none";
-        ebsFetch("public/authorized", {
-            method: "POST",
-            body: JSON.stringify({ channelId: auth.channelId, userId: Twitch.ext.viewer.id! }),
-        }).then((res) => {
-            if (res.status === 403) {
-                setBanned(true);
-            }
-            res.json().then(
-                (resp: {credit: number}) => {
-                    console.log(`Balance: ${resp.credit}`);
-                    updateClientsideBalance(resp.credit);
-                }
-            );
-            renderRedeemButtons().then();
-        });
+        await twitchAuth();
     };
 });
 
+function onAuth(auth: Twitch.ext.Authorized) {
+    if (!Twitch.ext.viewer.id) {
+        $loginPopup.style.display = "";
+        return;
+    }
+    $loginPopup.style.display = "none";
+    ebsFetch("public/authorized", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session: clientSession }),
+    }).then((res) => {
+        if (res.status === 403) {
+            setBanned(true);
+        }
+        res.json().then((resp: { credit: number; }) => {
+            console.log(`Balance: ${resp.credit}`);
+            updateClientsideBalance(resp.credit);
+        });
+        renderRedeemButtons().then();
+    });
+}
+
 let _banned = false;
 const callbacks: (() => void)[] = [];
+
 export function getBanned() {
     return _banned;
 }

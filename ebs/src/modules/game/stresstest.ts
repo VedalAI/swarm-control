@@ -63,6 +63,7 @@ const order: Order = {
     userId: "stress",
     cart: {
         version: 1,
+        clientSession: "stress",
         id: redeemId,
         sku: "bits1",
         args: {

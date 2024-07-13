@@ -164,7 +164,7 @@ export class GameConnection {
                 command: redeem.id,
                 title: redeem.title,
                 announce: redeem.announce ?? true,
-                args: order.cart!.args,
+                args: order.cart.args,
                 user,
             } as RedeemMessage;
             if (this.outstandingRedeems.has(msg.guid)) {

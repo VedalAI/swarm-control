@@ -6,9 +6,9 @@ import { sendToLogger } from "../../util/logger";
 
 const pishockRedeemId = "redeem_pishock";
 
-require('./game'); // init connection just in case import order screwed us over
+require("./game"); // init connection just in case import order screwed us over
 
-connection.addRedeemHandler(pishockRedeem)
+connection.addRedeemHandler(pishockRedeem);
 
 export async function pishockRedeem(redeem: Redeem, order: Order, user: TwitchUser): Promise<ResultMessage | null> {
     if (redeem.id != pishockRedeemId) {
@@ -19,7 +19,7 @@ export async function pishockRedeem(redeem: Redeem, order: Order, user: TwitchUs
         transactionToken: order.id,
         userIdInsecure: order.userId,
         important: false,
-        fields: [{ header: "PiShock Redeem", content: `${user.displayName} redeemed PiShock` }]
+        fields: [{ header: "PiShock Redeem", content: `${user.displayName} redeemed PiShock` }],
     });
 
     const success = await sendShock(50, 100);
@@ -54,9 +54,7 @@ async function sendOperation(op: number, intensity: number, duration: number) {
 
         const response = await fetch(apiUrl, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
         });
 

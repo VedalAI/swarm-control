@@ -1,56 +1,55 @@
-import { Cart, Config, LogMessage, Order } from "common/types";
-import { sendToLogger } from "../../util/logger";
+import { Cart, Config, Order, User } from "common/types";
 import { getConfig } from "../config";
+import { HttpResult } from "../../types";
+import { getUserSession } from "../user";
 
-export async function validatePrepurchase(order: Order): Promise<string | null> {
-    const logContext: LogMessage = {
-        transactionToken: null,
-        userIdInsecure: order.userId,
-        important: false,
-        fields: [
-            {
-                header: "",
-                content: "",
-            },
-        ],
-    };
-    const logMessage = logContext.fields[0];
+const defaultResult: HttpResult = { status: 409, message: "Validation failed" };
 
-    const cart = order.cart!;
+export async function validatePrepurchase(order: Order, user: User): Promise<HttpResult | null> {
+    const cart = order.cart;
+    if (!cart?.clientSession) {
+        return { ...defaultResult, logHeaderOverride: "Missing client session", logContents: { cart } };
+    }
+
+    const existingSession = await getUserSession(user);
+    if (existingSession && order.cart.clientSession != existingSession) {
+        return {
+            ...defaultResult,
+            message: "Extension already open in another tab, please try again there or reload this page to make this the main session",
+            logHeaderOverride: "Non-main session",
+            logContents: { existingSession: existingSession, order: order.id },
+        };
+    }
 
     const config = await getConfig();
     if (cart.version != config.version) {
-        logMessage.header = "Invalid config version";
-        logMessage.content = `Received: ${cart.version}\nExpected: ${config.version}`;
-        await sendToLogger(logContext);
-        return "Invalid config version";
+        return { ...defaultResult, message: "Invalid config version", logContents: { received: cart.version, expected: config.version } };
     }
 
     const redeem = config.redeems?.[cart.id];
     if (!redeem || redeem.sku != cart.sku || redeem.disabled || redeem.hidden) {
-        logMessage.header = "Invalid redeem";
-        logMessage.content = `Received: ${JSON.stringify(cart)}\nRedeem in config: ${JSON.stringify(redeem)}`;
-        await sendToLogger(logContext);
-        return "Invalid redeem";
+        return { ...defaultResult, message: "Invalid redeem", logContents: { received: cart, inConfig: redeem } };
     }
 
-    const valError = validateArgs(config, cart, logContext);
+    const valError = validateArgs(config, cart);
     if (valError) {
-        logMessage.header = "Arg validation failed";
-        logMessage.content = {
-            error: valError,
-            redeem: cart.id,
-            expected: redeem.args,
-            provided: cart.args,
+        return {
+            ...defaultResult,
+            message: "Invalid arguments",
+            logHeaderOverride: "Arg validation failed",
+            logContents: {
+                error: valError,
+                redeem: cart.id,
+                expected: redeem.args,
+                provided: cart.args,
+            },
         };
-        await sendToLogger(logContext);
-        return "Invalid arguments";
     }
 
     return null;
 }
 
-function validateArgs(config: Config, cart: Cart, logContext: LogMessage): string | undefined {
+function validateArgs(config: Config, cart: Cart): string | undefined {
     const redeem = config.redeems![cart.id];
 
     for (const arg of redeem.args) {
@@ -114,7 +113,7 @@ function validateArgs(config: Config, cart: Cart, logContext: LogMessage): strin
                         return `Vector3 ${arg.name} components not all floats`;
                     }
                 }
-                cart!.args[arg.name] = lastThree;
+                cart.args[arg.name] = lastThree;
                 break;
             default:
                 const argEnum = config.enums?.[arg.type];

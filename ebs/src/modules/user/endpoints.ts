@@ -1,13 +1,17 @@
 import { app } from "../..";
 import { updateUserTwitchInfo, lookupUser, saveUser } from "../../util/db";
 import { asyncCatch } from "../../util/middleware";
-import { setUserBanned } from ".";
+import { setUserBanned, setUserSession } from ".";
 
 app.post(
     "/public/authorized",
     asyncCatch(async (req, res) => {
+        const {session} = req.body as {session: string};
         const user = await updateUserTwitchInfo(req.user);
-        //console.log(`${user.displayName} has ${user.credit}`);
+        
+        // console.log(`${user.displayName} opened extension (session ${session})`);
+        
+        setUserSession(user, session);
         res.status(200).send({ credit: user.credit });
         return;
     })

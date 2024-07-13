@@ -3,13 +3,8 @@ import { verifyJWT, parseJWT } from "../../util/jwt";
 import { getOrAddUser, getOrder, saveOrder, saveUser } from "../../util/db";
 import { ResultKind, ResultMessage } from "../game/messages.game";
 import { sendToLogger } from "../../util/logger";
-
-type HttpResult = {
-    status: number;
-    message: string;
-    logHeaderOverride?: string;
-    logContents?: any;
-};
+import { HttpResult } from "../../types";
+import { getUserSession } from "../user";
 
 export const jwtExpirySeconds = 60;
 const jwtExpiryToleranceSeconds = 15;
@@ -44,7 +39,7 @@ export function verifyTransaction(decoded: DecodedTransaction): HttpResult | Tra
 
     if (decoded.type === "bits") {
         // for bits purchases, we don't care if our token JWT expired
-        // because if the bits t/a is valid, the person already paid the money
+        // because if the bits t/a is valid, the person paid and we have to honour it
         const receipt = decoded.receipt;
         if (receipt.topic != "bits_transaction_receipt") {
             // e.g. someone trying to put a token JWT in the receipt field

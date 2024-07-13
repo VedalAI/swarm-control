@@ -10,3 +10,10 @@ export type AuthorizationPayload = {
         send: string[];
     };
 };
+
+export type HttpResult = {
+    status: number;
+    message: string;
+    logHeaderOverride?: string;
+    logContents?: any;
+};

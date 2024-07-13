@@ -6,9 +6,7 @@ export async function logToDiscord(data: LogMessage) {
     try {
         const result = await fetch(logEndpoint, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 ...data,
             } satisfies LogMessage),

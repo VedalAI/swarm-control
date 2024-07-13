@@ -10,6 +10,7 @@ import { validatePrepurchase } from "../prepurchase";
 import { setUserBanned } from "../../user";
 import { decodeJWTPayloads, getAndCheckOrder, jwtExpirySeconds, makeTransactionToken, processRedeemResult } from "../transaction";
 import { parseJWT, signJWT, verifyJWT } from "../../../util/jwt";
+import { HttpResult } from "../../../types";
 
 const usedBitsTransactionIds: Set<string> = new Set();
 
@@ -33,12 +34,12 @@ app.post(
         }
 
         let order: Order;
-        let validationError: string | null;
+        let validationError: HttpResult | null;
         let fail = "register";
         try {
             order = await createOrder(userId, cart);
             fail = "validate";
-            validationError = await validatePrepurchase(order);
+            validationError = await validatePrepurchase(order, req.user);
         } catch (e: any) {
             logContext.important = true;
             logMessage.header = `Failed to ${fail} prepurchase`;
@@ -50,10 +51,12 @@ app.post(
         }
 
         if (validationError) {
-            logMessage.header = "Prepurchase failed validation";
-            logMessage.content = { orderId: order.id };
+            logMessage.header = validationError.logHeaderOverride ?? validationError.message;
+            logMessage.content = validationError.logContents ?? { order: order.id };
             sendToLogger(logContext).then();
-            res.status(409).send(validationError);
+            res.status(validationError.status).send(validationError.message);
+            order.result = validationError.message;
+            await saveOrder(order);
             return;
         }
 
@@ -125,7 +128,6 @@ app.post(
             return;
         }
 
-        
         if (decoded.type === "bits") {
             const bitsTransaction = decoded.receipt.data.transactionId;
             if (usedBitsTransactionIds.has(bitsTransaction)) {
@@ -134,15 +136,16 @@ app.post(
                 // sending X requests for each completed transaction (where all but 1 will obviously be duplicates)
                 // we don't want to auto-ban people just for having multiple tabs open
                 // but it's still obviously not ideal behaviour
-                if (order.cart.clientSession == transaction.clientSession) {
+                if (order.cart.clientSession === transaction.clientSession) {
                     logMessage.content = {
                         order: order.id,
                         bitsTransaction: decoded.receipt.data,
-                    }
+                    };
                     logMessage.header = "Transaction replay";
                     sendToLogger(logContext).then();
                 }
-                // unfortunately, in this case the other tab(s) will still lose their purchase
+                // unfortunately, in this case any other tab(s) awaiting twitchUseBits will still lose their purchase
+                // so we do our best to not allow multiple active prepurchases in the first place
                 res.status(401).send("Invalid transaction");
                 return;
             }
