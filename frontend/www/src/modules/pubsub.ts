@@ -4,7 +4,9 @@ import { renderRedeemButtons } from "./redeems";
 import { strToU8, decompressSync, strFromU8 } from "fflate";
 import { getBanned, setBanned } from "./auth";
 
-Twitch.ext.listen("global", async (_t, _c, message) => {
+Twitch.ext.listen("global", onPubsubMessage);
+
+async function onPubsubMessage(target: string, contentType: string, message: string) {
     const fullMessage = JSON.parse(message) as PubSubMessage;
 
     console.log(fullMessage);
@@ -20,9 +22,9 @@ Twitch.ext.listen("global", async (_t, _c, message) => {
         case "banned":
             const data = JSON.parse(fullMessage.data) as BannedData;
             const bannedId = data.id;
-            if (bannedId === Twitch.ext.viewer.id) {
+            if (bannedId === Twitch.ext.viewer.id || bannedId === Twitch.ext.viewer.opaqueId) {
                 setBanned(data.banned);
             }
             break;
     }
-});
+}

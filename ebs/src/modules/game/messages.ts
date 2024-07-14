@@ -18,16 +18,16 @@ export type Guid = string;
 export type UnixTimestampUtc = number;
 
 export type Message = {
-    messageType: MessageType,
-    guid: Guid,
-    timestamp: UnixTimestampUtc
-}
+    messageType: MessageType;
+    guid: Guid;
+    timestamp: UnixTimestampUtc;
+};
 
 export type TwitchUser = {
     /** Numeric user id */
-    id: string,
+    id: string;
     /** Twitch username (login name) */
-    login: string,
+    login: string;
     /** User's chosen display name. */
-    displayName: string
-}
+    displayName: string;
+};

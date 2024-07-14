@@ -1,29 +1,27 @@
-import { User } from "common/types";
 import { app } from "../..";
-import { lookupUser, saveUser, updateUserTwitchInfo } from "../../util/db";
+import { updateUserTwitchInfo, lookupUser } from "../../util/db";
 import { asyncCatch } from "../../util/middleware";
-import { sendPubSubMessage } from "../../util/pubsub";
-
-export async function setUserBanned(user: User, banned: boolean) {
-    user.banned = banned;
-    await saveUser(user);
-    await sendPubSubMessage({
-        type: "banned",
-        data: JSON.stringify({ id: user.id, banned }),
-    });
-}
+import { setUserBanned, setUserSession } from ".";
 
 app.post(
     "/public/authorized",
     asyncCatch(async (req, res) => {
+        const {session} = req.body as {session: string};
+        // console.log(`${req.auth.opaque_user_id} opened extension (session ${session})`);
+        setUserSession(req.user, session);
+        
+        updateUserTwitchInfo(req.user).then();
+        
         res.sendStatus(200);
-        updateUserTwitchInfo(req.user).then().catch(console.error);
     })
 );
 
-app.get("/private/user/:idOrName", asyncCatch(async (req, res) => {
-    res.json(await lookupUser(req.params["idOrName"]));
-}));
+app.get(
+    "/private/user/:idOrName",
+    asyncCatch(async (req, res) => {
+        res.json(await lookupUser(req.params["idOrName"]));
+    })
+);
 
 app.post(
     "/private/user/:idOrName/ban",
@@ -35,7 +33,8 @@ app.post(
         }
 
         await setUserBanned(user, true);
-        res.sendStatus(200);
+        console.log(`[Private API] Banned ${user.login ?? user.id}`);
+        res.status(200).json(user);
     })
 );
 
@@ -49,6 +48,7 @@ app.delete(
         }
 
         await setUserBanned(user, false);
-        res.sendStatus(200);
+        console.log(`[Private API] Unbanned ${user.login ?? user.id}`);
+        res.status(200).json(user);
     })
 );

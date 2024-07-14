@@ -17,9 +17,7 @@ async function sendOperation(op: number, intensity: number, duration: number) {
 
         const response = await fetch(apiUrl, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
         });
 

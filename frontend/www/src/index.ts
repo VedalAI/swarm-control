@@ -11,3 +11,5 @@ import "./modules/auth";
 import "./modules/modal";
 import "./modules/pubsub";
 import "./modules/redeems";
+import "./modules/transaction";
+import "./util/twitch";

@@ -73,18 +73,57 @@ export type Config = {
 
 export type Cart = {
     version: number;
+    clientSession: string; // any string to disambiguate between multiple tabs
     id: string;
     sku: string;
     args: { [name: string]: any };
 };
 
-export type IdentifiableCart = Cart & {
-    userId: string;
-};
+export type IdentifiableCart = Cart & { userId: string };
 
 export type Transaction = {
-    receipt: string;
-    token: string;
+    token: string; // JWT with TransactionToken (given by EBS on prepurchase)
+    clientSession: string; // same session as in Cart
+    receipt: string; // JWT with BitsTransactionPayload (coming from Twitch)
+};
+export type DecodedTransaction = {
+    token: TransactionTokenPayload;
+    receipt: BitsTransactionPayload;
+};
+
+export type TransactionToken = {
+    id: string;
+    time: number; // Unix millis
+    user: {
+        id: string; // user channel id
+    };
+    product: {
+        sku: string;
+        cost: number;
+    };
+};
+export type TransactionTokenPayload = {
+    exp: number;
+    data: TransactionToken;
+};
+
+export type BitsTransactionPayload = {
+    topic: string;
+    exp: number;
+    data: {
+        transactionId: string;
+        time: string;
+        userId: string;
+        product: {
+            domainId: string;
+            sku: string;
+            displayName: string;
+            cost: {
+                amount: number;
+                type: "bits";
+            };
+        };
+    };
 };
 
 export type PubSubMessage = {
@@ -123,9 +162,11 @@ export type Order = {
     id: string;
     userId: string;
     state: OrderState;
-    cart?: Cart;
+    cart: Cart;
     receipt?: string;
     result?: string;
     createdAt: number;
     updatedAt: number;
 };
+
+export type Callback<T> = (data: T) => void;

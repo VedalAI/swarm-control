@@ -6,9 +6,7 @@ export async function sendToLogger(data: LogMessage) {
     try {
         const result = await fetch(logEndpoint, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 ...data,
                 backendToken: process.env.PRIVATE_LOGGER_TOKEN!,

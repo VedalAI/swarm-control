@@ -1,9 +1,8 @@
-import { IdentifiableCart } from "common/types";
+import { BitsTransactionPayload, Order } from "common/types";
 import { connection } from ".";
 import { getConfig } from "../config";
-import { v4 as uuid } from "uuid";
 import { signJWT } from "../../util/jwt";
-import { AuthorizationPayload, BitsTransactionPayload } from "../../types";
+import { AuthorizationPayload } from "../../types";
 
 export enum StressTestType {
     GameSpawnQueue,
@@ -26,7 +25,7 @@ export function isStressTesting(): boolean {
 let activeInterval: number;
 
 export async function startStressTest(type: StressTestType, duration: number, interval: number) {
-    console.log(`Starting stress test ${StressTestType[type]} for ${duration}ms`)
+    console.log(`Starting stress test ${StressTestType[type]} for ${duration}ms`);
     switch (type) {
         case StressTestType.GameSpawnQueue:
             activeInterval = +setInterval(() => sendSpawnRedeem().then(), interval);
@@ -58,21 +57,28 @@ const user = {
     login: "stresstest",
     displayName: "Stress Test",
 };
-const cart: IdentifiableCart = {
+const order: Order = {
+    id: "stress",
+    state: "paid",
     userId: "stress",
-    version: 1,
-    id: redeemId,
-    sku: "bits1",
-    args: {
-        "creature": "0",
-        "behind": false,
-    }
+    cart: {
+        version: 1,
+        clientSession: "stress",
+        id: redeemId,
+        sku: "bits1",
+        args: {
+            "creature": "0",
+            "behind": false,
+        }
+    },
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
 };
 async function sendSpawnRedeem() {
     const config = await getConfig();
     const redeem = config.redeems![redeemId];
     
-    connection.redeem(redeem, cart, user, uuid()).then().catch(err => {
+    connection.redeem(redeem, order, user).then().catch(err => {
         console.log(err);
     });
 }
@@ -95,6 +101,26 @@ const validAuth: AuthorizationPayload = {
 const signedValidJWT = signJWT(validAuth);
 const signedInvalidJWT = signJWT(invalidAuth);
 const invalidJWT = "trust me bro";
+const variants = [
+    {
+        name: "signed valid",
+        token: signedValidJWT,
+        shouldSucceed: true,
+        error: "Valid JWT should have succeeded"
+    },
+    {
+        name: "signed invalid",
+        token: signedInvalidJWT,
+        shouldSucceed: false,
+        error: "JWT without user ID should have failed"
+    },
+    {
+        name: "unsigned",
+        token: invalidJWT,
+        shouldSucceed: false,
+        error: "Invalid bearer token should have failed"
+    },
+];
 
 async function sendTransaction() {
     // we have to go through the http flow because the handler is scuffed
@@ -103,11 +129,10 @@ async function sendTransaction() {
     const urlTransaction = "http://localhost:3000/public/transaction";
 
     const jwtChoice = Math.floor(3*Math.random());
-    const token = jwtChoice == 0 ? signedValidJWT
-        : jwtChoice == 1 ? signedInvalidJWT
-        : invalidJWT;
+    const variant = variants[jwtChoice];
+    const token = variant.token;
     const auth = `Bearer ${token}`;
-    console.log(`Prepurchasing with ${jwtChoice == 0 ? "signed valid" : jwtChoice == 1 ? "signed invalid" : "unsigned invalid"} JWT`);
+    console.log(`Prepurchasing with ${variant.name}`);
     
     const prepurchase = await fetch(urlPrepurchase, {
         method: "POST",
@@ -115,21 +140,11 @@ async function sendTransaction() {
             "Authorization": auth,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(cart),
+        body: JSON.stringify(order.cart),
     });
-    switch (jwtChoice) {
-        case 0:
-            if (!prepurchase.ok)
-                console.error("Valid JWT should have succeeded");
-            break;
-        case 1:
-            if (prepurchase.ok)
-                console.error("JWT without user ID should have failed");
-            break;
-        case 2:
-            if (prepurchase.ok)
-                console.error("Invalid bearer token should have failed");
-            break;
+    let succeeded = prepurchase.ok;
+    if (succeeded != variant.shouldSucceed) {
+        console.error(`${variant.error} (prepurchase)`);
     }
     const transactionId = await prepurchase.text();
 
@@ -152,7 +167,7 @@ async function sendTransaction() {
         }
     };
 
-    console.log(`Sending transaction (${jwtChoice})`);
+    console.log(`Sending transaction (${variant.name})`);
     const transaction = await fetch(urlTransaction, {
         method: "POST",
         headers: {
@@ -164,18 +179,8 @@ async function sendTransaction() {
             receipt: signJWT(receipt),
         }),
     });
-    switch (jwtChoice) {
-        case 0:
-            if (prepurchase.ok && !transaction.ok)
-                console.error("Valid JWT should have succeeded");
-            break;
-        case 1:
-            if (transaction.ok)
-                console.error("JWT without user ID should have failed");
-            break;
-        case 2:
-            if (transaction.ok)
-                console.error("Invalid bearer token should have failed");
-            break;
+    succeeded = transaction.ok;
+    if (succeeded != variant.shouldSucceed) {
+        console.error(`${variant.error} (transaction)`);
     }
 }

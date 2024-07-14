@@ -16,7 +16,7 @@ export function verifyJWT(token: string): boolean {
 export function parseJWT(token: string) {
     if (memo[token]) return memo[token];
 
-    const result = jwt.verify(token, getJwtSecretBuffer());
+    const result = jwt.verify(token, getJwtSecretBuffer(), { ignoreExpiration: true });
     memo[token] = result;
     return result;
 }
@@ -25,6 +25,6 @@ function getJwtSecretBuffer() {
     return cachedBuffer ??= Buffer.from(process.env.JWT_SECRET!, "base64");
 }
 
-export function signJWT(payload: object, buffer: Buffer = getJwtSecretBuffer()) {
-    return jwt.sign(payload, buffer);
+export function signJWT(payload: object, options?: jwt.SignOptions) {
+    return jwt.sign(payload, getJwtSecretBuffer(), options);
 }

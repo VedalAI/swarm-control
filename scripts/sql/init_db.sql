@@ -26,3 +26,16 @@ CREATE TABLE IF NOT EXISTS logs (
     fromBackend BOOLEAN NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS debug
+$$
+CREATE PROCEDURE debug()
+BEGIN
+    SET GLOBAL general_log = 'ON';
+    SET GLOBAL log_output = 'TABLE';
+    -- Then use:
+    -- SELECT * FROM mysql.general_log;
+END
+$$
+DELIMITER ;
