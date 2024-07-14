@@ -147,6 +147,7 @@ app.post(
                 // we don't want to auto-ban people just for having multiple tabs open
                 // but it's still obviously not ideal behaviour
                 if (order.cart.clientSession === transaction.clientSession) {
+                    // if it's not coming from a different tab, you're obviously trying to replay
                     logMessage.content = {
                         order: order.id,
                         bitsTransaction: decoded.receipt.data,

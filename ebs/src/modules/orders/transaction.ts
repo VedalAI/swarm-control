@@ -144,6 +144,7 @@ export async function processRedeemResult(order: Order, result: ResultMessage): 
             msg ??= "Redeem failed.";
             header = "Redeem failed";
         }
+        console.error(`[${result.guid}] ${header}: ${JSON.stringify(result)}`);
         return { status: status, message: msg, logHeaderOverride: header, ...res };
     }
 }
