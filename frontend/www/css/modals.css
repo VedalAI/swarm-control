@@ -169,6 +169,15 @@ form label:not([aria-required]) {
     margin-right: 6px;
 }
 
+.bits-inline {
+    width: 20px;
+    height: 20px;
+
+    object-fit: contain;
+    margin-bottom: -3px;
+    margin-inline: 2px;
+}
+
 .modal-overlay {
     z-index: 10000;
 

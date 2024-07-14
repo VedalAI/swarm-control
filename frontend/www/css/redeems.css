@@ -156,3 +156,18 @@
     color: #333;
     text-shadow: 0 0 3px #333;
 }
+
+.top-status-bar {
+    position: sticky;
+    top: 0;
+    height: 1.5rem;
+    align-items: center;
+    background: #333;
+    z-index: 10;
+    transition: all 0.2s;
+}
+
+.top-status-bar .top-status-bar-left {
+    padding-inline: 0.5rem;
+    display: flex;
+}

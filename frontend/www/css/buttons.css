@@ -46,6 +46,15 @@
 .btn-primary:focus {
     box-shadow: 0 0 0 4px rgba(var(--primary-color), 0.5);
 }
+.btn-secondary {
+    background-color: rgba(var(--secondary-color), 0.75);
+    border: 1px solid #ffffff26;
+    color: #fff;
+}
+
+.btn-secondary:focus {
+    box-shadow: 0 0 0 4px rgba(var(--secondary-color), 0.5);
+}
 
 .btn-success {
     background-color: rgba(var(--success-color), 0.75);

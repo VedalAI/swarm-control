@@ -81,21 +81,29 @@ export type Cart = {
 
 export type IdentifiableCart = Cart & { userId: string };
 
-export type Transaction = {
+export type Transaction = BitsTransaction | CreditTransaction;
+
+export type TransactionBase = {
     token: string; // JWT with TransactionToken (given by EBS on prepurchase)
     clientSession: string; // same session as in Cart
+    type: "bits" | "credit";
+};
+export type BitsTransaction = TransactionBase & {
+    type: "bits";
     receipt: string; // JWT with BitsTransactionPayload (coming from Twitch)
 };
+export type CreditTransaction = TransactionBase & { type: "credit" };
+
 export type DecodedTransaction = {
     token: TransactionTokenPayload;
-    receipt: BitsTransactionPayload;
-};
+} & ({ type: "credit" } | { type: "bits"; receipt: BitsTransactionPayload });
 
 export type TransactionToken = {
     id: string;
     time: number; // Unix millis
     user: {
         id: string; // user channel id
+        credit: number;
     };
     product: {
         sku: string;
@@ -148,6 +156,7 @@ export type User = {
     login?: string;
     displayName?: string;
     banned: boolean;
+    credit: number;
 };
 
 export type OrderState =
@@ -155,6 +164,7 @@ export type OrderState =
     | "prepurchase"
     | "cancelled"
     | "paid" // waiting for game
+    | "denied" // routine rejection e.g. precondition failed
     | "failed" // game failed/timed out
     | "succeeded";
 

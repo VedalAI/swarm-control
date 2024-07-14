@@ -109,12 +109,13 @@ async function createUser(id: string): Promise<User> {
     const user: User = {
         id,
         banned: false,
+        credit: 0,
     };
     try {
         await db.query(
             `
-            INSERT INTO users (id, login, displayName, banned)
-            VALUES (:id, :login, :displayName, :banned)`,
+            INSERT INTO users (id, login, displayName, banned, credit)
+            VALUES (:id, :login, :displayName, :banned, :credit)`,
             user
         );
     } catch (e: any) {
@@ -130,7 +131,10 @@ export async function saveUser(user: User) {
         await db.query(
             `
             UPDATE users
-            SET login = :login, displayName = :displayName, banned = :banned
+            SET login = :login,
+                displayName = :displayName,
+                banned = :banned,
+                credit = :credit
             WHERE id = :id`,
             { ...user }
         );
@@ -166,4 +170,17 @@ export async function updateUserTwitchInfo(user: User): Promise<User> {
         throw e;
     }
     return user;
+}
+
+export async function addCredit(user: User, amount: number): Promise<User> {
+    try {
+        await db.query(`CALL addCredit(:userId, :amount, @credit);`, { userId: user.id, amount });
+        const [rows] = (await db.query("SELECT @credit")) as [RowDataPacket[], any];
+        user.credit = rows[0]["@credit"];
+        return user;
+    } catch (e: any) {
+        console.error("Database query failed (addCredit)");
+        console.error(e);
+        throw e;
+    }
 }
